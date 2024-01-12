@@ -1,0 +1,37 @@
+html{
+    background: black;
+}
+
+main {
+    background: black;
+    display: flex;
+    flex-direction: column;
+}
+#commands {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    align-self: center;
+}
+#commands button{
+    display: flex;
+    flex-direction: row;
+    background: black;
+    margin: 0.5vmin;
+    padding: 0.5vmin;
+    color: white;
+    border-color: white;
+    border-radius: 10px;
+    font-size: larger;
+    font-style: normal;
+}
+#worldCanvas{
+    display: flex;
+    background: black;
+    margin: 0.5vmin;
+    padding: 0.5vmin;
+    color: white;
+    border-color: white;
+}

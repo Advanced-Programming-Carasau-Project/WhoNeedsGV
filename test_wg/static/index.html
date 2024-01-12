@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>visualizer</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/scriptjs.js" charset="utf-8" defer></script>
+</head>
+<body onload="generateWorld()">
+<main>
+    <div id="commands" align="center">
+        <button id="generate" onclick="generateWorld()"> generate </button>
+        <button id="zoom_out" onclick="zoom_out()"> - </button>
+        <button id="zoom_in" onclick="zoom_in()"> + </button>
+        <button id="go_left" onclick="go_left()"> < </button>
+        <button id="go_right" onclick="go_right()"> > </button>
+        <button id="go_up" onclick="go_up()"> ^ </button>
+        <button id="go_down" onclick="go_down()"> v </button>
+        <button id="elevation_lines" onclick="elevation_lines()"> elevation lines </button>
+        <button id="view_content" onclick="view_content()"> view content </button>
+    </div>
+    <div id="world" align="center">
+        <canvas id="worldCanvas" width="1024vmin" height="1024vmin"></canvas>
+    </div>
+</main>
+
+</body>
+</html>
