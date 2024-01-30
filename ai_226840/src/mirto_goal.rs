@@ -9,54 +9,46 @@ use robotics_lib::world::tile::TileType::{DeepWater, Lava, ShallowWater, Telepor
 use robotics_lib::world::World;
 use rust_and_furious_dynamo::dynamo::Dynamo;
 use rustici_planner::tool::{Action, Destination, Planner, PlannerResult};
-use crate::{MirtoRobot, RobotMode};
+use crate::{MirtoRobot};
 use queues::IsQueue;
 
 impl MirtoRobot{
+    pub fn do_u_have_this_content(&self, content: Content) -> bool{
+        let backpack = self.get_backpack().get_contents();
+        for (c, q) in backpack{
+            if *c == content && *q > 0{
+                return true;
+            }
+        }
+        return false;
+    }
     pub fn place_mirto(&mut self, world: &mut World){
-        while self.mode == RobotMode::Place_Mirto {
-            let n_jolly_block = self.get_backpack().get_contents().get(&Content::JollyBlock(0)).unwrap();
-            if *n_jolly_block > 0 {
-                match self.finds_the_nearest_content_not_on_fluids(world, Content::None) {
-                    None => { self.mode = RobotMode::Explore_Map }
-                    Some((d, i, j)) => {
-                        if !(i == self.robot.coordinate.get_row() && j == self.robot.coordinate.get_col()) {
-                            println!("coordinate robot: {:?}, coordinate da raggiungere: {:?}", self.robot.coordinate, (i, j));
-                            let destination = Destination::go_to_coordinate((i, j));
-                            let result = Planner::planner(self, destination, world);
-                            println!("{:?}", result);
-                            match result {
-                                Ok(r) => {
-                                    match &r {
-                                        PlannerResult::Path(p) => {
-                                            for i in 0..p.0.len() {
-                                                *self.get_energy_mut() = Dynamo::update_energy();
-                                                match &p.0[i] {
-                                                    Action::Move(d) => {
-                                                        go(self, world, d.clone());
-                                                    },
-                                                    Action::Teleport((i, j)) => {
-                                                        teleport(self, world, (*i, *j));
-                                                    },
-                                                }
-                                            }
-                                        },
-                                        _ => {}
-                                    }
+        while self.do_u_have_this_content(Content::JollyBlock(0)) {
+            let (d, i, j) = self.finds_the_nearest_content_not_on_fluids(world, Content::None, false).unwrap();
+            if !(i == self.robot.coordinate.get_row() && j == self.robot.coordinate.get_col()) {
+                println!("coordinate robot: {:?}, coordinate da raggiungere: {:?}", self.robot.coordinate, (i, j));
+                let destination = Destination::go_to_coordinate((i, j));
+                let result = Planner::planner(self, destination, world).unwrap();
+                println!("{:?}", result);
+                match result {
+                    PlannerResult::Path(p) => {
+                        for i in 0..p.0.len() {
+                            *self.get_energy_mut() = Dynamo::update_energy();
+                            match &p.0[i] {
+                                Action::Move(d) => {
+                                    go(self, world, d.clone());
                                 },
-                                Err(e) => {
-                                    self.mode = RobotMode::Explore_Map;
-                                    println!("e: {:?}", e);
-                                }
+                                Action::Teleport((i, j)) => {
+                                    teleport(self, world, (*i, *j));
+                                },
                             }
                         }
-                        println!("coordinate robot: {:?} - direction: {:?}", self.robot.coordinate, d);
-                        println!("{:?}", put(self, world, Content::JollyBlock(0), 1, d));
-                    }
+                    },
+                    _ => {}
                 }
-            } else {
-                self.mode = RobotMode::Search_Bushes;
             }
+            println!("coordinate robot: {:?} - direction: {:?}", self.robot.coordinate, d);
+            println!("{:?}", put(self, world, Content::JollyBlock(0), 1, d));
         }
     }
 
@@ -74,11 +66,9 @@ impl MirtoRobot{
                             cont_flag = false;
                         }
                         LibError::NotCraftable => {
-                            self.mode = RobotMode::Place_Mirto;
                             cont_flag = false;
                         }
                         LibError::NotEnoughSpace(s) => {
-                            self.mode = RobotMode::Place_Mirto;
                             cont_flag = false;
                         }
                         _ => {  }
@@ -90,44 +80,19 @@ impl MirtoRobot{
     pub fn search_bushes_for_mirto(&mut self,  world: &mut World){
         let search_content = Content::Bush(1);
         let mut result = CollectTool::collect_content(self, world, &search_content, 20, self.robot.energy.get_energy_level());
-        match result {
-            Ok(n) => {
-                println!("collected: {}", n);
-            }
-            Err(e) => {
-                match e {
-                    LibErrorExtended::CommonError(e) => {
-                        println!("e: {:?}", e);
-                        self.mode = RobotMode::Craft_Mirto;
-                    }
-                    LibErrorExtended::NoSolution => { self.mode = RobotMode::Explore_Map; }
-                    LibErrorExtended::RobotMapEmpty => { self.mode = RobotMode::Explore_Map; }
-                    LibErrorExtended::NoWalkableTile => { self.mode = RobotMode::Explore_Map; }
-                    LibErrorExtended::EnergyOutOfLimit => {}
-                }
-            }
-        }
-    }
-
-    pub fn explore_map_for_mirto(&mut self, world: &mut World){
-        let map_size = robot_map(world).unwrap().len();
-        let destination = Destination::explore(self.robot.energy.get_energy_level(), map_size);
-        let result = Planner::planner(self, destination, world);
-        self.mode = RobotMode::Search_Bushes;
     }
 
     pub fn make_next_thing_for_mirto_goal(&mut self, world: &mut World){
-        if self.mode == RobotMode::Place_Mirto { //piazza il mirto in giro per il mondo
+        let exists_empty_cell = self.finds_the_nearest_content_not_on_fluids(world, Content::None, false).is_some();
+        if self.do_u_have_this_content(Content::JollyBlock(0)) && exists_empty_cell{
             self.place_mirto(world);
         }
-        else if self.mode == RobotMode::Craft_Mirto { //crafta il mirto
+        else if self.finds_the_nearest_content_not_on_fluids(world, Content::Bush(0), false).is_some() && exists_empty_cell{
+            self.search_bushes_for_mirto(world);
             self.craft_mirto();
         }
-        else if self.mode == RobotMode::Search_Bushes { //cerca la roba per craftare il mirto, nella mappa che conosci
-            self.search_bushes_for_mirto(world);
-        }
-        if self.mode == RobotMode::Explore_Map { //vai in giro per la mappa in maniera casuale
-            self.explore_map_for_mirto(world);
+        else {
+            self.explore_map(world)
         }
     }
 }

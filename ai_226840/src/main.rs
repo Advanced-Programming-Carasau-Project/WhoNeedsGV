@@ -42,26 +42,11 @@ use oxagaudiotool::OxAgAudioTool;
 use oxagaudiotool::sound_config::OxAgSoundConfig;
 use ohcrab_weather::weather_tool::WeatherPredictionTool;
 use robotics_lib::world::tile::Content::{Bush, Fire, JollyBlock, Tree, Water};
-use spyglass::spyglass::Spyglass;
-
-#[derive(Debug, PartialEq)]
-enum RobotMode{
-    // modalità condivisa tra le due missioni del robot
-    Explore_Map,
-
-    // modalità della missione del robot di distribuire mirto
-    Place_Mirto,
-    Craft_Mirto,
-    Search_Bushes,
-
-    // modalityà della missione del robot di svolgere il proprio lavoro
-    Search_Trees,
-    Delivery_Trees,
-}
+use spyglass::spyglass::{Spyglass, SpyglassResult};
+use spyglass::spyglass::SpyglassResult::{Failed, Paused, Stopped};
 
 struct MirtoRobot {
     robot: Robot,
-    mode: RobotMode,
     audio_tool: OxAgAudioTool,
     weather_prediction_tool: WeatherPredictionTool,
     tickets_to_wait: usize,
@@ -71,10 +56,9 @@ struct MirtoRobot {
 }
 
 impl MirtoRobot {
-    pub fn new(robot: Robot, mode: RobotMode, is_the_goal_woodworking: bool) -> Self{
+    pub fn new(robot: Robot, is_the_goal_woodworking: bool) -> Self{
         MirtoRobot {
             robot,
-            mode,
             audio_tool: OxAgAudioTool::new(HashMap::new(), HashMap::new(), HashMap::new()).unwrap(),
             weather_prediction_tool:  WeatherPredictionTool::new(),
             tickets_to_wait: 8,
@@ -90,7 +74,7 @@ impl MirtoRobot {
         let j_robot = self.robot.coordinate.get_col();
         let size = map.len();
 
-        println!("\nmode: {:?} - energy: {} - score: {} - backpack_content: {:?}", self.mode, self.get_energy().get_energy_level(), get_score(world), self.robot.backpack.get_contents());
+        println!("energy: {} - score: {} - backpack_content: {:?}\n", self.get_energy().get_energy_level(), get_score(world), self.robot.backpack.get_contents());
         for i in 0..size{
             for j in 0..size{
                 if i == i_robot && j == j_robot{
@@ -111,9 +95,20 @@ impl MirtoRobot {
                             Content::Tree(_) => { print!("t"); }
                             Content::Bush(_) => { print!("b"); }
                             Content::Coin(_) => { print!("c"); }
-                            Content::Bank(r) => {
+                            Content::Water(_) => { print!("{}", "w".bright_blue()); }
+                            Content::Fire => { print!("{}", "F".bright_red()); }
+                            Content::Garbage(_) => { print!("{}", "g".green()); }
+                            Content::Bin(r) => {
                                 if r.start != r.end {
                                     print!("{}", "B".bright_green());
+                                }
+                                else {
+                                    print!("{}", "-".green());
+                                }
+                            }
+                            Content::Bank(r) => {
+                                if r.start != r.end {
+                                    print!("{}", "B".bright_red());
                                 }
                                 else {
                                     print!("{}", "-".green());
@@ -157,7 +152,16 @@ impl MirtoRobot {
         }
     }
 
-    pub fn finds_the_nearest_content_not_on_fluids(&self, world: &World, content: Content) -> Option<(Direction, usize, usize)>{
+    pub fn found_content(&mut self, world: &mut World, content: Content) -> bool{
+        let destination = Destination::go_to_content(content);
+        let result = Planner::planner(self, destination, world);
+        match result {
+            Ok(_) => { true }
+            Err(_) => { false }
+        }
+    }
+
+    pub fn finds_the_nearest_content_not_on_fluids(&self, world: &World, content: Content, search_on_shallowater: bool ) -> Option<(Direction, usize, usize)>{
         let map = robot_map(world).unwrap();
         let size = map.len();
         let i_robot = self.robot.coordinate.get_row();
@@ -172,7 +176,10 @@ impl MirtoRobot {
                         visited[i][j] = true;
                     }
                     Some(t) => {
-                        if t.tile_type == DeepWater || t.tile_type == ShallowWater || t.tile_type == Lava || t.tile_type == Wall || t.tile_type == Teleport(true){
+                        if t.tile_type == DeepWater || t.tile_type == Lava || t.tile_type == Wall || t.tile_type == Teleport(true){
+                            visited[i][j] = true;
+                        }
+                        if !search_on_shallowater && t.tile_type == ShallowWater{
                             visited[i][j] = true;
                         }
                     }
@@ -187,7 +194,7 @@ impl MirtoRobot {
             if Self::is_point_inside_map((i as i32 -1) , j as i32, size as i32) && !visited[i-1][j] {
                 visited[i-1][j] = true;
                 if let Some(tile) = &map[i-1][j]{
-                    if tile.content == content {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
                         return Some((Direction::Up, i, j));
                     }
                 }
@@ -196,7 +203,7 @@ impl MirtoRobot {
             if Self::is_point_inside_map((i as i32 + 1) , j as i32, size as i32) && !visited[i+1][j] {
                 visited[i+1][j] = true;
                 if let Some(tile) = &map[i+1][j]{
-                    if tile.content == content {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
                         return Some((Direction::Down, i, j));
                     }
                 }
@@ -205,7 +212,7 @@ impl MirtoRobot {
             if Self::is_point_inside_map(i as i32, (j as i32 -1) , size as i32) && !visited[i][j-1] {
                 visited[i][j-1] = true;
                 if let Some(tile) = &map[i][j-1]{
-                    if tile.content == content {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
                         return Some((Direction::Left, i, j));
                     }
                 }
@@ -214,7 +221,7 @@ impl MirtoRobot {
             if Self::is_point_inside_map(i as i32, (j as i32 +1) , size as i32) && !visited[i][j+1] {
                 visited[i][j+1] = true;
                 if let Some(tile) = &map[i][j+1]{
-                    if tile.content == content{
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
                         return Some((Direction::Right, i, j));
                     }
                 }
@@ -361,6 +368,49 @@ impl MirtoRobot {
         self.empty_your_backpack_with_a_walk(world, &mut visited);
     }
 
+    pub fn explore_map(&mut self, world: &mut World){
+        if !self.used_spyglass {
+            let map_size = robot_map(world).unwrap().len();
+            let mut spyglass = Spyglass::new(
+                self.get_coordinate().get_row(), // center_row
+                self.get_coordinate().get_col(), // center_col
+                map_size/3, // distance
+                map_size, // world_dim
+                Some(self.get_energy().get_energy_level()), // energy_budget
+                true, // enable_cross
+                1.0, // view_threshold
+                |_| false,
+            );
+            loop {
+                *self.get_energy_mut() = Dynamo::update_energy();
+                spyglass.set_energy_budget(Some(self.get_energy().get_energy_level()));
+
+                match spyglass.new_discover(self, world) {
+                    SpyglassResult::Complete => { break; }
+                    Stopped(_) => { break; }
+                    SpyglassResult::Paused => {
+                        loop {
+                            *self.get_energy_mut() = Dynamo::update_energy();
+                            match spyglass.resume_discover(self, world) {
+                                SpyglassResult::Complete => { break; }
+                                Stopped(_) => { break; }
+                                Paused => {}
+                                Failed(f) => { break; }
+                            }
+                        }
+                    }
+                    Failed(_) => { break; }
+                }
+            }
+            self.used_spyglass = true;
+        }
+        else{
+            let map_size = robot_map(world).unwrap().len();
+            let destination = Destination::explore(self.robot.energy.get_energy_level(), map_size);
+            let result = Planner::planner(self, destination, world);
+        }
+    }
+
     pub fn make_next_thing(&mut self, world: &mut World){
         println!("TICKS CONT: {}", self.tickets);
         self.tickets = self.tickets + 1;
@@ -385,7 +435,6 @@ impl MirtoRobot {
                 println!("SIUM");
                 self.is_the_goal_woodworking = is_the_new_goal_woodworking;
                 self.empty_your_backpack(world);
-                self.mode = RobotMode::Explore_Map;
             }
         }
 
@@ -431,7 +480,7 @@ impl Runnable for MirtoRobot {
 fn main() {
         const world_size: usize = 100;
 
-        let robot = MirtoRobot::new(Robot::new(), RobotMode::Explore_Map, true);
+        let robot = MirtoRobot::new(Robot::new(), true);
 
         let mut generator = MyWorldGen::new_param(world_size,2,5,0,true,false, 5);
 
