@@ -996,9 +996,9 @@ dependencies = [
 
 [[package]]
 name = "rip_worldgenerator"
-version = "0.5.45"
+version = "0.5.46"
 source = "sparse+https://advancedprogramming.disi.unitn.it/api/v1/crates/"
-checksum = "1f2bfad2989a5b6e0877f29532fe831dde1a1235c6f1dbf3bfbc34b4b30f683f"
+checksum = "c58871fcd001827ce12708d258742a01d87de22252a5a4648c70393553bf84bc"
 dependencies = [
  "disjoint-sets",
  "dsu-tree",
@@ -1038,9 +1038,9 @@ checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
 name = "rustici_planner"
-version = "0.1.4"
+version = "0.1.5"
 source = "sparse+https://advancedprogramming.disi.unitn.it/api/v1/crates/"
-checksum = "009852d795136566acda789ebe76eba61485dc6c9bdd81777aebefe7d7a61753"
+checksum = "515138e0cf8d9eda3f0229ac1a25f65a99bcf4a48c5b7d9b3cfac0ec3a7b129a"
 dependencies = [
  "priority-queue",
  "robotics_lib",
