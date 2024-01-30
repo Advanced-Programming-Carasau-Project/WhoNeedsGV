@@ -709,9 +709,9 @@ dependencies = [
 
 [[package]]
 name = "ohcrab_collection"
-version = "0.1.3"
+version = "0.1.4"
 source = "sparse+https://advancedprogramming.disi.unitn.it/api/v1/crates/"
-checksum = "f4f36c1186ae1fed48b41ba553288afc68578eaa33a37bbd28a4949bffd5c63b"
+checksum = "f228273087eba344b0ff90fb4d25fafe6322e41d16308f8b04a6008d4e196437"
 dependencies = [
  "robotics_lib",
 ]
