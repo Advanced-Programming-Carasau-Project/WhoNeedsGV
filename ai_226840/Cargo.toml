@@ -16,5 +16,5 @@ op_map = {version = "1.0.5", registry = "kellnr"}
 oxagaudiotool = {version = "0.2.0", registry = "kellnr"}
 ohcrab_weather = {version = "0.1.2", registry = "kellnr"}
 ohcrab_collection = {version = "0.1.4", registry = "kellnr"}
-rip_worldgenerator = {version = "0.5.46", registry = "kellnr"}
+rip_worldgenerator = {version = "0.5.49", registry = "kellnr"}
 colored = "2.1.0"

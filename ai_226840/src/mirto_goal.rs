@@ -24,7 +24,7 @@ impl MirtoRobot{
     }
     pub fn place_mirto(&mut self, world: &mut World){
         while self.do_u_have_this_content(Content::JollyBlock(0)) {
-            let (d, i, j) = self.finds_the_nearest_content_not_on_fluids(world, Content::None, false).unwrap();
+            let (d, i, j) = self.finds_the_nearest_content_not_on_fluids(world, Content::None).unwrap();
             if !(i == self.robot.coordinate.get_row() && j == self.robot.coordinate.get_col()) {
                 println!("coordinate robot: {:?}, coordinate da raggiungere: {:?}", self.robot.coordinate, (i, j));
                 let destination = Destination::go_to_coordinate((i, j));
@@ -83,11 +83,11 @@ impl MirtoRobot{
     }
 
     pub fn make_next_thing_for_mirto_goal(&mut self, world: &mut World){
-        let exists_empty_cell = self.finds_the_nearest_content_not_on_fluids(world, Content::None, false).is_some();
+        let exists_empty_cell = self.finds_the_nearest_content_not_on_fluids(world, Content::None).is_some();
         if self.do_u_have_this_content(Content::JollyBlock(0)) && exists_empty_cell{
             self.place_mirto(world);
         }
-        else if self.finds_the_nearest_content_not_on_fluids(world, Content::Bush(0), false).is_some() && exists_empty_cell{
+        else if self.finds_the_nearest_content_not_on_fluids(world, Content::Bush(0)).is_some() && exists_empty_cell{
             self.search_bushes_for_mirto(world);
             self.craft_mirto();
         }

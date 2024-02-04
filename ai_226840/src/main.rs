@@ -59,7 +59,7 @@ impl MirtoRobot {
     pub fn new(robot: Robot, is_the_goal_woodworking: bool) -> Self{
         MirtoRobot {
             robot,
-            audio_tool: OxAgAudioTool::new(HashMap::new(), HashMap::new(), HashMap::new()).unwrap(),
+            audio_tool: OxAgAudioTool::new(Self::map_audio_with_event(), Self::map_audio_with_tile(), Self::map_audio_with_weather()).unwrap(),
             weather_prediction_tool:  WeatherPredictionTool::new(),
             tickets_to_wait: 8,
             tickets: 0,
@@ -74,7 +74,7 @@ impl MirtoRobot {
         let j_robot = self.robot.coordinate.get_col();
         let size = map.len();
 
-        println!("energy: {} - score: {} - backpack_content: {:?}\n", self.get_energy().get_energy_level(), get_score(world), self.robot.backpack.get_contents());
+        println!("woodworking: {} - energy: {} - score: {} - backpack_content: {:?}\n", self.is_the_goal_woodworking, self.get_energy().get_energy_level(), get_score(world), self.robot.backpack.get_contents());
         for i in 0..size{
             for j in 0..size{
                 if i == i_robot && j == j_robot{
@@ -95,17 +95,6 @@ impl MirtoRobot {
                             Content::Tree(_) => { print!("t"); }
                             Content::Bush(_) => { print!("b"); }
                             Content::Coin(_) => { print!("c"); }
-                            Content::Water(_) => { print!("{}", "w".bright_blue()); }
-                            Content::Fire => { print!("{}", "F".bright_red()); }
-                            Content::Garbage(_) => { print!("{}", "g".green()); }
-                            Content::Bin(r) => {
-                                if r.start != r.end {
-                                    print!("{}", "B".bright_green());
-                                }
-                                else {
-                                    print!("{}", "-".green());
-                                }
-                            }
                             Content::Bank(r) => {
                                 if r.start != r.end {
                                     print!("{}", "B".bright_red());
@@ -143,6 +132,53 @@ impl MirtoRobot {
         }
     }
 
+    fn map_audio_with_event() -> HashMap<Event, OxAgSoundConfig>{
+        let mut mapping = HashMap::new();
+
+        mapping.insert(Event::Ready, OxAgSoundConfig::new("./sounds/ready.mp3"));
+        mapping.insert(Event::Terminated, OxAgSoundConfig::new("./sounds/terminated.mp3"));
+        for i in 1..=20{
+            mapping.insert(Event::AddedToBackpack(Content::Coin(0), i), OxAgSoundConfig::new("./sounds/added_to_backpack.mp3"));
+            mapping.insert(Event::AddedToBackpack(Content::Tree(0), i), OxAgSoundConfig::new("./sounds/added_to_backpack.mp3"));
+
+            mapping.insert(Event::RemovedFromBackpack(Content::Coin(0), i), OxAgSoundConfig::new("./sounds/removed_from_backpack.mp3"));
+            mapping.insert(Event::RemovedFromBackpack(Content::Tree(0), i), OxAgSoundConfig::new("./sounds/removed_from_backpack.mp3"));
+            mapping.insert(Event::RemovedFromBackpack(Content::Bush(0), i), OxAgSoundConfig::new("./sounds/removed_from_backpack.mp3"));
+            mapping.insert(Event::RemovedFromBackpack(Content::JollyBlock(0), i), OxAgSoundConfig::new("./sounds/removed_from_backpack.mp3"));
+        }
+
+        mapping.insert(Event::EnergyRecharged(10), OxAgSoundConfig::new("./sounds/energy_recharged.mp3"));
+
+
+        mapping
+    }
+
+    fn map_audio_with_weather() -> HashMap<WeatherType, OxAgSoundConfig>{
+        let mut mapping = HashMap::new();
+
+        mapping.insert(WeatherType::Sunny, OxAgSoundConfig::new_looped("./sounds/weathertype_sunny.mp3"));
+        mapping.insert(WeatherType::Rainy, OxAgSoundConfig::new_looped("./sounds/weathertype_rainy.mp3"));
+        mapping.insert(WeatherType::Foggy, OxAgSoundConfig::new_looped_with_volume("./sounds/weathertype_foggy.mp3", 1.5));
+        mapping.insert(WeatherType::TrentinoSnow, OxAgSoundConfig::new_looped("./sounds/weathertype_trentino_snow.mp3"));
+        mapping.insert(WeatherType::TropicalMonsoon, OxAgSoundConfig::new_looped("./sounds/weathertype_tropical_monsoon.mp3"));
+
+        mapping
+    }
+
+    fn map_audio_with_tile() -> HashMap<TileType, OxAgSoundConfig>{
+        let mut mapping = HashMap::new();
+
+        mapping.insert(TileType::Teleport(true), OxAgSoundConfig::new("./sounds/tile_teleport.mp3"));
+        mapping.insert(TileType::Street, OxAgSoundConfig::new("./sounds/tile_street.mp3"));
+        mapping.insert(TileType::Grass, OxAgSoundConfig::new("./sounds/tile_grass.mp3"));
+        mapping.insert(TileType::Snow, OxAgSoundConfig::new("./sounds/tile_snow.mp3"));
+        mapping.insert(TileType::Sand, OxAgSoundConfig::new("./sounds/tile_sand.mp3"));
+        mapping.insert(TileType::Hill, OxAgSoundConfig::new("./sounds/tile_grass.mp3"));
+        mapping.insert(TileType::Mountain, OxAgSoundConfig::new("./sounds/tile_mountain.mp3"));
+
+        mapping
+    }
+
     pub fn is_point_inside_map(i: i32, j: i32, size: i32) -> bool{
         if i >= 0 && i < size && j >= 0 && j < size{
             true
@@ -161,7 +197,7 @@ impl MirtoRobot {
         }
     }
 
-    pub fn finds_the_nearest_content_not_on_fluids(&self, world: &World, content: Content, search_on_shallowater: bool ) -> Option<(Direction, usize, usize)>{
+    pub fn finds_the_nearest_content_not_on_fluids(&self, world: &World, content: Content) -> Option<(Direction, usize, usize)>{
         let map = robot_map(world).unwrap();
         let size = map.len();
         let i_robot = self.robot.coordinate.get_row();
@@ -176,10 +212,7 @@ impl MirtoRobot {
                         visited[i][j] = true;
                     }
                     Some(t) => {
-                        if t.tile_type == DeepWater || t.tile_type == Lava || t.tile_type == Wall || t.tile_type == Teleport(true){
-                            visited[i][j] = true;
-                        }
-                        if !search_on_shallowater && t.tile_type == ShallowWater{
+                        if !Self::is_a_valid_tyle(t.tile_type.clone()) || t.tile_type == Teleport(true){
                             visited[i][j] = true;
                         }
                     }
@@ -292,7 +325,6 @@ impl MirtoRobot {
                 match direction_to_put {
                     None => {}
                     Some(v) => {
-                        println!("directions: {:?}", v);
                         for i in 0..v.len(){
                             match put(self, world, content.clone(), quantity, v[i].clone()) {
                                 Err(_) => {},
@@ -358,7 +390,7 @@ impl MirtoRobot {
                         visited[i][j] = true;
                     },
                     Some(t) => {
-                        if !Self::is_a_valid_tyle(t.tile_type.clone()) || t.tile_type == ShallowWater{
+                        if !Self::is_a_valid_tyle(t.tile_type.clone()){
                             visited[i][j] = true;
                         }
                     }
@@ -405,6 +437,7 @@ impl MirtoRobot {
             self.used_spyglass = true;
         }
         else{
+            *self.get_energy_mut() = Dynamo::update_energy();
             let map_size = robot_map(world).unwrap().len();
             let destination = Destination::explore(self.robot.energy.get_energy_level(), map_size);
             let result = Planner::planner(self, destination, world);
@@ -412,7 +445,6 @@ impl MirtoRobot {
     }
 
     pub fn make_next_thing(&mut self, world: &mut World){
-        println!("TICKS CONT: {}", self.tickets);
         self.tickets = self.tickets + 1;
         if self.tickets == self.tickets_to_wait{
             self.tickets_to_wait = thread_rng().gen_range(7..=12);
@@ -422,9 +454,30 @@ impl MirtoRobot {
                 Ok(w ) => {
                     println!("predicted_weather: {:?}", w);
                     match w {
-                        WeatherType::Sunny => { is_the_new_goal_woodworking = true; }
-                        WeatherType::Rainy => { is_the_new_goal_woodworking = false; }
-                        WeatherType::Foggy => { is_the_new_goal_woodworking = true; }
+                        WeatherType::Sunny => {
+                            if thread_rng().gen_range(1..=100000) < 80000{
+                                is_the_new_goal_woodworking = true;
+                            }
+                            else {
+                                is_the_new_goal_woodworking = false;
+                            }
+                        }
+                        WeatherType::Rainy => {
+                            if thread_rng().gen_range(1..=100000) < 80000{
+                                is_the_new_goal_woodworking = false;
+                            }
+                            else {
+                                is_the_new_goal_woodworking = true;
+                            }
+                        }
+                        WeatherType::Foggy => {
+                            if thread_rng().gen_range(1..=100000) < 50000{
+                                is_the_new_goal_woodworking = true;
+                            }
+                            else {
+                                is_the_new_goal_woodworking = false;
+                            }
+                        }
                         WeatherType::TropicalMonsoon => { is_the_new_goal_woodworking = true; }
                         WeatherType::TrentinoSnow => { is_the_new_goal_woodworking = false; }
                     }
@@ -432,8 +485,9 @@ impl MirtoRobot {
                 Err(e) => { is_the_new_goal_woodworking = false; },
             }
             if is_the_new_goal_woodworking != self.is_the_goal_woodworking{
-                println!("SIUM");
+                println!("modifica modalità robot...");
                 self.is_the_goal_woodworking = is_the_new_goal_woodworking;
+                println!("svuotando lo zaino ...");
                 self.empty_your_backpack(world);
             }
         }
@@ -478,7 +532,7 @@ impl Runnable for MirtoRobot {
 }
 
 fn main() {
-        const world_size: usize = 100;
+        const world_size: usize = 45;
 
         let robot = MirtoRobot::new(Robot::new(), true);
 
