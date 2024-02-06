@@ -239,7 +239,6 @@ function generateWorld() {
             worldData = {
                 size: data.size,
                 tiles: data.tiles,
-                biomes: data.biomes,
             }
             world = worldData;
             left = 0;
@@ -260,7 +259,6 @@ function zoom_out() {
         world = {
             size: world.size*2,
             tiles: world.tiles,
-            biomes: world.biomes,
         }
         gap = gap*2;
         left = 0;
@@ -276,7 +274,6 @@ function zoom_in() {
         world = {
             size: Math.floor(world.size / 2),
             tiles: world.tiles,
-            biomes: world.biomes,
         }
         gap = Math.floor(gap / 2);
         if (gap === 0) {
@@ -382,7 +379,6 @@ function drawWorld(w_orld) {
         for (let row = 0; row < w_orld.size; row++) {
             for (let col = 0; col < w_orld.size; col++) {
                 const tile = w_orld.tiles[sopra + row][left + col]
-                const biome = w_orld.biomes[sopra + row][left + col]
                 var leftile;
                 if ((left + col) > 0) {
                     leftile = w_orld.tiles[sopra + row][left + col - 1]
@@ -395,37 +391,8 @@ function drawWorld(w_orld) {
                 const y = row * tileSize
 
                 // Draw the tile based on its biome
-                if (b_colors){
-                    if ( biome === "Savana" ){
-                        visualizeBiomized(tile,leftile,context,colors.Savanna)
-                    }else if (biome === "Plains") {
-                        visualizeBiomized(tile,leftile,context,colors.Plains)
-                    }else if (biome === "Swamp") {
-                        visualizeBiomized(tile,leftile,context,colors.Swamp)
-                    }else if (biome === "Taiga") {
-                        visualizeBiomized(tile,leftile,context,colors.Taiga)
-                    }else if (biome === "Tundra") {
-                        visualizeBiomized(tile,leftile,context,colors.Tundra)
-                    }else if (biome === "Ocean") {
-                        visualizeBiomized(tile,leftile,context,colors.Ocean)
-                    }else if (biome === "Land") {
-                        visualizeBiomized(tile,leftile,context,colors.Land)
-                    }else if (biome === "ShrubLand") {
-                        visualizeBiomized(tile,leftile,context,colors.ShrubLand)
-                    }else if (biome === "Forest") {
-                        visualizeBiomized(tile,leftile,context,colors.Forest)
-                    }else if (biome === "RainForest") {
-                        visualizeBiomized(tile,leftile,context,colors.RainForest)
-                    }else if (biome === "SeasonalForest") {
-                        visualizeBiomized(tile,leftile,context,colors.SeasonalForest)
-                    }else if (biome === "Desert") {
-                        visualizeBiomized(tile,leftile,context,colors.Desert)
-                    }else if (biome === "Vulcan") {
-                        visualizeBiomized(tile,leftile,context,colors.Vulcan)
-                    }
-                }else {
-                    visualizeBiomized(tile,leftile,context,colors.Land)
-                }
+                visualizeBiomized(tile,leftile,context,colors.Land)
+
                 if (tile.tile_type === "Wall") {
                     context.fillStyle = "#572308"
                 } else if (tile.tile_type === "Street") {
