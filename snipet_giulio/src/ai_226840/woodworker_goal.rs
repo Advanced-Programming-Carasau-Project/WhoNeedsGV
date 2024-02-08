@@ -11,6 +11,7 @@ use spyglass::spyglass::{Spyglass, SpyglassResult};
 use spyglass::spyglass::SpyglassResult::{Failed, Paused, Stopped};
 use std::ops::Range;
 use ohcrab_collection::collection::{CollectTool, LibErrorExtended};
+use robotics_lib::event::events::Event;
 use rustici_planner::tool::Destination::Content as OtherContent;
 use crate::{MirtoRobot};
 impl MirtoRobot{
@@ -25,6 +26,7 @@ impl MirtoRobot{
                         let last_move = v.0.pop().unwrap();
                         for i in 0..v.0.len(){
                             *self.get_energy_mut() = Dynamo::update_energy();
+                            self.handle_event(Event::EnergyRecharged(1000));
                             match &v.0[i] {
                                 Action::Move(d) => {
                                     go(self, world, d.clone());
@@ -37,6 +39,7 @@ impl MirtoRobot{
                         match last_move {
                             Action::Move(d) => {
                                 *self.get_energy_mut() = Dynamo::update_energy();
+                                self.handle_event(Event::EnergyRecharged(1000));
                                 // println!("{}, {:?} messo in {:?}: {:?}", n_content, content.clone(), dest_content.clone(), put(self, world, content.clone(), n_content, d));
                             }
                             Action::Teleport(_) => {}
@@ -51,6 +54,7 @@ impl MirtoRobot{
 
     pub fn collect_and_delivery_content(&mut self, world: &mut World, content: Content, quantity: usize, dest_content: Content){
         *self.get_energy_mut() = Dynamo::update_energy();
+        self.handle_event(Event::EnergyRecharged(1000));
         let mut result = CollectTool::collect_content(self, world, &content, quantity, self.robot.energy.get_energy_level());
         // println!("result: {:?}", result);
         let mut new_content = Content::None;

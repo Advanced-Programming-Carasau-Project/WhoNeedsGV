@@ -38,6 +38,7 @@ impl MirtoRobot{
                     PlannerResult::Path(p) => {
                         for i in 0..p.0.len() {
                             *self.get_energy_mut() = Dynamo::update_energy();
+                            self.handle_event(Event::EnergyRecharged(1000));
                             match &p.0[i] {
                                 Action::Move(d) => {
                                     go(self, world, d.clone());

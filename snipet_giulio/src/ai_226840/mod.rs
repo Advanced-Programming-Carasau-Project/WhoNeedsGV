@@ -345,6 +345,7 @@ impl MirtoRobot {
     }
     pub fn empty_your_backpack_with_a_walk(&mut self, world: &mut World, visited: &mut Vec<Vec<bool>>){
         *self.get_energy_mut() = Dynamo::update_energy();
+        self.handle_event(Event::EnergyRecharged(1000));
 
         let map = robot_map(world).unwrap();
         let i_robot = self.robot.coordinate.get_row();
@@ -415,6 +416,7 @@ impl MirtoRobot {
             );
             loop {
                 *self.get_energy_mut() = Dynamo::update_energy();
+                self.handle_event(Event::EnergyRecharged(1000));
                 spyglass.set_energy_budget(Some(self.get_energy().get_energy_level()));
 
                 match spyglass.new_discover(self, world) {
@@ -423,6 +425,7 @@ impl MirtoRobot {
                     SpyglassResult::Paused => {
                         loop {
                             *self.get_energy_mut() = Dynamo::update_energy();
+                            self.handle_event(Event::EnergyRecharged(1000));
                             match spyglass.resume_discover(self, world) {
                                 SpyglassResult::Complete => { break; }
                                 Stopped(_) => { break; }
@@ -438,6 +441,7 @@ impl MirtoRobot {
         }
         else{
             *self.get_energy_mut() = Dynamo::update_energy();
+            self.handle_event(Event::EnergyRecharged(1000));
             let map_size = robot_map(world).unwrap().len();
             let destination = Destination::explore(self.robot.energy.get_energy_level(), map_size);
             let result = Planner::planner(self, destination, world);
@@ -493,6 +497,7 @@ impl MirtoRobot {
         }
 
         *self.get_energy_mut() = Dynamo::update_energy();
+        self.handle_event(Event::EnergyRecharged(1000));
         if self.is_the_goal_woodworking {
             self.make_next_thing_for_woodworker_goal(world);
         }

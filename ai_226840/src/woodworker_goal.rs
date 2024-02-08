@@ -11,6 +11,7 @@ use spyglass::spyglass::{Spyglass, SpyglassResult};
 use spyglass::spyglass::SpyglassResult::{Failed, Paused, Stopped};
 use std::ops::Range;
 use ohcrab_collection::collection::{CollectTool, LibErrorExtended};
+use robotics_lib::event::events::Event;
 use rustici_planner::tool::Destination::Content as OtherContent;
 use crate::{MirtoRobot};
 impl MirtoRobot{
@@ -24,7 +25,7 @@ impl MirtoRobot{
                     PlannerResult::Path(mut v) => {
                         let last_move = v.0.pop().unwrap();
                         for i in 0..v.0.len(){
-                            *self.get_energy_mut() = Dynamo::update_energy();
+                            self.recharge_all_energy();
                             match &v.0[i] {
                                 Action::Move(d) => {
                                     go(self, world, d.clone());
@@ -36,7 +37,7 @@ impl MirtoRobot{
                         }
                         match last_move {
                             Action::Move(d) => {
-                                *self.get_energy_mut() = Dynamo::update_energy();
+                                self.recharge_all_energy();
                                 println!("{}, {:?} messo in {:?}: {:?}", n_content, content.clone(), dest_content.clone(), put(self, world, content.clone(), n_content, d));
                             }
                             Action::Teleport(_) => {}
@@ -50,7 +51,7 @@ impl MirtoRobot{
     }
 
     pub fn collect_and_delivery_content(&mut self, world: &mut World, content: Content, quantity: usize, dest_content: Content){
-        *self.get_energy_mut() = Dynamo::update_energy();
+        self.recharge_all_energy();
         let mut result = CollectTool::collect_content(self, world, &content, quantity, self.robot.energy.get_energy_level());
         println!("result: {:?}", result);
         let mut new_content = Content::None;
@@ -59,32 +60,38 @@ impl MirtoRobot{
             Coin(_) => { new_content = Content::Coin(0) }
             _ => {}
         }
-        println!("new_content: {}", new_content);
-        self.delivery_content_to(world, new_content, dest_content);
+        if self.do_u_have_this_content(new_content.clone()) {
+            self.delivery_content_to(world, new_content, dest_content);
+        }
+        else {
+            println!("it was impossible to collect: {:?}", content);
+            println!("explore...");
+            self.explore_map(world)
+        }
     }
 
     pub fn make_next_thing_for_woodworker_goal(&mut self, world: &mut World){
-        println!("svuotando lo zaino ...");
-        self.empty_your_backpack(world); //svuota il tuo zaino per non avere problemi
-        println!("number: {}", self.get_backpack_objects_number());
+        println!("emptying the backpack...");
+        self.empty_your_backpack(world);
+        println!("number of things inside the backpack: {}", self.get_backpack_objects_number());
         if self.get_backpack_objects_number() == 0 && self.finds_the_nearest_content_not_on_fluids(world, Content::Tree(0)).is_some() && self.found_content(world, Content::Crate(0..20)){
-            println!("CONSEGNA DI ALBERI IN CASSE");
+            println!("delivery of trees in crates...");
             self.collect_and_delivery_content(world, Content::Tree(1), 20, Crate(0..20));
         }
         else if self.get_backpack_objects_number() == 0 && self.finds_the_nearest_content_not_on_fluids(world, Content::Tree(0)).is_some() && self.found_content(world, Content::Market(20)){
-            println!("CONSEGNA ALBERI AL MARKET");
+            println!("delivery of trees to the market...");
             self.collect_and_delivery_content(world, Content::Tree(1), 10, Market(20));
-            if self.found_content(world, Content::Bank(0..50)) {
-                println!("CONSEGNA MONETE IN BANCA");
+            if self.do_u_have_this_content(Content::Coin(0)) && self.found_content(world, Content::Bank(0..50)) {
+                println!("delivery of coins to the bank...");
                 self.collect_and_delivery_content(world, Content::Coin(1), 20, Bank(0..50));
             }
         }
         else if self.get_backpack_objects_number() == 0 && self.finds_the_nearest_content_not_on_fluids(world, Content::Coin(0)).is_some() && self.found_content(world, Content::Bank(0..50)){
-            println!("CONSEGNA MONETE IN BANCA");
+            println!("delivery of coins to the bank...");
             self.collect_and_delivery_content(world, Content::Coin(1), 20, Bank(0..50));
         }
         else {
-            println!("ESPLORAZIONE");
+            println!("explore...");
             self.explore_map(world);
         }
     }

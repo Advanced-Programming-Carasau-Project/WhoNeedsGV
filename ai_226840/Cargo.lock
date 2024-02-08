@@ -709,9 +709,9 @@ dependencies = [
 
 [[package]]
 name = "ohcrab_collection"
-version = "0.1.4"
+version = "0.1.5"
 source = "sparse+https://advancedprogramming.disi.unitn.it/api/v1/crates/"
-checksum = "f228273087eba344b0ff90fb4d25fafe6322e41d16308f8b04a6008d4e196437"
+checksum = "616bbaf117ea0c16ffad7b51f7fc4dc8fcb1e73b44ce98698f4823b13a5a15c4"
 dependencies = [
  "robotics_lib",
 ]
@@ -996,15 +996,16 @@ dependencies = [
 
 [[package]]
 name = "rip_worldgenerator"
-version = "0.5.49"
+version = "0.5.54"
 source = "sparse+https://advancedprogramming.disi.unitn.it/api/v1/crates/"
-checksum = "49ca6303a1a13cd4c12628a7ca6e9dab704ebfc516b3bd3366aa2dee170346a3"
+checksum = "256945552b2ae1a2e891ad9f800839cb65533b3e7d82f6ffd79ae25ed9ea2dc3"
 dependencies = [
  "disjoint-sets",
  "dsu-tree",
  "noise",
  "petgraph",
  "rand 0.8.5",
+ "rand_chacha 0.3.1",
  "robotics_lib",
 ]
 
