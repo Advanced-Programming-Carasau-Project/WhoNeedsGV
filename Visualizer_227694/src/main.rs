@@ -8,6 +8,9 @@ mod gui_overlay;
 mod movement;
 mod game_data;
 mod rudimental_a_i;
+mod ai_226840_mirto_robot;
+mod ai_226840_mirto_goal;
+mod ai_226840_woodworker_goal;
 
 use std::fmt::Debug;
 use bevy::ecs::bundle::DynamicBundle;

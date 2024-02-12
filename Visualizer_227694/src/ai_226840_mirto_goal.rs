@@ -1,20 +1,13 @@
-use colored::Colorize;
-use ohcrab_collection::collection::{CollectTool, LibErrorExtended};
-use queues::{Queue, queue};
-use robotics_lib::interface::{craft, Direction, get_score, go, put, robot_map, teleport};
+use ohcrab_collection::collection::CollectTool;
+use robotics_lib::interface::{craft, go, teleport};
 use robotics_lib::runner::Runnable;
 use robotics_lib::utils::LibError;
-use robotics_lib::world::tile::{Content, TileType};
-use robotics_lib::world::tile::TileType::{DeepWater, Lava, ShallowWater, Teleport, Wall};
+use robotics_lib::world::tile::Content;
 use robotics_lib::world::World;
 use rust_and_furious_dynamo::dynamo::Dynamo;
 use rustici_planner::tool::{Action, Destination, Planner, PlannerResult};
-use crate::{MirtoRobot};
-use queues::IsQueue;
-use robotics_lib::energy::Energy;
 use robotics_lib::event::events::Event;
-use robotics_lib::runner::backpack::BackPack;
-use robotics_lib::world::coordinates::Coordinate;
+use crate::ai_226840_mirto_robot::MirtoRobot;
 
 impl MirtoRobot{
     pub fn do_u_have_this_content(&self, content: Content) -> bool{

@@ -13,7 +13,8 @@ use std::ops::Range;
 use ohcrab_collection::collection::{CollectTool, LibErrorExtended};
 use robotics_lib::event::events::Event;
 use rustici_planner::tool::Destination::Content as OtherContent;
-use crate::{MirtoRobot};
+use crate::ai_226840_mirto_robot::MirtoRobot;
+
 impl MirtoRobot{
     pub fn delivery_content_to(&mut self, world: &mut World, content: Content, dest_content: Content){
         let n_content = *self.get_backpack().get_contents().get(&content).unwrap();

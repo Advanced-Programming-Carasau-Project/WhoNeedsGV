@@ -1,5 +1,5 @@
-mod woodworker_goal;
-mod mirto_goal;
+use crate::ai_226840_woodworker_goal;
+use crate::ai_226840_mirto_goal;
 
 use std::collections::HashMap;
 use rand::thread_rng;

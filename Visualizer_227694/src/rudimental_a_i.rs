@@ -1,12 +1,20 @@
 use std::sync::Mutex;
-use std::thread;
-use lazy_static::lazy_static;
 use robotics_lib::event::events::Event;
-use robotics_lib::world::tile::Tile;
 use bevy::prelude::*;
+use robotics_lib::energy::Energy;
+use robotics_lib::interface::{get_score, robot_map};
+use robotics_lib::runner::{Robot, Runnable, Runner};
+use robotics_lib::runner::backpack::BackPack;
+use robotics_lib::world::coordinates::Coordinate;
 use crate::game_data::*;
 use crate::GameUpdate;
+use lazy_static::lazy_static;
+use robotics_lib::world::tile::Tile;
 
+use crate::ai_226840_mirto_robot;
+use crate::ai_226840_mirto_goal;
+use crate::ai_226840_mirto_robot::MirtoRobot;
+use crate::ai_226840_woodworker_goal;
 
 // Static variables for data exchange between bevy and non bevy code
 lazy_static! {
@@ -16,7 +24,7 @@ lazy_static! {
     pub static ref robot_view: Mutex<Vec<Vec<Option<Tile>>>> = Mutex::new(vec![]);
 }
 impl Runnable for MirtoRobot {
-    fn process_tick(&mut self, world: &mut World) {
+    fn process_tick(&mut self, world: &mut robotics_lib::world::World) {
         self.make_next_thing(world);
 
         let mut update_points = points.lock().unwrap();
@@ -69,24 +77,19 @@ impl Plugin for ArtificialIntelligencePlugin {
 
 fn setup_artificial_intelligence(mut game_update: ResMut<GameUpdate>,
                       mut game_data: ResMut<GameData>,
+                      mut commands: Commands,
 ){
 
-    if game_data.ai{
-        thread::spawn(|| {
-            const world_size: usize = 45;
-            let robot = MirtoRobot::new(Robot::new(), true);
-            let mut generator = MyWorldGen::new_param(world_size,2,5,0,true,false, 5, false, None);
-            let mut run = Runner::new(Box::new(robot), &mut generator).unwrap();
+    if game_data.ai{ //here I initialize the runner resource with right AI robot
+        const world_size: usize = 45;
+        let robot = MirtoRobot::new(Robot::new(), true);
+        let mut generator = rip_worldgenerator::MyWorldGen::new_param(world_size,2,5,0,true,false, 5, false, None);
+        let mut run = Runner::new(Box::new(robot), &mut generator).unwrap();
 
-            commands.insert_resource(RunnerTag(run));
-            println!("la funzione della libreria AI di Goldo");
-        });
+        commands.insert_resource(RunnerTag(run));
     }else{
-        thread::spawn(|| {
-            println!("la funzione della libreria AI di MURRU");
-        });
+        println!("la funzione della libreria AI di MURRU");
     }
-    //TODO creo un nuovo thread in cui chiamo la funzione dell'intelligenza artificiale corrispondente
 }
 fn update_game_update(mut game_update: ResMut<GameUpdate>,
                       mut game_data: ResMut<GameData>,
