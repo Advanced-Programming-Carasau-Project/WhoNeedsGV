@@ -21,7 +21,7 @@ impl Plugin for CameraPlugin{
     fn build(&self, app: &mut App) {
         app.add_systems(Startup,spawn_camera)
             .add_systems(Update,change_camera)
-            .add_systems(Update,camera_follow_robot.in_set(MySet::Third));
+            .add_systems(Update,camera_follow_robot.in_set(MySet::Second)); //Importante che sia prima di Move Robot (e Move Robot prima di tutti gli altri)
             //.add_systems(Update,camera_follow_mouse.in_set(MySet::Third)); TODO farlo meglio
     }
 }

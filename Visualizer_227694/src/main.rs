@@ -40,17 +40,14 @@ pub enum Direction{ //TODO capire come usarle comunque per la direzzione in cui 
 pub struct VisualizerGLC;
 impl VisualizerGLC{
     pub fn run(ai: bool,world_size: usize){
-        let robot_data = RobotData::new();
-        let camera_data= CameraData::new();
         App::new()
             .insert_resource(GameData{
-                autoplay:true,
+                autoplay:false,
                 next:0,
-                previous:0,
                 world_size,
                 world: vec![vec![None; world_size]; world_size],
-                robot_data,
-                camera_data,
+                robot_data: RobotData::new(),
+                camera_data : CameraData::new(),
                 timer: Timer::from_seconds(1.0, TimerMode::Repeating),
                 next_action: false,
                 frames: 0,
@@ -59,7 +56,6 @@ impl VisualizerGLC{
                 map_radius: 0.0,
                 hided_content: (0.0, 0.0),
                 content_visibility: true,
-                max_points: 100.0,
                 ai,
             })
             .add_plugins(DefaultPlugins)

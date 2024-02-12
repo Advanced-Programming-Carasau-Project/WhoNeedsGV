@@ -1,4 +1,3 @@
-
 use bevy::prelude::*;
 use robotics_lib::event::events::Event::*;
 
@@ -37,17 +36,19 @@ fn spawn_robot(mut commands: Commands,scene_assets: Res<SceneAssets>,
         },
     }, RobotComponent));
 }
-fn fine_robot(game_data: Res<GameData>,
+fn fine_robot(mut game_data: ResMut<GameData>,
 ){
     if !game_data.next_action{
         return;
     }
     match events.try_lock() {
-        Ok(events_guard) => {
+        Ok(mut events_guard) => {
             if events_guard.len() != 0{
                 match &events_guard[0] {
                     Terminated => {
                         //TODO schermo nero con scritta tipo "the robot terminated his task" e un bottone che cliccato fa terminare l'app (forse potrei anche mettere un bottone per riavviare)
+                        game_data.feed.push(events_guard[0].clone());
+                        events_guard.remove(0);
                     }
                     _ => { return; }
                 }
@@ -63,20 +64,31 @@ fn fine_robot(game_data: Res<GameData>,
 }
 fn robot_energy(mut game_data: ResMut<GameData>){
     match events.try_lock() {
-        Ok(events_guard) => {
-            if events_guard.len() != 0 {
-                match events_guard[0] {
-                    EnergyRecharged(energy) => {
-                        game_data.robot_data.energy += energy as i32;
-                        game_data.robot_data.energy_update = energy as i32;
+        Ok(mut events_guard) => {
+            let mut energy_events = true;
+            while energy_events {
+                energy_events = false;
+                if events_guard.len() != 0 {
+                    match events_guard[0] {
+                        EnergyRecharged(energy) => {
+                            game_data.robot_data.energy_update = i32::min(game_data.robot_data.max_energy - game_data.robot_data.energy, energy as i32);
+                            game_data.robot_data.energy += game_data.robot_data.energy_update;
+                            game_data.feed.push(events_guard[0].clone());
+                            events_guard.remove(0);
+                            energy_events = true;
+                        }
+                        EnergyConsumed(energy) => {
+                            game_data.robot_data.energy -= energy as i32;
+                            game_data.robot_data.energy_update = energy as i32;
+                            game_data.feed.push(events_guard[0].clone());
+                            events_guard.remove(0);
+                            energy_events = true;
+                        }
+                        _ => {return;}
                     }
-                    EnergyConsumed(energy) => {
-                        game_data.robot_data.energy -= energy as i32;
-                        game_data.robot_data.energy_update = energy as i32;
-                    }
-                    _ => {return;}
                 }
             }
+
         }
         Err(_) => {
             return;
@@ -106,16 +118,20 @@ fn robot_back_pack(mut game_data: ResMut<GameData>){
         return;
     }
     match events.try_lock() {
-        Ok(events_guard) => {
+        Ok(mut events_guard) => {
             if events_guard.len() == 0 {
                 return;
             }
             match &events_guard[0] {
                 AddedToBackpack(content, n) => {
                     game_data.robot_data.back_pack_update.insert(content.to_default(),*n as i32);
+                    game_data.feed.push(events_guard[0].clone());
+                    events_guard.remove(0);
                 },
                 RemovedFromBackpack(content, n)=> {
                     game_data.robot_data.back_pack_update.insert(content.to_default(), - (*n as i32));
+                    game_data.feed.push(events_guard[0].clone());
+                    events_guard.remove(0);
                 },
                 _ => {
                     return;
@@ -139,7 +155,7 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
     }
 
     match events.try_lock() {
-        Ok(events_guard) => {
+        Ok(mut events_guard) => {
             let mut robot_transform = robot_query.single_mut();
             robot_transform.translation = game_data.robot_data.robot_translation;
             if events_guard.len() != 0 {
@@ -216,6 +232,8 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 game_data.robot_data.robot_velocity = Vec3::new(0.0,elevation/10.0,-1.0);
                             }
                         }
+                        game_data.feed.push(events_guard[0].clone());
+                        events_guard.remove(0);
                     }
                     _ => {
                     }

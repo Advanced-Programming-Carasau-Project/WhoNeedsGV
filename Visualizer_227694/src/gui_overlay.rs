@@ -131,7 +131,7 @@ fn create_gui(mut commands: Commands,
         });
     commands.spawn((
         TextBundle::from_section(
-            format!("Points: 0/{}",game_data.max_points),
+            format!("Points: 0/{}",game_data.robot_data.max_points),
             TextStyle {
                 font_size: 30.0,
                 color: Color::rgb(0.0, 0.0, 0.0),
@@ -323,7 +323,7 @@ fn update_energy_image(game_data: Res<GameData>,
                  mut energy_image_style_query: Query<&mut Style,With<EnergyImageComponent>>,
 ){
     let mut energy_image_style = energy_image_style_query.single_mut();
-    energy_image_style.width = Val::Px((game_data.robot_data.energy as f32 / 1000.0) * 194.0);
+    energy_image_style.width = Val::Px((game_data.robot_data.energy as f32 / game_data.robot_data.max_energy as f32) * 194.0);
 }
 fn update_energy_update(mut energy_update_query: Query<&mut Text,With<EnergyUpdateComponent>>,
                         mut game_data: ResMut<GameData>,
@@ -346,13 +346,13 @@ fn update_points(mut points_query: Query<&mut Text,With<PointsComponent>>,
                  game_data: Res<GameData>,
 ){
     let mut points_text = points_query.single_mut();
-    points_text.sections[0].value = format!("Points: {}/{}",game_data.robot_data.points,game_data.max_points);
+    points_text.sections[0].value = format!("Points: {:.3}/{}",game_data.robot_data.points,game_data.robot_data.max_points);
 }
 fn update_points_image(game_data: Res<GameData>,
                        mut points_image_style_query: Query<&mut Style,With<PointsImageComponent>>,
 ){
     let mut points_image_style = points_image_style_query.single_mut();
-    points_image_style.width = Val::Px((game_data.robot_data.points / game_data.max_points) * 214.0);
+    points_image_style.width = Val::Px((game_data.robot_data.points / game_data.robot_data.max_points) * 214.0);
 }
 fn update_points_update(mut points_update_query: Query<&mut Text,With<PointsUpdateComponent>>,
                         mut game_data: ResMut<GameData>,
@@ -362,9 +362,9 @@ fn update_points_update(mut points_update_query: Query<&mut Text,With<PointsUpda
     if game_data.robot_data.points_update != 0.0{
         points_update_text.sections[0].style.color = Color::rgba(0.5, 0.1, 0.5,1.0);
         if game_data.robot_data.points_update > 0.0{
-            points_update_text.sections[0].value = format!("+{}", game_data.robot_data.points_update);
+            points_update_text.sections[0].value = format!("+{:.3}", game_data.robot_data.points_update);
         }else {
-            points_update_text.sections[0].value = format!("-{}", game_data.robot_data.points_update);
+            points_update_text.sections[0].value = format!("-{:.3}", game_data.robot_data.points_update);
         }
         game_data.robot_data.points_update = 0.0;
     }else {
