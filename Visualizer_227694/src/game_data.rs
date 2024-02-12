@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy::utils::HashMap;
-use robotics_lib::world::environmental_conditions::WeatherType;
 use robotics_lib::world::tile::{Content, Tile};
 use robotics_lib::world::tile::Content::*;
 
