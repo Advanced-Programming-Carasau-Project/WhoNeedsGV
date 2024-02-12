@@ -54,7 +54,6 @@ pub struct AssetsLoaderPlugin;
 impl Plugin for AssetsLoaderPlugin{
     fn build(&self, app: &mut App) {
         app.init_resource::<SceneAssets>().add_systems(Startup,load_assets)
-            .add_systems(Startup,load_mesh_material)
             .init_resource::<ImageAssets>().add_systems(Startup,load_images);
     }
 }
@@ -109,10 +108,4 @@ pub fn load_images(mut image_assets: ResMut<ImageAssets>, asset_server: Res<Asse
         points_border:asset_server.load("textures/PointsBorder.png"),
         points:asset_server.load("textures/PointsBox.png"),
     }
-}
-
-pub fn load_mesh_material(mut meshes: ResMut<Assets<Mesh>>,
-                          mut materials: ResMut<Assets<StandardMaterial>>,){
-    meshes.add(Mesh::from( shape::Cube{ size: 1.0 }));
-    materials.add(StandardMaterial { emissive: Color::rgb_linear(5.32, 2.0, 13.99), ..default() });
 }

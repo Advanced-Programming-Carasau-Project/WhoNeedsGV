@@ -36,27 +36,17 @@ pub enum Direction{ //TODO capire come usarle comunque per la direzzione in cui 
     Down
 }
 
-#[derive(Resource,Debug)] /// OGNi VOLTA CHE CAMBIA QUALCOSA L'IA MI AGGIORNA QUESTA RESOURCE E IO HO TUTTO LI PRONTO
-pub struct GameUpdate{
-    pub(crate) events: Vec<robotics_lib::event::events::Event>,
-    pub(crate) world: Vec<Vec<Option<Tile>>>,
-    pub points: f32, //i punti non sono trasmessi tramite eventi :(
-}
 pub struct VisualizerGLC;
 impl VisualizerGLC{
-    pub fn run(ai: bool, world:Vec<Vec<Option<Tile>>>, robot_spawn: (usize, usize), robot_elevation: usize,energy:usize,max_points:f32){
+    pub fn run(ai: bool,world_size: usize){
         let mut robot_data = RobotData::new();
-        robot_data.energy = energy as i32;
-        robot_data.robot_translation = Transform::from_translation(Vec3::new(robot_spawn.0 as f32,robot_elevation as f32 / 10.0 - 0.45,robot_spawn.1 as f32)).translation;
         let mut camera_data= CameraData::new();
-        camera_data.camera_transform = Transform::from_translation(Vec3::new(0.0,10.0,0.0)).looking_at(Vec3::ZERO,Vec3::Z);
-        camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(robot_spawn.0 as f32,(robot_elevation as f32 /10.0) + 10.0,robot_spawn.1 as f32)).translation;
         App::new()
             .insert_resource(GameData{
                 autoplay:true,
                 next:0,
                 previous:0,
-                world: vec![vec![Option::None;50];50],
+                world: vec![vec![Option::None;world_size];world_size],
                 robot_data,
                 camera_data,
                 timer: Timer::from_seconds(1.0, TimerMode::Repeating),
@@ -67,13 +57,8 @@ impl VisualizerGLC{
                 map_radius: 0.0,
                 hided_content: (0.0, 0.0),
                 content_visibility: true,
-                max_points,
+                max_points: 100.0,
                 ai,
-            })
-            .insert_resource(GameUpdate {
-                events: vec![],
-                world,//world: vec![],
-                points: 0.0,
             })
             .add_plugins(DefaultPlugins)
             //plugins developed by Giulio Lo Cigno
@@ -91,7 +76,6 @@ impl VisualizerGLC{
 }
 
 fn main() {
-    let mut generator = rip_worldgenerator::MyWorldGen::new_param(50,2,3,1,false,false,4,false,Option::None);
 
     //let mut generator = who_needs_gv_world_generator::WorldGenerator::new(150);
 
@@ -99,8 +83,7 @@ fn main() {
     // println!("m_seed {}", generator.get_m_seed()); // get the seeds so u can recreate the same tile_map later if you need
     // println!("t_seed {}", generator.get_t_seed()); //
 
-    let mut mondo = generator.gen();
-    VisualizerGLC::run(true,from_map_to_option_world(&mondo.0),mondo.1.clone(),mondo.0[mondo.1.0][mondo.1.1].elevation,1000,mondo.3);
+    VisualizerGLC::run(true,50);
 }
 
 fn from_map_to_option_world(map: &Vec<Vec<Tile>>)->Vec<Vec<Option<Tile>>>{ //Used to load the entire world for testing purpose

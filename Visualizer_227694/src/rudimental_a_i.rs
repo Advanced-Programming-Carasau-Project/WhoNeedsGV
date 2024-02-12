@@ -7,7 +7,6 @@ use robotics_lib::runner::{Robot, Runnable, Runner};
 use robotics_lib::runner::backpack::BackPack;
 use robotics_lib::world::coordinates::Coordinate;
 use crate::game_data::*;
-use crate::GameUpdate;
 use lazy_static::lazy_static;
 use robotics_lib::world::tile::Tile;
 
@@ -17,7 +16,7 @@ use crate::ai_226840_mirto_robot::MirtoRobot;
 use crate::ai_226840_woodworker_goal;
 
 // Static variables for data exchange between bevy and non bevy code
-lazy_static! {
+lazy_static! { /// OGNi VOLTA CHE CAMBIA QUALCOSA L'IA MI AGGIORNA QUESTA RESOURCE E IO HO TUTTO LI PRONTO ///
     // Store your variables here
     pub static ref events: Mutex<Vec<Event>> = Mutex::new(vec![]);
     pub static ref points: Mutex<f32> = Mutex::new(0.00);
@@ -75,10 +74,7 @@ impl Plugin for ArtificialIntelligencePlugin {
     }
 }
 
-fn setup_artificial_intelligence(mut game_update: ResMut<GameUpdate>,
-                      mut game_data: ResMut<GameData>,
-                      mut commands: Commands,
-){
+fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: Commands){
 
     if game_data.ai{ //here I initialize the runner resource with right AI robot
         const world_size: usize = 45;
@@ -87,25 +83,21 @@ fn setup_artificial_intelligence(mut game_update: ResMut<GameUpdate>,
         let mut run = Runner::new(Box::new(robot), &mut generator).unwrap();
 
         commands.insert_resource(RunnerTag(run));
+        /* TODO capire come ricevere queste info e aggiungerle a game_data subito
+        robot_data.energy = energy as i32;
+        robot_data.robot_translation = Transform::from_translation(Vec3::new(robot_spawn.0 as f32,robot_elevation as f32 / 10.0 - 0.45,robot_spawn.1 as f32)).translation;
+        camera_data.camera_transform = Transform::from_translation(Vec3::new(0.0,10.0,0.0)).looking_at(Vec3::ZERO,Vec3::Z);
+        camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(robot_spawn.0 as f32,(robot_elevation as f32 /10.0) + 10.0,robot_spawn.1 as f32)).translation;
+        */
     }else{
         println!("la funzione della libreria AI di MURRU");
     }
 }
-fn update_game_update(mut game_update: ResMut<GameUpdate>,
-                      mut game_data: ResMut<GameData>,
-){
-    if game_data.next!=0{
-        game_data.next -= 1;
-        info!("next process_tick");
-        let mut update = events.lock().unwrap();
-    }else {
-        let mut events_update = events.lock().unwrap();
-        let mut points_update = points.lock().unwrap();
-        let mut world_update = robot_view.lock().unwrap();
-        for i in events_update.iter(){
-            game_update.events.push(i.clone());
-        }
-        game_update.world = world_update.clone();
-        game_update.points = points_update.clone();
+fn update_game_update(mut game_data: ResMut<GameData>, mut runner: ResMut<RunnerTag>){
+    if game_data.next <= 0{
+        return;
     }
+    game_data.next -= 1;
+    runner.0.game_tick();
+
 }
