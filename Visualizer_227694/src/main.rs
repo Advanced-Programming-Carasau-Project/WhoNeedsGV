@@ -25,6 +25,7 @@ use crate::game_data::{CameraData, GameData, GameDataPlugin, RobotData};
 use crate::gui_overlay::GUIPlugin;
 use crate::movement::MovementPlugin;
 use crate::robot::RobotPlugin;
+use crate::rudimental_a_i::ArtificialIntelligencePlugin;
 use crate::user_inputs::InputPlugin;
 use crate::weather::WeatherPlugin;
 use crate::world::WorldPlugin;
@@ -46,7 +47,8 @@ impl VisualizerGLC{
                 autoplay:true,
                 next:0,
                 previous:0,
-                world: vec![vec![Option::None;world_size];world_size],
+                world_size,
+                world: vec![vec![None; world_size]; world_size],
                 robot_data,
                 camera_data,
                 timer: Timer::from_seconds(1.0, TimerMode::Repeating),
@@ -71,6 +73,7 @@ impl VisualizerGLC{
             .add_plugins(RobotPlugin)
             .add_plugins(CameraPlugin)
             .add_plugins(InputPlugin)
+            .add_plugins(ArtificialIntelligencePlugin)
             .run();
     }
 }

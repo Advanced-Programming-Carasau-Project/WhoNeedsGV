@@ -1,6 +1,9 @@
 use std::sync::Mutex;
+use std::thread;
+use std::time::Duration;
 use robotics_lib::event::events::Event;
 use bevy::prelude::*;
+use colored::Colorize;
 use robotics_lib::energy::Energy;
 use robotics_lib::interface::{get_score, robot_map};
 use robotics_lib::runner::{Robot, Runnable, Runner};
@@ -8,7 +11,7 @@ use robotics_lib::runner::backpack::BackPack;
 use robotics_lib::world::coordinates::Coordinate;
 use crate::game_data::*;
 use lazy_static::lazy_static;
-use robotics_lib::world::tile::Tile;
+use robotics_lib::world::tile::{Content, Tile, TileType};
 
 
 
@@ -69,35 +72,37 @@ pub struct ArtificialIntelligencePlugin;
 
 impl Plugin for ArtificialIntelligencePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PostStartup, setup_artificial_intelligence)
+        app.add_systems(PreStartup, setup_artificial_intelligence)
             .add_systems(Update, update_game_update.in_set(MySet::First));
     }
 }
 
-fn setup_artificial_intelligence(game_data: ResMut<GameData>, mut commands: Commands){
-
+fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: Commands){
+    let mut robot;
     if game_data.ai{ //here I initialize the runner resource with right AI robot
-        const world_size: usize = 45;
-        let robot = MirtoRobot::new(Robot::new(), true);
-        let mut generator = rip_worldgenerator::MyWorldGen::new_param(world_size,2,5,0,true,false, 5, false, None);
-        let run = Runner::new(Box::new(robot), &mut generator).unwrap();
-
-        commands.insert_resource(RunnerTag(run));
-        /* TODO capire come ricevere queste info e aggiungerle a game_data subito
-        robot_data.energy = energy as i32;
-        robot_data.robot_translation = Transform::from_translation(Vec3::new(robot_spawn.0 as f32,robot_elevation as f32 / 10.0 - 0.45,robot_spawn.1 as f32)).translation;
-        camera_data.camera_transform = Transform::from_translation(Vec3::new(0.0,10.0,0.0)).looking_at(Vec3::ZERO,Vec3::Z);
-        camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(robot_spawn.0 as f32,(robot_elevation as f32 /10.0) + 10.0,robot_spawn.1 as f32)).translation;
-        */
+        robot = MirtoRobot::new(Robot::new(), true);
     }else{
-        println!("la funzione della libreria AI di MURRU");
+        robot = MirtoRobot::new(Robot::new(), true); //TODO qui creo il robot di MM
     }
+    let mut generator = rip_worldgenerator::MyWorldGen::new_param(game_data.world_size,2,5,0,true,false, 5, false, None);
+    let mut run = Runner::new(Box::new(robot), &mut generator).unwrap();
+    let robot_spawn = run.get_robot().get_coordinate();
+    let robot_energy = run.get_robot().get_energy();
+
+    game_data.robot_data.energy = robot_energy.get_energy_level() as i32;
+    game_data.robot_data.robot_translation = Transform::from_translation(Vec3::new(robot_spawn.get_row() as f32,/*robot_elevation*/ 0.0 as f32 / 10.0 - 0.45,robot_spawn.get_col() as f32)).translation;
+
+    game_data.camera_data.camera_transform = Transform::from_translation(Vec3::new(0.0,10.0,0.0)).looking_at(Vec3::ZERO,Vec3::Z);
+    game_data.camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(robot_spawn.get_row() as f32,(/*robot_elevation*/ 0.0 as f32 /10.0) + 10.0,robot_spawn.get_col() as f32)).translation;
+
+    commands.insert_resource(RunnerTag(run));
 }
 fn update_game_update(mut game_data: ResMut<GameData>, mut runner: ResMut<RunnerTag>){
     if game_data.next <= 0{
         return;
     }
-    game_data.next -= 1;
-    runner.0.game_tick();
-
+    { // SERVE A LIBERARE I MUTEX SENZA ESPLICITARE UNLOCK
+        let _ = runner.0.game_tick();
+        game_data.next -= 1;
+    }
 }

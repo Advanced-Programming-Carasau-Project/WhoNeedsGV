@@ -72,6 +72,7 @@ pub(crate) struct GameData{
     pub(crate) autoplay:bool,
     pub(crate) next:usize,
     pub(crate) previous:usize,
+    pub(crate) world_size:usize,
     pub(crate) world:Vec<Vec<Option<Tile>>>,
     pub(crate) robot_data:RobotData,
     pub(crate) camera_data:CameraData,
