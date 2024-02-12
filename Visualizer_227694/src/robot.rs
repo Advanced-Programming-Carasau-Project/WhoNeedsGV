@@ -1,6 +1,7 @@
 use std::sync::TryLockResult;
 use bevy::prelude::*;
 use robotics_lib::event::events::Event::*;
+use robotics_lib::world::tile::Content;
 use crate::assets_loader::SceneAssets;
 use crate::game_data::{GameData, MySet};
 use crate::rudimental_a_i::{events, points};
@@ -41,7 +42,6 @@ fn fine_robot(game_data: Res<GameData>,
     if !game_data.next_action{
         return;
     }
-
     match events.try_lock() {
         Ok(events_guard) => {
             if events_guard.len() != 0{
@@ -62,9 +62,6 @@ fn fine_robot(game_data: Res<GameData>,
     }
 }
 fn robot_energy(mut game_data: ResMut<GameData>){
-    if !game_data.next_action{
-        return;
-    }
     match events.try_lock() {
         Ok(events_guard) => {
             if events_guard.len() != 0 {
@@ -90,13 +87,40 @@ fn robot_energy(mut game_data: ResMut<GameData>){
     }
 }
 fn robot_points(mut game_data: ResMut<GameData>){
-    if !game_data.next_action{
-        return;
-    }
     match points.try_lock() {
         Ok(points_guard) => {
             game_data.robot_data.points_update = *points_guard - game_data.robot_data.points;
             game_data.robot_data.points = *points_guard;
+        }
+        Err(_) => {
+            return;
+        }
+        _ => {
+            return;
+        }
+    }
+
+}
+fn robot_back_pack(mut game_data: ResMut<GameData>){
+    if !game_data.next_action{
+        return;
+    }
+    match events.try_lock() {
+        Ok(events_guard) => {
+            if events_guard.len() == 0 {
+                return;
+            }
+            match &events_guard[0] {
+                AddedToBackpack(content, n) => {
+                    game_data.robot_data.back_pack_update.insert(content.to_default(),*n as i32);
+                },
+                RemovedFromBackpack(content, n)=> {
+                    game_data.robot_data.back_pack_update.insert(content.to_default(), - (*n as i32));
+                },
+                _ => {
+                    return;
+                }
+            }
         }
         Err(_) => {
             return;

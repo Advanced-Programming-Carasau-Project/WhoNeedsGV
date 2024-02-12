@@ -137,7 +137,7 @@ fn update_game_data(mut game_data: ResMut<GameData>,
     if !game_data.timer.just_finished(){
         return;
     }else {
-        info!("frames{}",game_data.frames);
+        //info!("frames{}",game_data.frames);
         game_data.frames = 0;
         game_data.next_action = true;
         game_data.robot_data.robot_velocity = Vec3::ZERO;

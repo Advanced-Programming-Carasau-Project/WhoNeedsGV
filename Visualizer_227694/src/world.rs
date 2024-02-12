@@ -192,9 +192,6 @@ fn discover_and_update_tile(mut commands: Commands,
                  mut game_data: ResMut<GameData>,
                  mut tile_query: Query<(&Transform,&mut Handle<Scene>),With<TileComponent>>,
 ){
-    if !game_data.next_action {
-        return;
-    }
     match robot_view.try_lock() {
         Ok(world_guard) => {
             for i in 0..world_guard.len(){
@@ -412,9 +409,6 @@ fn update_content(mut content_query: Query<(&mut Transform,&mut Handle<Scene>),W
                   scene_assets: Res<SceneAssets>,
                   mut game_data: ResMut<GameData>,
 ){
-    if !game_data.next_action{
-        return;
-    }
     match crate::rudimental_a_i::events.try_lock() {
         Ok(events_guard) => {
             if events_guard.len() != 0{
@@ -551,7 +545,9 @@ fn remove_event(mut game_data: ResMut<GameData>){
             events_guard.remove(0);
         }
         if events_guard.len() == 0{
-            game_data.next += 1;
+            if game_data.autoplay {
+                game_data.next += 1;
+            }
         }
         game_data.next_action = false;
     }

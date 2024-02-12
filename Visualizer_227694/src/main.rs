@@ -76,13 +76,6 @@ impl VisualizerGLC{
 }
 
 fn main() {
-
-    //let mut generator = who_needs_gv_world_generator::WorldGenerator::new(150);
-
-    // println!("e_seed {}", generator.get_e_seed()); //
-    // println!("m_seed {}", generator.get_m_seed()); // get the seeds so u can recreate the same tile_map later if you need
-    // println!("t_seed {}", generator.get_t_seed()); //
-
     VisualizerGLC::run(true,50);
 }
 

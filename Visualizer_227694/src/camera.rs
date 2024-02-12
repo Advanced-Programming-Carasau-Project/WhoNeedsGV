@@ -114,7 +114,6 @@ fn camera_follow_robot(
     if !game_data.next_action{
         return;
     }
-
     match crate::rudimental_a_i::events.try_lock() {
         Ok(events_guard) => {
             let mut camera_transform = camera_query.single_mut();

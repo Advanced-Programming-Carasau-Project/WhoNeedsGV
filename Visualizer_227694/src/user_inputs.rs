@@ -9,6 +9,7 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin{
     fn build(&self, app: &mut App) {
         app.add_systems(Update,go_stop)
+            .add_systems(Update,next)
             .add_systems(Update,back_pack_show_hide.in_set(MySet::First))
             .add_systems(Update,map_show_hide.in_set(MySet::First))
             .add_systems(Update,content_show_hide.in_set(MySet::First))
@@ -16,31 +17,19 @@ impl Plugin for InputPlugin{
     }
 }
 
-fn go_stop(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){ ///USER INPUT VERO///
-
-    if keyboard_input.pressed(KeyCode::Space) {
+fn go_stop(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
+    if keyboard_input.just_pressed(KeyCode::Space){
         game_data.autoplay = !game_data.autoplay;
+        info!("autoplay? {}",game_data.autoplay);
     }
 }
-fn next(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){ ///USER INPUT VERO///
-
-    if keyboard_input.pressed(KeyCode::Right) && !game_data.autoplay{
+fn next(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
+    if keyboard_input.just_pressed(KeyCode::Right){
+        info!("Nexttttt");
         game_data.next += 1;
-        if game_data.previous > 0 {
-            game_data.previous -= 1;
-        }
-
     }
 }
-fn previous(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){ ///USER INPUT VERO///
-    if keyboard_input.pressed(KeyCode::Left) && !game_data.autoplay{
-        if game_data.next > 0 {
-            game_data.next -= 1;
-        }
-        game_data.previous += 1;
-    }
-}
-fn back_pack_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){ ///USER INPUT VERO///
+fn back_pack_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
     if keyboard_input.just_pressed(KeyCode::B) {
         if game_data.robot_data.back_pack_visibility == 0{
             game_data.robot_data.back_pack_visibility = 1;
@@ -51,7 +40,7 @@ fn back_pack_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMu
         }
     }
 }
-fn feed_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){ ///USER INPUT VERO///
+fn feed_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
     if keyboard_input.just_pressed(KeyCode::F) {
         game_data.feed_visibility = !game_data.feed_visibility;
     }

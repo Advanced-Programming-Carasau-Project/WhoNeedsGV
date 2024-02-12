@@ -27,12 +27,12 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
 
                 match &events_guard[0] {
                     TimeChanged(environmental_conditions) => {
-                        todo!()
-                        //new_weather = environmental_conditions;
+                        let new_weather= environmental_conditions.get_weather_condition();
+                        let time_of_the_day = environmental_conditions.get_time_of_day_string();
                     },
                     DayChanged(environmental_conditions) => {
-                        todo!()
-                        //new_weather = environmental_conditions;
+                        let new_weather= environmental_conditions.get_weather_condition();
+                        let time_of_the_day = environmental_conditions.get_time_of_day_string();
                     },
                     _ => {
                         return;
