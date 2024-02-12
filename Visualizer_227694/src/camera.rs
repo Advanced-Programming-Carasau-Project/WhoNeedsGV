@@ -118,29 +118,29 @@ fn camera_follow_robot(
         Ok(events_guard) => {
             let mut camera_transform = camera_query.single_mut();
             *camera_transform = game_data.camera_data.camera_transform;
-            if game_data.camera_data.camera_mode == 0{
+            if game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3{
                 return;
             }
             if events_guard.len() > 0{
                 match &events_guard[0]{
-                    Moved(tile,(x,y)) =>{
+                    Moved(tile,(x,z)) =>{
                         let mut direction = game_data.robot_data.robot_direction.clone();
-                        match (*x as f32 - f32::round(game_data.robot_data.robot_translation.x) , *y as f32 - f32::round(game_data.robot_data.robot_translation.z)) {
-                            (0.0,1.0) => {
+                        match (*x as f32 - f32::round(game_data.robot_data.robot_translation.x) , *z as f32 - f32::round(game_data.robot_data.robot_translation.z)) {
+                            (-0.1,0.0) => {
                                 direction = Direction::Right;
                             }
-                            (0.0,-1.0) => {
+                            (1.0,0.0) => {
                                 direction = Direction::Left;
                             }
-                            (1.0,0.0) => {
+                            (0.0,1.0) => {
                                 direction = Direction::Up;
                             }
-                            (-1.0,0.0) => {
+                            (0.0,-1.0) => {
                                 direction = Direction::Down;
                             }
                             _ => { //Teleport only way the robot can move by more than 1 tile
-                                let destination = (*x as f32,*y as f32);
-                                let destination_elevation = tile.elevation as f32;
+                                let destination = (*x as f32,*z as f32);
+                                let destination_elevation = tile.elevation as f32 - (camera_transform.translation.y * 10.0);
 
                                 if game_data.camera_data.camera_mode == 1{
                                     camera_transform.translation = Transform::from_xyz(destination.0, camera_transform.translation.y + destination_elevation/10.0, destination.1 - 5.0).translation;
@@ -184,7 +184,7 @@ fn camera_follow_robot(
                                 return;
                             }
                         }
-                        let elevation = tile.elevation as f32;
+                        let elevation = tile.elevation as f32 - (camera_transform.translation.y * 10.0);
                         match direction {
                             Direction::Right => {
                                 if game_data.camera_data.camera_mode != 3{

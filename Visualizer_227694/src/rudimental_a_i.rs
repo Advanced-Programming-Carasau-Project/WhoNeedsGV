@@ -86,16 +86,32 @@ fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: 
     }
     let mut generator = rip_worldgenerator::MyWorldGen::new_param(game_data.world_size,2,5,0,true,false, 5, false, None);
     let mut run = Runner::new(Box::new(robot), &mut generator).unwrap();
-    let robot_spawn = run.get_robot().get_coordinate();
-    let robot_energy = run.get_robot().get_energy();
+    let spawn_point = (run.get_robot().get_coordinate().get_row(),run.get_robot().get_coordinate().get_col());
+    let robot_energy = run.get_robot().get_energy().get_energy_level() as i32;
 
-    game_data.robot_data.energy = robot_energy.get_energy_level() as i32;
-    game_data.robot_data.robot_translation = Transform::from_translation(Vec3::new(robot_spawn.get_row() as f32,/*robot_elevation*/ 50.0 as f32 / 10.0 - 0.45,robot_spawn.get_col() as f32)).translation;
+
+    let mut runner = RunnerTag(run);
+    let _ = runner.0.game_tick();
+
+    let mondo = robot_view.lock().unwrap();
+
+    let robot_elevation;
+    match &mondo[spawn_point.0][spawn_point.1] {
+        None => {
+            panic!("spawn point unknown");
+        }
+        Some(tile) => {
+            robot_elevation = tile.elevation as f32;
+        }
+    }
+
+    game_data.robot_data.energy = robot_energy;
+    game_data.robot_data.robot_translation = Transform::from_translation(Vec3::new(spawn_point.0 as f32,robot_elevation / 10.0 - 0.95,spawn_point.1 as f32)).translation;
 
     game_data.camera_data.camera_transform = Transform::from_translation(Vec3::new(0.0,10.0,0.0)).looking_at(Vec3::ZERO,Vec3::Z);
-    game_data.camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(robot_spawn.get_row() as f32,(/*robot_elevation*/ 50.0 as f32 /10.0) + 10.0,robot_spawn.get_col() as f32)).translation;
+    game_data.camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(spawn_point.0 as f32,(robot_elevation / 10.0) + 9.05,spawn_point.1 as f32)).translation;
 
-    commands.insert_resource(RunnerTag(run));
+    commands.insert_resource(runner);
 }
 fn robot_runner(mut game_data: ResMut<GameData>, mut runner: ResMut<RunnerTag>){
     if game_data.next <= 0{

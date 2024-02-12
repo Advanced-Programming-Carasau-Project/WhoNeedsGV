@@ -85,7 +85,7 @@ fn discover_and_update_tile(mut commands: Commands,
                                                     Lava => {
                                                         *tile_scene = scene_assets.lava.clone();
                                                     }
-                                                    TileType::Teleport(_) => {
+                                                    Teleport(_) => {
                                                         *tile_scene = scene_assets.teleport.clone();
                                                     }
                                                     Wall => {
@@ -98,7 +98,7 @@ fn discover_and_update_tile(mut commands: Commands,
                                 }
                                 Option::None => { /* I will insert a new tile because it was discovered*/
                                     //info!("ho discoverato una nuova tile");
-                                    let new_tile_radius = f32::sqrt((coordinates.0*coordinates.0) + (coordinates.1*coordinates.1));
+                                    let new_tile_radius = f32::sqrt((coordinates.0*coordinates.0) + (coordinates.1*coordinates.1)); // TODO così è la distanza da (0,0)
                                     if new_tile_radius > game_data.map_radius {
                                         game_data.map_radius = new_tile_radius;
                                     }
@@ -121,7 +121,7 @@ fn discover_and_update_tile(mut commands: Commands,
                                         Mountain => { tile_scene = scene_assets.mountain.clone(); }
                                         Snow => { tile_scene = scene_assets.snow.clone(); }
                                         Lava => { tile_scene = scene_assets.lava.clone(); }
-                                        TileType::Teleport(_) => { tile_scene = scene_assets.teleport.clone(); }
+                                        Teleport(_) => { tile_scene = scene_assets.teleport.clone(); }
                                         Wall => { tile_scene = scene_assets.wall.clone();
                                             tile_scale = Transform::from_scale(Vec3::new(0.5,1.5,0.5)).scale;}
                                     }
@@ -215,7 +215,7 @@ fn discover_and_update_tile(mut commands: Commands,
                                                 model: SceneBundle{
                                                     scene: tile_scene,
                                                     transform: Transform{
-                                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.0 ,coordinates.1).translation,
+                                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.5 ,coordinates.1).translation,
                                                         rotation: Default::default(),
                                                         scale: tile_scale,
                                                     } ,
