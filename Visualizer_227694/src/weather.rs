@@ -19,7 +19,7 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
         return;
     }
     match events.try_lock() {
-        Ok(events_guard) => {
+        Ok(mut events_guard) => {
             if events_guard.len() != 0 {
                 let mut new_brightness = 0.85;
                 let mut new_color_light = Color::rgb(0.8, 0.8, 0.8); // color of the light
@@ -29,10 +29,14 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
                     TimeChanged(environmental_conditions) => {
                         let _new_weather= environmental_conditions.get_weather_condition();
                         let _time_of_the_day = environmental_conditions.get_time_of_day_string();
+                        //game_data.feed.push(events_guard[0].clone());
+                        events_guard.remove(0);
                     },
                     DayChanged(environmental_conditions) => {
                         let _new_weather= environmental_conditions.get_weather_condition();
                         let _time_of_the_day = environmental_conditions.get_time_of_day_string();
+                        //game_data.feed.push(events_guard[0].clone());
+                        events_guard.remove(0);
                     },
                     _ => {
                         return;

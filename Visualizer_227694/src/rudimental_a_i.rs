@@ -90,10 +90,10 @@ fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: 
     let robot_energy = run.get_robot().get_energy();
 
     game_data.robot_data.energy = robot_energy.get_energy_level() as i32;
-    game_data.robot_data.robot_translation = Transform::from_translation(Vec3::new(robot_spawn.get_row() as f32,/*robot_elevation*/ 0.0 as f32 / 10.0 - 0.45,robot_spawn.get_col() as f32)).translation;
+    game_data.robot_data.robot_translation = Transform::from_translation(Vec3::new(robot_spawn.get_row() as f32,/*robot_elevation*/ 50.0 as f32 / 10.0 - 0.45,robot_spawn.get_col() as f32)).translation;
 
     game_data.camera_data.camera_transform = Transform::from_translation(Vec3::new(0.0,10.0,0.0)).looking_at(Vec3::ZERO,Vec3::Z);
-    game_data.camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(robot_spawn.get_row() as f32,(/*robot_elevation*/ 0.0 as f32 /10.0) + 10.0,robot_spawn.get_col() as f32)).translation;
+    game_data.camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(robot_spawn.get_row() as f32,(/*robot_elevation*/ 50.0 as f32 /10.0) + 10.0,robot_spawn.get_col() as f32)).translation;
 
     commands.insert_resource(RunnerTag(run));
 }
@@ -104,5 +104,6 @@ fn update_game_update(mut game_data: ResMut<GameData>, mut runner: ResMut<Runner
     { // SERVE A LIBERARE I MUTEX SENZA ESPLICITARE UNLOCK
         let _ = runner.0.game_tick();
         game_data.next -= 1;
+        game_data.update_world = true;
     }
 }

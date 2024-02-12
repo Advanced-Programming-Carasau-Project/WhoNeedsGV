@@ -177,7 +177,7 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                             }
                             _ => { //Teleport only way the robot can move by more than 1 tile
                                 let destination = (*x as f32,*z as f32);
-                                let destination_elevation = tile.elevation as f32;
+                                let destination_elevation = tile.elevation as f32 - robot_transform.translation.y;
 
                                 let mut robot_transform = robot_query.single_mut();
                                 robot_transform.translation = Transform::from_xyz(destination.0, robot_transform.translation.y + destination_elevation/10.0, destination.1).translation;

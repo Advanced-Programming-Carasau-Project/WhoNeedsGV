@@ -192,6 +192,10 @@ fn discover_and_update_tile(mut commands: Commands,
                  mut game_data: ResMut<GameData>,
                  mut tile_query: Query<(&Transform,&mut Handle<Scene>),With<TileComponent>>,
 ){
+    if !game_data.update_world{
+        return;
+    }
+    game_data.update_world = false;
     match robot_view.try_lock() {
         Ok(world_guard) => {
             for i in 0..world_guard.len(){

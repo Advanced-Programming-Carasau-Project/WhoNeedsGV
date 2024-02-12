@@ -46,6 +46,7 @@ impl VisualizerGLC{
                 next:0,
                 world_size,
                 world: vec![vec![None; world_size]; world_size],
+                update_world: false,
                 robot_data: RobotData::new(),
                 camera_data : CameraData::new(),
                 timer: Timer::from_seconds(1.0, TimerMode::Repeating),
