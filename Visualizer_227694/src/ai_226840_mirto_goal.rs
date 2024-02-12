@@ -21,7 +21,7 @@ impl MirtoRobot{
     }
     pub fn place_mirto(&mut self, world: &mut World){
         while self.do_u_have_this_content(Content::JollyBlock(0)) {
-            let (d, i, j) = self.finds_the_nearest_content_not_on_fluids(world, Content::None).unwrap();
+            let (_d, i, j) = self.finds_the_nearest_content_not_on_fluids(world, Content::None).unwrap();
             if !(i == self.robot.coordinate.get_row() && j == self.robot.coordinate.get_col()) {
                 // println!("coordinate robot: {:?}, coordinate da raggiungere: {:?}", self.robot.coordinate, (i, j));
                 let destination = Destination::go_to_coordinate((i, j));
@@ -66,7 +66,7 @@ impl MirtoRobot{
                         LibError::NotCraftable => {
                             cont_flag = false;
                         }
-                        LibError::NotEnoughSpace(s) => {
+                        LibError::NotEnoughSpace(_s) => {
                             cont_flag = false;
                         }
                         _ => {  }
@@ -77,7 +77,7 @@ impl MirtoRobot{
     }
     pub fn search_bushes_for_mirto(&mut self,  world: &mut World){
         let search_content = Content::Bush(1);
-        let mut result = CollectTool::collect_content(self, world, &search_content, 20, self.robot.energy.get_energy_level());
+        let _result = CollectTool::collect_content(self, world, &search_content, 20, self.robot.energy.get_energy_level());
     }
 
     pub fn make_next_thing_for_mirto_goal(&mut self, world: &mut World){

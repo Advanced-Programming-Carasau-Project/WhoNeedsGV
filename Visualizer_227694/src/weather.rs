@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use robotics_lib::world::environmental_conditions::*;
 use robotics_lib::event::events::Event::*;
 use crate::game_data::{GameData, MySet};
-use crate::rudimental_a_i::{events, points};
+use crate::rudimental_a_i::{events};
 
 pub struct WeatherPlugin;
 
@@ -13,7 +13,7 @@ impl Plugin for WeatherPlugin{
 }
 fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
                   mut clear_color: ResMut<ClearColor>,  // TODO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
-                  mut game_data: ResMut<GameData>,      // TOQO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
+                  game_data: ResMut<GameData>,      // TOQO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
 ){
     if !game_data.next_action{
         return;
@@ -23,16 +23,16 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
             if events_guard.len() != 0 {
                 let mut new_brightness = 0.85;
                 let mut new_color_light = Color::rgb(0.8, 0.8, 0.8); // color of the light
-                let mut new_weather = WeatherType::Sunny;
+                let new_weather = WeatherType::Sunny;
 
                 match &events_guard[0] {
                     TimeChanged(environmental_conditions) => {
-                        let new_weather= environmental_conditions.get_weather_condition();
-                        let time_of_the_day = environmental_conditions.get_time_of_day_string();
+                        let _new_weather= environmental_conditions.get_weather_condition();
+                        let _time_of_the_day = environmental_conditions.get_time_of_day_string();
                     },
                     DayChanged(environmental_conditions) => {
-                        let new_weather= environmental_conditions.get_weather_condition();
-                        let time_of_the_day = environmental_conditions.get_time_of_day_string();
+                        let _new_weather= environmental_conditions.get_weather_condition();
+                        let _time_of_the_day = environmental_conditions.get_time_of_day_string();
                     },
                     _ => {
                         return;

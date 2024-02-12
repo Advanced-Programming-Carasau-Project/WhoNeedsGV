@@ -372,7 +372,7 @@ fn update_points_update(mut points_update_query: Query<&mut Text,With<PointsUpda
     }
 }
 fn update_feed(mut feed_query: Query<&mut Text,With<FeedComponent>>,
-                   mut game_data: ResMut<GameData>,
+                   game_data: Res<GameData>,
 ) {
     let mut feed_text = feed_query.single_mut();
     if !game_data.feed_visibility{
@@ -392,7 +392,7 @@ fn update_feed(mut feed_query: Query<&mut Text,With<FeedComponent>>,
     }
 }
 fn update_backpack(mut back_pack_query: Query<&mut Text,With<BackPackComponent>>,
-                   mut game_data: ResMut<GameData>,
+                   game_data: Res<GameData>,
 ) { //TODO rifare con immagine al posto di schifo per il back_pack
     let mut back_pack_text = back_pack_query.single_mut();
     if game_data.robot_data.back_pack_visibility == 0{

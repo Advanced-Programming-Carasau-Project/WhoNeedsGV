@@ -13,12 +13,12 @@ mod ai_226840_mirto_goal;
 mod ai_226840_woodworker_goal;
 
 use std::fmt::Debug;
-use bevy::ecs::bundle::DynamicBundle;
+
 use bevy::prelude::*;
-use robotics_lib::runner::Runnable;
+
 use robotics_lib::world::tile::Tile;
-use robotics_lib::world::tile::Content::*;
-use robotics_lib::world::world_generator::Generator;
+
+
 use crate::assets_loader::AssetsLoaderPlugin;
 use crate::camera::CameraPlugin;
 use crate::game_data::{CameraData, GameData, GameDataPlugin, RobotData};
@@ -39,8 +39,8 @@ pub enum Direction{ //TODO capire come usarle comunque per la direzzione in cui 
 pub struct VisualizerGLC;
 impl VisualizerGLC{
     pub fn run(ai: bool,world_size: usize){
-        let mut robot_data = RobotData::new();
-        let mut camera_data= CameraData::new();
+        let robot_data = RobotData::new();
+        let camera_data= CameraData::new();
         App::new()
             .insert_resource(GameData{
                 autoplay:true,

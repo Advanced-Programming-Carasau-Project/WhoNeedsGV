@@ -1,23 +1,23 @@
-use colored::Colorize;
-use robotics_lib::interface::{discover_tiles, get_score, go, put, robot_map, teleport};
+
+use robotics_lib::interface::{go, teleport};
 use robotics_lib::runner::Runnable;
-use robotics_lib::world::tile::{Content, TileType};
-use robotics_lib::world::tile::Content::{Bank, Bin, Bush, Coin, Crate, Fire, Fish, Garbage, Market, Rock, Tree, Water};
-use robotics_lib::world::tile::TileType::ShallowWater;
+use robotics_lib::world::tile::{Content};
+use robotics_lib::world::tile::Content::{Bank, Coin, Crate, Market, Tree};
+
 use robotics_lib::world::World;
 use rust_and_furious_dynamo::dynamo::Dynamo;
-use rustici_planner::tool::{Action, Destination, Planner, PlannerError, PlannerResult};
-use spyglass::spyglass::{Spyglass, SpyglassResult};
-use spyglass::spyglass::SpyglassResult::{Failed, Paused, Stopped};
-use std::ops::Range;
-use ohcrab_collection::collection::{CollectTool, LibErrorExtended};
+use rustici_planner::tool::{Action, Destination, Planner, PlannerResult};
+
+
+
+use ohcrab_collection::collection::{CollectTool};
 use robotics_lib::event::events::Event;
-use rustici_planner::tool::Destination::Content as OtherContent;
+
 use crate::ai_226840_mirto_robot::MirtoRobot;
 
 impl MirtoRobot{
     pub fn delivery_content_to(&mut self, world: &mut World, content: Content, dest_content: Content){
-        let n_content = *self.get_backpack().get_contents().get(&content).unwrap();
+        let _n_content = *self.get_backpack().get_contents().get(&content).unwrap();
         let destination = Destination::go_to_content(dest_content.clone());
         let result = Planner::planner(self, destination, world);
         match result {
@@ -38,7 +38,7 @@ impl MirtoRobot{
                             }
                         }
                         match last_move {
-                            Action::Move(d) => {
+                            Action::Move(_d) => {
                                 *self.get_energy_mut() = Dynamo::update_energy();
                                 self.handle_event(Event::EnergyRecharged(1000));
                                 // println!("{}, {:?} messo in {:?}: {:?}", n_content, content.clone(), dest_content.clone(), put(self, world, content.clone(), n_content, d));
@@ -49,14 +49,14 @@ impl MirtoRobot{
                     _ => {}
                 }
             },
-            Err(e) => { }
+            Err(_e) => { }
         }
     }
 
     pub fn collect_and_delivery_content(&mut self, world: &mut World, content: Content, quantity: usize, dest_content: Content){
         *self.get_energy_mut() = Dynamo::update_energy();
         self.handle_event(Event::EnergyRecharged(1000));
-        let mut result = CollectTool::collect_content(self, world, &content, quantity, self.robot.energy.get_energy_level());
+        let _result = CollectTool::collect_content(self, world, &content, quantity, self.robot.energy.get_energy_level());
         // println!("result: {:?}", result);
         let mut new_content = Content::None;
         match content {

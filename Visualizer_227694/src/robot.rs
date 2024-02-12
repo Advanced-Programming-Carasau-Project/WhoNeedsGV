@@ -1,7 +1,7 @@
-use std::sync::TryLockResult;
+
 use bevy::prelude::*;
 use robotics_lib::event::events::Event::*;
-use robotics_lib::world::tile::Content;
+
 use crate::assets_loader::SceneAssets;
 use crate::game_data::{GameData, MySet};
 use crate::rudimental_a_i::{events, points};
@@ -160,8 +160,8 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 direction = crate::Direction::Down;
                             }
                             _ => { //Teleport only way the robot can move by more than 1 tile
-                                let mut destination = (*x as f32,*z as f32);
-                                let mut destination_elevation = tile.elevation as f32;
+                                let destination = (*x as f32,*z as f32);
+                                let destination_elevation = tile.elevation as f32;
 
                                 let mut robot_transform = robot_query.single_mut();
                                 robot_transform.translation = Transform::from_xyz(destination.0, robot_transform.translation.y + destination_elevation/10.0, destination.1).translation;

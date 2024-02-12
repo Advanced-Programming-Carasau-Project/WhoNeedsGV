@@ -6,7 +6,7 @@ use crate::assets_loader::SceneAssets;
 use robotics_lib::world::tile::Content::*;
 use robotics_lib::event::events::Event::*;
 use robotics_lib::world::tile::TileType::*;
-use crate::rudimental_a_i::{events, points, robot_view};
+use crate::rudimental_a_i::{events, robot_view};
 
 #[derive(Bundle)]
 pub struct ContentBundle{
@@ -255,9 +255,9 @@ fn discover_and_update_tile(mut commands: Commands,
                                         game_data.map_radius = new_tile_radius;
                                     }
 
-                                    let mut tile_scene;
+                                    let tile_scene;
                                     let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
-                                    let mut content_scene;
+                                    let content_scene;
                                     let mut content_transform = Transform{
                                         translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.0 ,coordinates.1).translation,
                                         rotation: Default::default(),
@@ -407,14 +407,14 @@ fn discover_and_update_tile(mut commands: Commands,
 }
 fn update_content(mut content_query: Query<(&mut Transform,&mut Handle<Scene>),With<ContentComponent>>,
                   scene_assets: Res<SceneAssets>,
-                  mut game_data: ResMut<GameData>,
+                  _game_data: ResMut<GameData>,
 ){
     match crate::rudimental_a_i::events.try_lock() {
         Ok(events_guard) => {
             if events_guard.len() != 0{
                 match &events_guard[0] {
                     TileContentUpdated(new_tile, (x, z)) => {
-                        let mut coordinates = (*x as f32, *z as f32);
+                        let coordinates = (*x as f32, *z as f32);
                         for (mut content_transform, mut content_scene) in content_query.iter_mut(){
                             if content_transform.translation.x == coordinates.0 && content_transform.translation.z == coordinates.1{
                                 match new_tile.content {
@@ -525,7 +525,7 @@ fn hide_content_under_robot(mut content_query: Query<(&mut Transform, &mut Visib
     if game_data.content_visibility{
         if (f32::floor(game_data.robot_data.robot_translation.x) != game_data.hided_content.0) || (f32::floor(game_data.robot_data.robot_translation.z) != game_data.hided_content.1) {
             let mut new_hidden_content= (0.0,0.0);
-            for (mut transform,mut visibility) in content_query.iter_mut(){
+            for (transform,mut visibility) in content_query.iter_mut(){
                 if (f32::floor(transform.translation.x) == f32::floor(game_data.robot_data.robot_translation.x)) && (f32::floor(transform.translation.z) == f32::floor(game_data.robot_data.robot_translation.z)) {
                     new_hidden_content = (f32::floor(transform.translation.x),f32::floor(transform.translation.z));
                     *visibility = Visibility::Hidden;

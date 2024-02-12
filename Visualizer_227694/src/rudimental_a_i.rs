@@ -10,10 +10,10 @@ use crate::game_data::*;
 use lazy_static::lazy_static;
 use robotics_lib::world::tile::Tile;
 
-use crate::ai_226840_mirto_robot;
-use crate::ai_226840_mirto_goal;
+
+
 use crate::ai_226840_mirto_robot::MirtoRobot;
-use crate::ai_226840_woodworker_goal;
+
 
 // Static variables for data exchange between bevy and non bevy code
 lazy_static! { /// OGNi VOLTA CHE CAMBIA QUALCOSA L'IA MI AGGIORNA QUESTA RESOURCE E IO HO TUTTO LI PRONTO ///
@@ -74,13 +74,13 @@ impl Plugin for ArtificialIntelligencePlugin {
     }
 }
 
-fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: Commands){
+fn setup_artificial_intelligence(game_data: ResMut<GameData>, mut commands: Commands){
 
     if game_data.ai{ //here I initialize the runner resource with right AI robot
         const world_size: usize = 45;
         let robot = MirtoRobot::new(Robot::new(), true);
         let mut generator = rip_worldgenerator::MyWorldGen::new_param(world_size,2,5,0,true,false, 5, false, None);
-        let mut run = Runner::new(Box::new(robot), &mut generator).unwrap();
+        let run = Runner::new(Box::new(robot), &mut generator).unwrap();
 
         commands.insert_resource(RunnerTag(run));
         /* TODO capire come ricevere queste info e aggiungerle a game_data subito

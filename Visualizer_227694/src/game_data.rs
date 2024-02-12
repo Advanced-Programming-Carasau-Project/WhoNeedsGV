@@ -27,7 +27,7 @@ impl RobotData{
         back_pack.insert(Bush(0),0);
         back_pack.insert(JollyBlock(0),0);
         back_pack.insert(Garbage(0),0);
-        let mut back_pack_update = back_pack.clone();
+        let back_pack_update = back_pack.clone();
         RobotData{
             back_pack,
             back_pack_update,
