@@ -126,7 +126,7 @@ fn camera_follow_robot(
                     Moved(tile,(x,z)) =>{
                         let mut direction = game_data.robot_data.robot_direction.clone();
                         match (*x as f32 - f32::round(game_data.robot_data.robot_translation.x) , *z as f32 - f32::round(game_data.robot_data.robot_translation.z)) {
-                            (-0.1,0.0) => {
+                            (-1.0,0.0) => {
                                 direction = Direction::Right;
                             }
                             (1.0,0.0) => {
