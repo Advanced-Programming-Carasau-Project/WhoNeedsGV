@@ -6,8 +6,8 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_position_robot.in_set(MySet::Third))
-            .add_systems(Update, update_position_camera.in_set(MySet::Third));
+        app.add_systems(Update, update_position_robot.in_set(MySet::Seventh))
+            .add_systems(Update, update_position_camera.in_set(MySet::Seventh));
     }
 }
 

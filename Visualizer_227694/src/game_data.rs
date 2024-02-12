@@ -72,7 +72,7 @@ impl CameraData{
     }
 }
 #[derive(Resource,Debug)]
-pub(crate) struct GameData{
+pub(crate) struct GameData{ // a resource used to store all data concerning the game status
     pub(crate) autoplay:bool,
     pub(crate) next:usize,
     pub(crate) world_size:usize,
@@ -91,11 +91,15 @@ pub(crate) struct GameData{
     pub(crate) ai:bool,
 }
 #[derive(SystemSet,Debug,Hash,Eq, PartialEq,Clone)]
-pub enum MySet{
+pub enum MySet{ // in this way I ensure that Systems executed every frame are executed in parallel only in a non-conflictual way
     First,
     Second,
     Third,
     Fourth,
+    Fifth,
+    Sixth,
+    Seventh,
+    Eighth,
 }
 
 pub struct GameDataPlugin;
@@ -104,7 +108,7 @@ impl Plugin for GameDataPlugin {
     fn build(&self, app: &mut App) {
         app.configure_sets(
             Update,
-            (MySet::First,MySet::Second,MySet::Third,MySet::Fourth).chain(),
+            (MySet::First,MySet::Second,MySet::Third,MySet::Fourth,MySet::Fifth,MySet::Sixth,MySet::Seventh,MySet::Eighth).chain(),
             )
             .insert_resource(ClearColor(Color::rgb(0.1,0.3,0.45)))
             .insert_resource(AmbientLight{

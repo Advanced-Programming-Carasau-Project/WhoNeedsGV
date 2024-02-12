@@ -24,169 +24,13 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin{
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, discover_and_update_tile.in_set(MySet::Third))
-            .add_systems(Update,update_content.in_set(MySet::Third))
-            .add_systems(Update, hide_content_under_robot.in_set(MySet::Second))
-            .add_systems(Update, remove_event.in_set(MySet::Fourth));
+        app.add_systems(Update, discover_and_update_tile.in_set(MySet::Fourth))
+            .add_systems(Update,update_content.in_set(MySet::Fifth))
+            .add_systems(Update, hide_content_under_robot.in_set(MySet::Sixth))
+            .add_systems(Update, next_runner_tick.in_set(MySet::Eighth));
     }
 }
 
-/*
-fn create_world(mut commands: Commands, //TODO non la uso, eliminare
-                scene_assets: Res<SceneAssets>,
-                mut game_update: ResMut<GameUpdate>,
-                mut game_data: ResMut<GameData>,
-){
-    while game_update.events.len() != 0 {
-        match &game_update.events[0] {
-            DiscoverTile{tile,coordinates,energy,points} => {
-                let new_tile_radius = f32::sqrt((coordinates.0*coordinates.0) + (coordinates.1*coordinates.1));
-                if new_tile_radius > game_data.map_radius {
-                    game_data.map_radius = new_tile_radius;
-                }
-                let mut tile_scene;
-                let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
-                let mut content_scene;
-                let mut content_transform = Transform{
-                    translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 1.5 ,coordinates.1).translation,
-                    rotation: Default::default(),
-                    scale: Transform::from_scale(Vec3::new(0.1,0.1,0.1)).scale,
-                };
-                match tile.tile_type {
-                    DeepWater => { tile_scene = scene_assets.deep_water.clone(); }
-                    ShallowWater => { tile_scene = scene_assets.shallow_water.clone(); }
-                    Sand => { tile_scene = scene_assets.sand.clone(); }
-                    Grass => { tile_scene = scene_assets.grass.clone(); }
-                    Street => { tile_scene = scene_assets.street.clone(); }
-                    Hill => { tile_scene = scene_assets.hill.clone(); }
-                    Mountain => { tile_scene = scene_assets.mountain.clone(); }
-                    Snow => { tile_scene = scene_assets.snow.clone(); }
-                    Lava => { tile_scene = scene_assets.lava.clone(); }
-                    TileType::Teleport(_) => { tile_scene = scene_assets.teleport.clone(); }
-                    Wall => { tile_scene = scene_assets.wall.clone();
-                        tile_scale = Transform::from_scale(Vec3::new(0.5,1.5,0.5)).scale;}
-                }
-                match tile.content {
-                    Rock(n) => {
-                        if n < 2 {
-                            content_scene = scene_assets.rock1.clone();
-                            content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
-                        }else if n < 3 {
-                            content_scene = scene_assets.rock2.clone();
-                            content_transform.scale = Transform::from_scale(Vec3::new(0.18,0.18,0.18)).scale;
-                        }else {
-                            content_scene = scene_assets.rock3.clone();
-                            content_transform.scale = Transform::from_scale(Vec3::new(0.27,0.27,0.27)).scale;
-                        }
-                    }
-                    Tree(n) => {
-                        if n < 2 {
-                            content_scene = scene_assets.tree1.clone();
-                            content_transform.scale = Transform::from_scale(Vec3::new(0.09,0.09,0.09)).scale;
-                        }else if n < 4 {
-                            content_scene = scene_assets.tree2.clone();
-                            content_transform.scale = Transform::from_scale(Vec3::new(0.08,0.08,0.08)).scale;
-                        }else {
-                            content_scene = scene_assets.tree3.clone();
-                            content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
-                        }
-                    }
-                    Garbage(_) => {
-                        content_scene = scene_assets.garbage.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.005,0.005,0.005)).scale;
-                    }
-                    Fire => {
-                        content_scene = scene_assets.fire.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.7,0.7,0.7)).scale;
-                        content_transform.translation.y += 0.05;
-                    }
-                    Coin(_) => {
-                        content_scene = scene_assets.coin.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
-                    }
-                    Bin(_) => {
-                        content_scene = scene_assets.bin.clone(); //TODO non mi piace troppo la resa
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
-                        content_transform.translation.y += 0.45;
-                    }
-                    Crate(_) => {
-                        content_scene = scene_assets.crate_.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
-                        content_transform.translation.y += 0.15;
-                    }
-                    Bank(_) => {
-                        content_scene = scene_assets.bank.clone(); //TODO non funziona
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.01,0.01,0.01)).scale;
-                        content_transform.rotate_y(f32::to_degrees(180.0));
-                    }
-                    Water(_) => {
-                        content_scene = Default::default();
-                    }
-                    Market(_) => {
-                        content_scene = scene_assets.market.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
-                    }
-                    Fish(_) => {
-                        content_scene = scene_assets.fish.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.02,0.02,0.02)).scale;
-                    }
-                    Building => {
-                        content_scene = scene_assets.building.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.007,0.007,0.007)).scale;
-                    }
-                    Bush(_) => {
-                        content_scene = scene_assets.bush.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
-                    }
-                    JollyBlock(_) => {
-                        content_scene = scene_assets.jolly_block.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
-                    }
-                    Scarecrow => {
-                        content_scene = scene_assets.scarecrow.clone();
-                        content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
-                    }
-                    None => {
-                        content_scene = Default::default();
-                    }
-                }
-                use bevy::core_pipeline::{bloom::{BloomCompositeMode, BloomSettings}, tonemapping::Tonemapping,};
-                commands.spawn(
-                    (
-                        TileBundle{
-                            model: SceneBundle{
-                                scene: tile_scene,
-                                transform: Transform{
-                                    translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.0 ,coordinates.1).translation,
-                                    rotation: Default::default(),
-                                    scale: tile_scale,
-                                },
-                                ..default()
-                            },
-                        },
-                        TileComponent,
-                    )
-                );
-                commands.spawn(
-                    (
-                        ContentBundle{
-                            model: SceneBundle{
-                                scene: content_scene,
-                                transform: content_transform,
-                                ..default()
-                            }
-                        },
-                        ContentComponent
-                    )
-                );
-                game_update.events.remove(0);
-            }
-            _ => {
-                return;
-            }
-        }
-    }
-}*/
 fn discover_and_update_tile(mut commands: Commands,
                  scene_assets: Res<SceneAssets>,
                  mut game_data: ResMut<GameData>,
@@ -541,7 +385,7 @@ fn hide_content_under_robot(mut content_query: Query<(&mut Transform, &mut Visib
         }
     }
 }
-fn remove_event(mut game_data: ResMut<GameData>){
+fn next_runner_tick(mut game_data: ResMut<GameData>){
     if game_data.next_action{
         let mut events_guard = events.lock().unwrap();
         if events_guard.len() > 0{

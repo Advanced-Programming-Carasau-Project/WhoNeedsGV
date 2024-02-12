@@ -28,17 +28,17 @@ pub struct GUIPlugin;
 
 impl Plugin for GUIPlugin{
     fn build(&self, app: &mut App) {
-        app.add_systems(PostStartup,create_gui)
-            .add_systems(Update,update_energy.in_set(MySet::Third))
-            .add_systems(Update,update_energy_update.in_set(MySet::Third))
-            .add_systems(Update,update_energy_image.in_set(MySet::Third))
-            .add_systems(Update,update_points.in_set(MySet::Third))
-            .add_systems(Update,update_points_update.in_set(MySet::Third))
-            .add_systems(Update,update_points_image.in_set(MySet::Third))
-            .add_systems(Update,update_feed.in_set(MySet::Third))
-            .add_systems(Update,update_backpack.in_set(MySet::Third))
-            .add_systems(Update,update_backpack_images.in_set(MySet::Third))
-            .add_systems(Update,update_backpack_update.in_set(MySet::Third));
+        app.add_systems(Startup,create_gui)
+            .add_systems(Update,update_energy.in_set(MySet::Seventh))
+            .add_systems(Update,update_energy_update.in_set(MySet::Seventh))
+            .add_systems(Update,update_energy_image.in_set(MySet::Seventh))
+            .add_systems(Update,update_points.in_set(MySet::Seventh))
+            .add_systems(Update,update_points_update.in_set(MySet::Seventh))
+            .add_systems(Update,update_points_image.in_set(MySet::Seventh))
+            .add_systems(Update,update_feed.in_set(MySet::Seventh))
+            .add_systems(Update,update_backpack.in_set(MySet::Seventh))
+            .add_systems(Update,update_backpack_images.in_set(MySet::Seventh))
+            .add_systems(Update,update_backpack_update.in_set(MySet::Seventh));
     }
 }
 fn create_gui(mut commands: Commands,

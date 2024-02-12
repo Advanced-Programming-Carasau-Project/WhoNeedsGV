@@ -8,12 +8,12 @@ pub struct WeatherPlugin;
 
 impl Plugin for WeatherPlugin{
     fn build(&self, app: &mut App) {
-        app.add_systems(Update,update_weather.in_set(MySet::Third));
+        app.add_systems(Update,update_weather.in_set(MySet::Seventh));
     }
 }
 fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
                   mut clear_color: ResMut<ClearColor>,  // TODO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
-                  game_data: ResMut<GameData>,      // TOQO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
+                  game_data: Res<GameData>,             // TOQO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
 ){
     if !game_data.next_action{
         return;

@@ -16,10 +16,10 @@ pub struct RobotPlugin;
 
 impl Plugin for RobotPlugin{
     fn build(&self, app: &mut App) {
-        app.add_systems(PostStartup,spawn_robot)
-            .add_systems(Update,move_robot.in_set(MySet::Third))
-            .add_systems(Update,robot_energy.in_set(MySet::Third))
-            .add_systems(Update,robot_points.in_set(MySet::Third))
+        app.add_systems(Startup,spawn_robot)
+            .add_systems(Update,move_robot.in_set(MySet::Fourth))
+            .add_systems(Update,robot_energy.in_set(MySet::Sixth))
+            .add_systems(Update,robot_points.in_set(MySet::Sixth))
             .add_systems(Update,fine_robot.in_set(MySet::Third));
     }
 }
@@ -153,7 +153,6 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
     if !game_data.next_action{
         return;
     }
-
     match events.try_lock() {
         Ok(mut events_guard) => {
             let mut robot_transform = robot_query.single_mut();

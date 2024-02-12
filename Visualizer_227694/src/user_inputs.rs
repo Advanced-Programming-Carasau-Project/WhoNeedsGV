@@ -8,8 +8,8 @@ pub struct InputPlugin;
 
 impl Plugin for InputPlugin{
     fn build(&self, app: &mut App) {
-        app.add_systems(Update,go_stop)
-            .add_systems(Update,next)
+        app.add_systems(Update,go_stop.in_set(MySet::First))
+            .add_systems(Update,next.in_set(MySet::First))
             .add_systems(Update,back_pack_show_hide.in_set(MySet::First))
             .add_systems(Update,map_show_hide.in_set(MySet::First))
             .add_systems(Update,content_show_hide.in_set(MySet::First))

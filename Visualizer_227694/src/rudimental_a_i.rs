@@ -73,7 +73,7 @@ pub struct ArtificialIntelligencePlugin;
 impl Plugin for ArtificialIntelligencePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PreStartup, setup_artificial_intelligence)
-            .add_systems(Update, update_game_update.in_set(MySet::First));
+            .add_systems(Update, robot_runner.in_set(MySet::Third));
     }
 }
 
@@ -97,7 +97,7 @@ fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: 
 
     commands.insert_resource(RunnerTag(run));
 }
-fn update_game_update(mut game_data: ResMut<GameData>, mut runner: ResMut<RunnerTag>){
+fn robot_runner(mut game_data: ResMut<GameData>, mut runner: ResMut<RunnerTag>){
     if game_data.next <= 0{
         return;
     }
