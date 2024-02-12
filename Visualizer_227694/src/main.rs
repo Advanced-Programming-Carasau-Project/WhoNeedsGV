@@ -12,12 +12,8 @@ mod rudimental_a_i;
 use std::fmt::Debug;
 use bevy::ecs::bundle::DynamicBundle;
 use bevy::prelude::*;
-use robotics_lib::energy::Energy;
-use robotics_lib::runner::{Robot, Runnable, Runner};
-use robotics_lib::runner::backpack::BackPack;
-use robotics_lib::world::coordinates::Coordinate;
-use robotics_lib::world::environmental_conditions::WeatherType;
-use robotics_lib::world::tile::{Content, Tile};
+use robotics_lib::runner::Runnable;
+use robotics_lib::world::tile::Tile;
 use robotics_lib::world::tile::Content::*;
 use robotics_lib::world::world_generator::Generator;
 use crate::assets_loader::AssetsLoaderPlugin;
@@ -31,26 +27,16 @@ use crate::weather::WeatherPlugin;
 use crate::world::WorldPlugin;
 #[derive(Debug,Clone)]
 pub enum Direction{ //TODO capire come usarle comunque per la direzzione in cui deve guardare il robot nonostante non abbia gia la pappa pronta
-Right,
+    Right,
     Left,
     Up,
     Down
 }
-#[derive(Clone,Debug)]
-pub enum RobotAction { //TODO EVENTI YEEEEE
-Move{direction:Direction,elevation:f32,energy:i32,points:f32},
-    UpdateTile{new_tile:Tile,back_pack_update:Vec<(Content,i32)>,coordinates:(f32,f32),energy:i32,points:f32},
-    DiscoverTile{tile:Tile,coordinates:(f32,f32),energy:i32,points:f32},
-    GainEnergy{energy:i32,points:f32},
-    Teleport{destination:(f32,f32),destination_elevation:f32,energy:i32,points:f32},
-    Other{action_type:String,back_pack_update:Vec<(Content,i32)>,energy:i32,points:f32},
-}
+
 #[derive(Resource,Debug)] /// OGNi VOLTA CHE CAMBIA QUALCOSA L'IA MI AGGIORNA QUESTA RESOURCE E IO HO TUTTO LI PRONTO
-pub struct GameUpdate{ //non so ancora bene come funziona rip
-//pub azioni: Vec<(RobotAction,WeatherType)>,
-pub(crate) events: Vec<robotics_lib::event::events::Event>,
+pub struct GameUpdate{
+    pub(crate) events: Vec<robotics_lib::event::events::Event>,
     pub(crate) world: Vec<Vec<Option<Tile>>>,
-    // TODO discover tiles è un problema d** c*** capire come si "vede" la mappa
     pub points: f32, //i punti non sono trasmessi tramite eventi :(
 }
 pub struct VisualizerGLC;
@@ -123,25 +109,6 @@ fn from_map_to_option_world(map: &Vec<Vec<Tile>>)->Vec<Vec<Option<Tile>>>{ //Use
         }
         r.push(t);
 
-    }
-    return r;
-}
-
-fn from_map_to_action_vec(map: &Vec<Vec<Tile>>)->Vec<(RobotAction,WeatherType)>{ //Used to load the entire world for testing purpose
-    let mut r = vec![];
-    for i in 0..map.len(){
-        for j in 0..map.len(){
-            r.push((RobotAction::DiscoverTile{
-                tile:Tile{
-                    tile_type: map[i][j].tile_type,
-                    content: map[i][j].content.clone(),
-                    elevation: map[i][j].elevation,
-                },
-                coordinates:(i as f32,j as f32),
-                energy:-1,
-                points:1.0,
-            },WeatherType::Sunny));
-        }
     }
     return r;
 }

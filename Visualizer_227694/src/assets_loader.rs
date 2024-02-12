@@ -89,7 +89,7 @@ pub fn load_assets(mut scene_assets: ResMut<SceneAssets>, asset_server: Res<Asse
         building:asset_server.load("building.glb#Scene0"),
         bush:asset_server.load("bush.glb#Scene0"),
         jolly_block:asset_server.load("jolly_block.glb#Scene0"),
-        mirto:asset_server.load("jolly_block.glb#Scene0"),
+        mirto:asset_server.load("mirto_jb_goldo.glb#Scene0"),
         scarecrow:asset_server.load("scarecrow.glb#Scene0"),
     }
 }

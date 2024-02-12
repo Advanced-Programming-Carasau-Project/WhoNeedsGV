@@ -1,8 +1,6 @@
 use bevy::prelude::*;
-use robotics_lib::world::tile::*;
 use robotics_lib::event::events::Event::*;
 use robotics_lib::world::environmental_conditions::WeatherType::*;
-use crate::GameUpdate;
 use crate::game_data::{GameData, MySet};
 use crate::world::ContentComponent;
 
@@ -11,7 +9,6 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin{
     fn build(&self, app: &mut App) {
         app.add_systems(Update,go_stop)
-            .add_systems(Update,destroy_test.in_set(MySet::First))//<--- rimuovere
             .add_systems(Update,back_pack_show_hide.in_set(MySet::First))
             .add_systems(Update,map_show_hide.in_set(MySet::First))
             .add_systems(Update,content_show_hide.in_set(MySet::First))
@@ -90,7 +87,7 @@ fn content_show_hide(keyboard_input: Res<Input<KeyCode>>,
             for mut i in query.iter_mut(){
                 *i = Visibility::Hidden;
             }
-            game_data.hided_content = (777777.0,777777.0);
+            game_data.hided_content = (777777.0,777777.0); // a random number bigger than the biggest world size
         }else {
             for mut i in query.iter_mut(){
                 *i = Visibility::Visible;
@@ -98,53 +95,4 @@ fn content_show_hide(keyboard_input: Res<Input<KeyCode>>,
         }
         game_data.content_visibility = !game_data.content_visibility;
     }
-}
-fn destroy_test(keyboard_input: Res<Input<KeyCode>>,
-                mut game_update: ResMut<GameUpdate>,
-                mut game_data: ResMut<GameData>,
-){ // è solo per test, rimuovere
-    if keyboard_input.just_pressed(KeyCode::Q){
-        game_update.world[0][0].as_mut().unwrap().tile_type = TileType::Street;
-    }else if keyboard_input.just_pressed(KeyCode::W){
-        game_update.events.push( Moved(Tile{
-            tile_type: TileType::DeepWater,
-            content: Content::Fire,
-            elevation: 0,
-        },(game_data.robot_data.robot_translation.z as usize + 1,game_data.robot_data.robot_translation.z as usize + 0 )));
-    }else if keyboard_input.just_pressed(KeyCode::A){
-        game_update.events.push( Moved(Tile{
-            tile_type: TileType::DeepWater,
-            content: Content::Fire,
-            elevation: 0,
-        },(game_data.robot_data.robot_translation.z as usize + 0,game_data.robot_data.robot_translation.z as usize + 1 )));
-    }else if keyboard_input.just_pressed(KeyCode::S){
-        game_update.events.push( Moved(Tile{
-            tile_type: TileType::DeepWater,
-            content: Content::Fire,
-            elevation: 0,
-        },(game_data.robot_data.robot_translation.z as usize - 1,game_data.robot_data.robot_translation.z as usize + 0 )));
-    }else if keyboard_input.just_pressed(KeyCode::D){
-        game_update.events.push( Moved(Tile{
-            tile_type: TileType::DeepWater,
-            content: Content::Fire,
-            elevation: 0,
-        },(game_data.robot_data.robot_translation.z as usize + 0,game_data.robot_data.robot_translation.z as usize - 1 )));
-    }else if keyboard_input.just_pressed(KeyCode::E){
-        /*game_update.events.push(
-            TimeChanged(TrentinoSnow)
-        );*/
-    }else if keyboard_input.just_pressed(KeyCode::G){
-        game_update.events.push(
-            EnergyRecharged(1000)
-        );
-    }else if keyboard_input.just_pressed(KeyCode::T){
-        game_update.events.push(
-           Moved(Tile{
-               tile_type: TileType::DeepWater,
-               content: Content::Fire,
-               elevation: 0,
-           },(6,6))
-        );
-    }
-    //info!("agg {:?}",aggiornamento);
 }
