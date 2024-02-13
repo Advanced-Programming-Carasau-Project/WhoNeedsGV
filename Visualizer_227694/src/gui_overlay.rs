@@ -429,24 +429,24 @@ fn update_backpack(mut back_pack_query: Query<&mut Text,With<BackPackComponent>>
     if game_data.robot_data.back_pack_visibility == 0{
         back_pack_text.sections[0].value = format!("");
     }else if game_data.robot_data.back_pack_visibility == 1{
-        let water = game_data.robot_data.back_pack.get(&Content::Water(0)).unwrap();
-        let tree = game_data.robot_data.back_pack.get(&Content::Tree(0)).unwrap();
-        let rock = game_data.robot_data.back_pack.get(&Content::Rock(0)).unwrap();
-        let fish = game_data.robot_data.back_pack.get(&Content::Fish(0)).unwrap();
-        let jolly_block = game_data.robot_data.back_pack.get(&Content::JollyBlock(0)).unwrap();
-        let bush = game_data.robot_data.back_pack.get(&Content::Bush(0)).unwrap();
-        let garbage = game_data.robot_data.back_pack.get(&Content::Garbage(0)).unwrap();
-        let coin = game_data.robot_data.back_pack.get(&Content::Coin(0)).unwrap();
+        let water = game_data.robot_data.back_pack.get(&Content::Water(0).to_default()).unwrap();
+        let tree = game_data.robot_data.back_pack.get(&Content::Tree(0).to_default()).unwrap();
+        let rock = game_data.robot_data.back_pack.get(&Content::Rock(0).to_default()).unwrap();
+        let fish = game_data.robot_data.back_pack.get(&Content::Fish(0).to_default()).unwrap();
+        let jolly_block = game_data.robot_data.back_pack.get(&Content::JollyBlock(0).to_default()).unwrap();
+        let bush = game_data.robot_data.back_pack.get(&Content::Bush(0).to_default()).unwrap();
+        let garbage = game_data.robot_data.back_pack.get(&Content::Garbage(0).to_default()).unwrap();
+        let coin = game_data.robot_data.back_pack.get(&Content::Coin(0).to_default()).unwrap();
         back_pack_text.sections[0].value = format!("-----BackPack-----\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n-----BackPack-----", water, rock, tree, bush, jolly_block, garbage, coin, fish);
     }else if game_data.robot_data.back_pack_visibility == 2{
-        let water = game_data.robot_data.back_pack.get(&Content::Water(0)).unwrap();
-        let tree = game_data.robot_data.back_pack.get(&Content::Tree(0)).unwrap();
-        let rock = game_data.robot_data.back_pack.get(&Content::Rock(0)).unwrap();
-        let fish = game_data.robot_data.back_pack.get(&Content::Fish(0)).unwrap();
-        let jolly_block = game_data.robot_data.back_pack.get(&Content::JollyBlock(0)).unwrap();
-        let bush = game_data.robot_data.back_pack.get(&Content::Bush(0)).unwrap();
-        let garbage = game_data.robot_data.back_pack.get(&Content::Garbage(0)).unwrap();
-        let coin = game_data.robot_data.back_pack.get(&Content::Coin(0)).unwrap();
+        let water = game_data.robot_data.back_pack.get(&Content::Water(0).to_default()).unwrap();
+        let tree = game_data.robot_data.back_pack.get(&Content::Tree(0).to_default()).unwrap();
+        let rock = game_data.robot_data.back_pack.get(&Content::Rock(0).to_default()).unwrap();
+        let fish = game_data.robot_data.back_pack.get(&Content::Fish(0).to_default()).unwrap();
+        let jolly_block = game_data.robot_data.back_pack.get(&Content::JollyBlock(0).to_default()).unwrap();
+        let bush = game_data.robot_data.back_pack.get(&Content::Bush(0).to_default()).unwrap();
+        let garbage = game_data.robot_data.back_pack.get(&Content::Garbage(0).to_default()).unwrap();
+        let coin = game_data.robot_data.back_pack.get(&Content::Coin(0).to_default()).unwrap();
         back_pack_text.sections[0].value = format!("-----BackPack-----\n  Water   :{}\n   Rock   :{}\n   Tree   :{}\n   Bush   :{}\n  Jolly   :{}\nGarbage   :{}\n   Coin   :{}\n   Fish   :{}\n-----BackPack-----", water, rock, tree, bush, jolly_block, garbage, coin, fish);
     }
 }

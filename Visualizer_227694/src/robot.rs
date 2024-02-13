@@ -20,6 +20,7 @@ impl Plugin for RobotPlugin{
             .add_systems(Update,move_robot.in_set(MySet::Fourth))
             .add_systems(Update,robot_energy.in_set(MySet::Sixth))
             .add_systems(Update,robot_points.in_set(MySet::Sixth))
+            .add_systems(Update,robot_back_pack.in_set(MySet::Sixth))
             .add_systems(Update,fine_robot.in_set(MySet::Third));
     }
 }
@@ -125,13 +126,23 @@ fn robot_back_pack(mut game_data: ResMut<GameData>){
             match &events_guard[0] {
                 AddedToBackpack(content, n) => {
                     game_data.robot_data.back_pack_update.insert(content.to_default(),*n as i32);
+                    let temp = *game_data.robot_data.back_pack.get(&content.to_default()).unwrap();
+                    game_data.robot_data.back_pack.insert(content.to_default(),temp + *n as i32);
                     game_data.feed.push(format!("{}",events_guard[0]));
                     events_guard.remove(0);
+                    if game_data.feed.len() == 8{
+                        game_data.feed.remove(7);
+                    }
                 },
                 RemovedFromBackpack(content, n)=> {
                     game_data.robot_data.back_pack_update.insert(content.to_default(), - (*n as i32));
+                    let temp = *game_data.robot_data.back_pack.get(&content.to_default()).unwrap();
+                    game_data.robot_data.back_pack.insert(content.to_default(),temp - *n as i32);
                     game_data.feed.push(format!("{}",events_guard[0]));
                     events_guard.remove(0);
+                    if game_data.feed.len() == 8{
+                        game_data.feed.remove(7);
+                    }
                 },
                 _ => {
                     return;
@@ -178,6 +189,9 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 robot_transform.translation = Transform::from_xyz(*x as f32, (tile.elevation as f32 / 10.0) - 0.95, *z as f32).translation;
                                 game_data.robot_data.robot_translation = Transform::from_xyz(*x as f32, (tile.elevation as f32 / 10.0) - 0.95, *z as f32).translation;
                                 game_data.feed.push(format!("Teleported to ({},{}) on {:?}",x,z,tile.tile_type));
+                                if game_data.feed.len() == 8{
+                                    game_data.feed.remove(7);
+                                }
                                 return;
                             }
                         }
@@ -231,6 +245,9 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 game_data.robot_data.robot_velocity = Vec3::new(0.0,elevation/10.0,-1.0);
                                 game_data.feed.push(format!("Moved down on {:?}",tile.tile_type));
                             }
+                        }
+                        if game_data.feed.len() == 8{
+                            game_data.feed.remove(7);
                         }
                         events_guard.remove(0);
                     }

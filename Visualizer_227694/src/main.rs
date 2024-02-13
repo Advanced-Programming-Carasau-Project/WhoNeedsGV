@@ -49,7 +49,7 @@ impl VisualizerGLC{
                 update_world: true,
                 robot_data: RobotData::new(),
                 camera_data : CameraData::new(),
-                timer: Timer::from_seconds(1.0, TimerMode::Repeating),
+                timer: Timer::from_seconds(0.2, TimerMode::Repeating),
                 next_action: false,
                 frames: 0,
                 feed: vec![],

@@ -282,10 +282,10 @@ fn discover_and_update_tile(mut commands: Commands,
 }
 fn update_content(mut content_query: Query<(&mut Transform,&mut Handle<Scene>),With<ContentComponent>>,
                   scene_assets: Res<SceneAssets>,
-                  _game_data: ResMut<GameData>,
+                  mut game_data: ResMut<GameData>,
 ){
     match crate::rudimental_a_i::events.try_lock() {
-        Ok(events_guard) => {
+        Ok(mut events_guard) => {
             if events_guard.len() != 0{
                 match &events_guard[0] {
                     TileContentUpdated(new_tile, (x, z)) => {
@@ -379,6 +379,11 @@ fn update_content(mut content_query: Query<(&mut Transform,&mut Handle<Scene>),W
                                 }
                             }
                         }
+                        game_data.feed.push(format!("Content updated on ({}, {})",x, z));
+                        if game_data.feed.len() == 8{
+                            game_data.feed.remove(7);
+                        }
+                        events_guard.remove(0);
                     }
                     _ => {
                         return;
@@ -419,6 +424,9 @@ fn next_runner_tick(mut game_data: ResMut<GameData>){
             match &events_guard[0] {
                 Ready => {
                     game_data.feed.push(format!("{}",Ready));
+                    if game_data.feed.len() == 8{
+                        game_data.feed.remove(7);
+                    }
                     events_guard.remove(0);
                 }
                 Terminated => {}
