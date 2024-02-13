@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   width="99"
+   height="99"
+   viewBox="0 0 99 99"
+   id="svg4999"
+   version="1.1">
+  <title
+     id="title3386">Golden Dollar</title>
+  <defs
+     id="defs5001">
+    <radialGradient
+       xlink:href="#linearGradient4947"
+       id="radialGradient4758"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.60557615,0.11534751,-0.11438946,0.60054643,254.94286,17.892583)"
+       cx="-257.68942"
+       cy="387.62302"
+       fx="-257.68942"
+       fy="387.62302"
+       r="75.7145" />
+    <linearGradient
+       id="linearGradient4947">
+      <stop
+         id="stop4949"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1" />
+      <stop
+         id="stop4951"
+         offset="1"
+         style="stop-color:#ffcc53;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <metadata
+     id="metadata5004">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Golden Dollar</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
+        <dc:date>2016-03-26</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>mazeo</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>openclipart.org</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:language>en</dc:language>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>money</rdf:li>
+            <rdf:li>currency</rdf:li>
+            <rdf:li>change</rdf:li>
+            <rdf:li>coin</rdf:li>
+            <rdf:li>coins</rdf:li>
+            <rdf:li>cash</rdf:li>
+            <rdf:li>coinage</rdf:li>
+            <rdf:li>denomination</rdf:li>
+            <rdf:li>dollar</rdf:li>
+            <rdf:li>dollars</rdf:li>
+            <rdf:li>buck</rdf:li>
+            <rdf:li>bucks</rdf:li>
+            <rdf:li>one dollar</rdf:li>
+            <rdf:li>golden dollar</rdf:li>
+            <rdf:li>golden dollars</rdf:li>
+            <rdf:li>Sacagawea</rdf:li>
+            <rdf:li>Sacajawea</rdf:li>
+            <rdf:li>Presidential coin</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+        <dc:description>A golden dollar coin.</dc:description>
+        <dc:contributor>
+          <cc:Agent>
+            <dc:title>mazeo</dc:title>
+          </cc:Agent>
+        </dc:contributor>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(1.3694904,-181.36948)"
+     id="sacagawea">
+    <circle
+       style="color:#000000;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:url(#radialGradient4758);fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.32250202;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+       id="circle4750"
+       cx="49.312202"
+       cy="229.68779"
+       r="46.287567" />
+    <circle
+       r="42.858746"
+       cy="232.05118"
+       cx="46.948818"
+       id="circle4752"
+       style="color:#000000;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#ffcc53;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:8.18014812;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate" />
+    <path
+       style="color:#000000;white-space:normal;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:12.53257084;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+       d="m 58.714798,214.32627 c -0.969587,0.0665 -1.569819,1.39111 -1.887753,2.22197 c -0.31793,0.83082 -0.06465,2.42106 -0.06465,2.42106 c 0,0 -3.903095,1.23851 -4.757435,2.39092 c -1.244913,0.89519 -2.042423,2.2872 -1.744246,3.849 c 0.215432,2.66057 2.017662,5.20659 4.539015,6.15429 c 1.223041,0.38676 1.879194,0.9885 1.879194,0.9885 l 0.1765,8.31401 c -1.330057,-0.50065 -2.373496,-2.04081 -3.740374,-1.81365 c -1.153553,0.19173 -2.475337,1.30014 -2.491807,2.4694 c -0.01781,1.26557 1.530226,2.10512 2.62068,2.74766 c 1.03368,0.60908 2.705851,-0.004 3.482155,0.91105 c 0.487499,0.57448 -0.06653,1.54931 0.208731,2.25065 c 0.391251,0.99692 0.888425,2.50206 1.958402,2.54686 c 1.147763,0.048 2.457041,-1.4325 2.321758,-2.54686 c -0.135282,-1.11435 -0.01728,-1.1983 -0.02507,-2.0599 c 1.697857,-0.58429 3.743045,-0.79483 4.900535,-2.32904 c 1.076655,-1.4308 1.979362,-3.14321 1.811557,-4.99018 c -0.130233,-2.87834 -2.287966,-5.105 -4.4398,-6.77068 c -0.859355,-0.46037 -2.444124,-0.64831 -2.272292,-1.95818 l 0,-5.71548 c 1.340027,0.5629 2.455816,2.04593 3.863971,1.82822 c 1.146167,-0.17719 2.696723,-1.21806 2.548852,-2.36841 c -0.32346,-2.51618 -6.704309,-3.60198 -6.704309,-3.60198 c 0,0 0.663206,-1.77272 0.301898,-2.71726 c -0.361304,-0.94458 -1.376817,-2.29806 -2.485508,-2.22197 z m -1.859378,8.92647 l 0,4.62341 c -1.633676,-0.26611 -3.325517,-2.77874 -1.773386,-4.01231 c 0.556497,-0.2994 1.221824,-0.30023 1.773386,-0.6111 z m 4.33444,11.32117 c 1.76643,0.67411 2.999473,2.9006 2.300868,4.71901 c -0.329035,1.20996 -2.837048,2.17095 -2.33937,0.14228 c 0.154166,-1.54479 -0.02382,-3.0996 0.0385,-4.65534 z"
+       id="path4754" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:7.24243546;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 29.642838,221.19325 l 3.332887,-1.66647 l 4.999325,-4.99929 l 0,34.99527"
+       id="path4756" />
+  </g>
+</svg>

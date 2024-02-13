@@ -1,0 +1,94 @@
+html{
+    background: black;
+}
+
+h1{
+  text-align: center;
+  color: white;
+}
+
+main {
+    background: black;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+#commands {
+  background-color: black;
+  padding: 15px 0px;
+  text-align: center;
+}
+
+#commands #stop_auto {
+  color: grey;
+  border-color: grey;
+}
+
+#commands button {
+  background-color: #555;
+  background: black;
+  border-color: white;
+  border-radius: 10px;
+  color: white;
+  padding: 10px 20px;
+  margin: 0 16px;
+  cursor: pointer;
+}
+
+#central_panel{
+  color: white;
+  padding: 15px 0px;
+  text-align: center;
+}
+
+#world {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#worldCanvas {
+  color: white;
+  border: 2px solid white;
+  background-color: #fff;
+  background: black;
+  margin: 0.5vmin;
+  padding: 0.5vmin;
+}
+
+#backpack{
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+ul {
+  list-style-type: none; /* Rimuove il punto dell'elenco puntato */
+  padding: 0;
+  margin: 0;
+}
+li {
+  display: inline-block;
+  margin-right: 40px; /* Regola la distanza tra gli elementi */
+}
+
+.labels{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.labels h3 {
+  display: inline;
+  padding: 10px; /* Aggiungi spazio tra i due h3 se necessario */
+  padding-right: 70px;
+  padding-left: 70px;
+}
+
+.labels #time{
+  border: 1px solid white;
+  padding:5px;
+}
