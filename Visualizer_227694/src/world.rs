@@ -20,17 +20,44 @@ pub struct ContentComponent;
 pub struct TileBundle{
     model: SceneBundle,
 }
+#[derive(Component)]
+struct Ground;
 pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin{
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, discover_and_update_tile.in_set(MySet::Fourth))
+        app.add_systems(Startup, create_ground_and_light)
+            .add_systems(Update, discover_and_update_tile.in_set(MySet::Fourth))
             .add_systems(Update,update_content.in_set(MySet::Fifth))
             .add_systems(Update, hide_content_under_robot.in_set(MySet::Sixth))
             .add_systems(Update, next_runner_tick.in_set(MySet::Eighth));
     }
 }
 
+fn create_ground_and_light(
+    game_data: Res<GameData>,
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    // plane
+    commands.spawn((
+        PbrBundle {
+            mesh: meshes.add(shape::Plane::from_size(game_data.world_size as f32 * 2.0).into()),
+            material: materials.add(Color::rgb(0.0, 0.0, 0.0).into()),
+            transform: Transform::from_translation(Vec3::new(game_data.world_size as f32 / 2.0,-2.5,game_data.world_size as f32 / 2.0)),
+            ..default()
+        },
+        Ground,
+    ));
+
+    // light
+    commands.spawn(DirectionalLightBundle {
+        transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    });
+
+}
 fn discover_and_update_tile(mut commands: Commands,
                  scene_assets: Res<SceneAssets>,
                  mut game_data: ResMut<GameData>,

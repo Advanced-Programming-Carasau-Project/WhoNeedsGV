@@ -18,6 +18,7 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
                   game_data: Res<GameData>,             // TOQO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
                   mut clock_query: Query<&mut Text,With<ClockComponent>>,
                   mut image_query: Query<&mut UiImage,With<ClockImageComponent>>,
+                  mut dir_light_query: Query<&mut DirectionalLight>, //TODO cambiare in base al tempo (e orario)
                   image_assets: Res<ImageAssets>,
 ){
     if !game_data.next_action{
@@ -44,13 +45,16 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
                             DayTime::Night => { is_night = true; }
                         }
                         time_of_the_day = environmental_conditions.get_time_of_day_string();
-                        //game_data.feed.push(events_guard[0].clone());
                         events_guard.remove(0);
                     },
                     DayChanged(environmental_conditions) => {
                         new_weather = environmental_conditions.get_weather_condition();
+                        match environmental_conditions.get_time_of_day() {
+                            DayTime::Morning => {}
+                            DayTime::Afternoon => {}
+                            DayTime::Night => { is_night = true; }
+                        }
                         time_of_the_day = environmental_conditions.get_time_of_day_string();
-                        //game_data.feed.push(events_guard[0].clone());
                         events_guard.remove(0);
                     },
                     _ => {
