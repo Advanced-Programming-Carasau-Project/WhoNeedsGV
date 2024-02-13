@@ -377,7 +377,7 @@ fn update_points(mut points_query: Query<&mut Text,With<PointsComponent>>,
                  game_data: Res<GameData>,
 ){
     let mut points_text = points_query.single_mut();
-    points_text.sections[0].value = format!("Points: {:.3}/{}",game_data.robot_data.points,game_data.robot_data.max_points);
+    points_text.sections[0].value = format!("Points: {:.3}",game_data.robot_data.points);
 }
 fn update_points_image(game_data: Res<GameData>,
                        mut points_image_style_query: Query<&mut Style,With<PointsImageComponent>>,

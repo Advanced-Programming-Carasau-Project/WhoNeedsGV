@@ -40,7 +40,6 @@ fn create_ground_and_light(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // plane
     commands.spawn((
         PbrBundle {
             mesh: meshes.add(shape::Plane::from_size(game_data.world_size as f32 * 2.0).into()),
@@ -51,7 +50,6 @@ fn create_ground_and_light(
         Ground,
     ));
 
-    // light
     commands.spawn(DirectionalLightBundle {
         transform: Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
@@ -191,7 +189,7 @@ fn discover_and_update_tile(mut commands: Commands,
                                             content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
                                         }
                                         Bin(_) => {
-                                            content_scene = scene_assets.bin.clone(); //TODO non mi piace troppo la resa
+                                            content_scene = scene_assets.bin.clone();
                                             content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
                                             content_transform.translation.y += 0.45;
                                         }
@@ -201,8 +199,8 @@ fn discover_and_update_tile(mut commands: Commands,
                                             content_transform.translation.y += 0.15;
                                         }
                                         Bank(_) => {
-                                            content_scene = scene_assets.bank.clone(); //TODO non funziona
-                                            content_transform.scale = Transform::from_scale(Vec3::new(0.0001,0.0001,0.0001)).scale;
+                                            content_scene = scene_assets.bank.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.01,0.01,0.01)).scale;
                                             content_transform.rotate_y(f32::to_degrees(180.0));
                                         }
                                         Water(_) => {
@@ -225,8 +223,13 @@ fn discover_and_update_tile(mut commands: Commands,
                                             content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
                                         }
                                         JollyBlock(_) => {
-                                            content_scene = scene_assets.jolly_block.clone();
-                                            content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            if game_data.ai{
+                                                content_scene = scene_assets.mirto.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                            }else {
+                                                content_scene = scene_assets.jolly_block.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            }
                                         }
                                         Scarecrow => {
                                             content_scene = scene_assets.scarecrow.clone();
@@ -342,7 +345,7 @@ fn update_content(mut content_query: Query<(&mut Transform,&mut Handle<Scene>),W
                                     }
                                     Bank(_) => {
                                         *content_scene = scene_assets.bank.clone();
-                                        content_transform.scale = Transform::from_scale(Vec3::new(0.1,0.1,0.1)).scale;
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.01,0.01,0.01)).scale;
                                         content_transform.rotate_y(f32::to_degrees(180.0));
                                     }
                                     Water(_) => {
@@ -365,8 +368,13 @@ fn update_content(mut content_query: Query<(&mut Transform,&mut Handle<Scene>),W
                                         content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
                                     }
                                     JollyBlock(_) => {
-                                        *content_scene = scene_assets.jolly_block.clone();
-                                        content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                        if game_data.ai{
+                                            *content_scene = scene_assets.mirto.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                        }else {
+                                            *content_scene = scene_assets.jolly_block.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                        }
                                     }
                                     Scarecrow => {
                                         *content_scene = scene_assets.scarecrow.clone();
