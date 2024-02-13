@@ -99,7 +99,7 @@ pub fn load_images(mut image_assets: ResMut<ImageAssets>, asset_server: Res<Asse
         rock:asset_server.load("textures/rock.png"),
         garbage:asset_server.load("textures/garbage.png"),
         jolly_block:asset_server.load("textures/teleport.png"),
-        mirto:asset_server.load("textures/teleport.png"),
+        mirto:asset_server.load("textures/mirto.png"),
         fish:asset_server.load("textures/fish.png"),
         water:asset_server.load("textures/water.png"),
         bush:asset_server.load("textures/bush.png"),

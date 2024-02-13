@@ -47,7 +47,7 @@ fn fine_robot(mut game_data: ResMut<GameData>,
                 match &events_guard[0] {
                     Terminated => {
                         //TODO schermo nero con scritta tipo "the robot terminated his task" e un bottone che cliccato fa terminare l'app (forse potrei anche mettere un bottone per riavviare)
-                        game_data.feed.push(events_guard[0].clone());
+                        game_data.feed.push(format!("{}",events_guard[0]));
                         events_guard.remove(0);
                     }
                     _ => { return; }
@@ -73,14 +73,14 @@ fn robot_energy(mut game_data: ResMut<GameData>){
                         EnergyRecharged(energy) => {
                             game_data.robot_data.energy_update = i32::min(game_data.robot_data.max_energy - game_data.robot_data.energy, energy as i32);
                             game_data.robot_data.energy += game_data.robot_data.energy_update;
-                            game_data.feed.push(events_guard[0].clone());
+                            game_data.feed.push(format!("{}",events_guard[0]));
                             events_guard.remove(0);
                             energy_events = true;
                         }
                         EnergyConsumed(energy) => {
                             game_data.robot_data.energy -= energy as i32;
                             game_data.robot_data.energy_update = energy as i32;
-                            game_data.feed.push(events_guard[0].clone());
+                            game_data.feed.push(format!("{}",events_guard[0]));
                             events_guard.remove(0);
                             energy_events = true;
                         }
@@ -125,12 +125,12 @@ fn robot_back_pack(mut game_data: ResMut<GameData>){
             match &events_guard[0] {
                 AddedToBackpack(content, n) => {
                     game_data.robot_data.back_pack_update.insert(content.to_default(),*n as i32);
-                    game_data.feed.push(events_guard[0].clone());
+                    game_data.feed.push(format!("{}",events_guard[0]));
                     events_guard.remove(0);
                 },
                 RemovedFromBackpack(content, n)=> {
                     game_data.robot_data.back_pack_update.insert(content.to_default(), - (*n as i32));
-                    game_data.feed.push(events_guard[0].clone());
+                    game_data.feed.push(format!("{}",events_guard[0]));
                     events_guard.remove(0);
                 },
                 _ => {
@@ -175,9 +175,9 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 direction = crate::Direction::Down;
                             }
                             _ => { //Teleport only way the robot can move by more than 1 tile
-                                let mut robot_transform = robot_query.single_mut();
                                 robot_transform.translation = Transform::from_xyz(*x as f32, (tile.elevation as f32 / 10.0) - 0.95, *z as f32).translation;
                                 game_data.robot_data.robot_translation = Transform::from_xyz(*x as f32, (tile.elevation as f32 / 10.0) - 0.95, *z as f32).translation;
+                                game_data.feed.push(format!("Teleported to ({},{}) on {:?}",x,z,tile.tile_type));
                                 return;
                             }
                         }
@@ -193,6 +193,7 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 }
                                 game_data.robot_data.robot_direction = crate::Direction::Right;
                                 game_data.robot_data.robot_velocity = Vec3::new(-1.0,elevation/10.0,0.0);
+                                game_data.feed.push(format!("Moved right on {:?}",tile.tile_type));
                             }
                             crate::Direction::Left => {
                                 game_data.robot_data.robot_translation = Transform::from_xyz(robot_transform.translation.x + 1.0, robot_transform.translation.y + elevation/10.0, robot_transform.translation.z).looking_at(Vec3::ZERO, Vec3::Z).translation;
@@ -204,6 +205,7 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 }
                                 game_data.robot_data.robot_direction = crate::Direction::Left;
                                 game_data.robot_data.robot_velocity = Vec3::new(1.0,elevation/10.0,0.0);
+                                game_data.feed.push(format!("Moved left on {:?}",tile.tile_type));
                             }
                             crate::Direction::Up => {
                                 game_data.robot_data.robot_translation = Transform::from_xyz(robot_transform.translation.x, robot_transform.translation.y + elevation/10.0, robot_transform.translation.z + 1.0).looking_at(Vec3::ZERO, Vec3::Z).translation;
@@ -215,6 +217,7 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 }
                                 game_data.robot_data.robot_direction = crate::Direction::Up;
                                 game_data.robot_data.robot_velocity = Vec3::new(0.0,elevation/10.0,1.0);
+                                game_data.feed.push(format!("Moved up on {:?}",tile.tile_type));
                             }
                             crate::Direction::Down => {
                                 game_data.robot_data.robot_translation = Transform::from_xyz(robot_transform.translation.x, robot_transform.translation.y + elevation/10.0, robot_transform.translation.z - 1.0).looking_at(Vec3::ZERO, Vec3::Z).translation;
@@ -226,9 +229,9 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 }
                                 game_data.robot_data.robot_direction = crate::Direction::Down;
                                 game_data.robot_data.robot_velocity = Vec3::new(0.0,elevation/10.0,-1.0);
+                                game_data.feed.push(format!("Moved down on {:?}",tile.tile_type));
                             }
                         }
-                        game_data.feed.push(events_guard[0].clone());
                         events_guard.remove(0);
                     }
                     _ => {

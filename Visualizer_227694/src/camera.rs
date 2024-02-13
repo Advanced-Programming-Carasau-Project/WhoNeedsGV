@@ -116,11 +116,11 @@ fn camera_follow_robot(
     }
     match crate::rudimental_a_i::events.try_lock() {
         Ok(events_guard) => {
-            let mut camera_transform = camera_query.single_mut();
-            *camera_transform = game_data.camera_data.camera_transform;
             if game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3{
                 return;
             }
+            let mut camera_transform = camera_query.single_mut();
+            *camera_transform = game_data.camera_data.camera_transform;
             if events_guard.len() > 0{
                 match &events_guard[0]{
                     Moved(tile,(x,z)) =>{

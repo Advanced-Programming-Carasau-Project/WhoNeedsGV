@@ -389,8 +389,22 @@ fn next_runner_tick(mut game_data: ResMut<GameData>){
     if game_data.next_action{
         let mut events_guard = events.lock().unwrap();
         if events_guard.len() > 0{
-            game_data.feed.push(events_guard[0].clone());
-            events_guard.remove(0);
+            match &events_guard[0] {
+                Ready => {
+                    game_data.feed.push(format!("{}",Ready));
+                    events_guard.remove(0);
+                }
+                Terminated => {}
+                TimeChanged(_) => {}
+                DayChanged(_) => {}
+                EnergyRecharged(_) => {}
+                EnergyConsumed(_) => {}
+                Moved(_, _) => {}
+                TileContentUpdated(_, _) => {}
+                AddedToBackpack(_, _) => {}
+                RemovedFromBackpack(_, _) => {}
+            }
+
         }
         if events_guard.len() == 0{
             if game_data.autoplay {

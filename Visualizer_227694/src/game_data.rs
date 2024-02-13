@@ -83,7 +83,7 @@ pub(crate) struct GameData{ // a resource used to store all data concerning the 
     pub(crate) timer:Timer,
     pub(crate) next_action:bool,
     pub(crate) frames:usize,
-    pub(crate) feed:Vec<robotics_lib::event::events::Event>,
+    pub(crate) feed:Vec<String>,
     pub(crate) feed_visibility:bool,
     pub(crate) map_radius:f32,
     pub(crate) hided_content:(f32,f32),
