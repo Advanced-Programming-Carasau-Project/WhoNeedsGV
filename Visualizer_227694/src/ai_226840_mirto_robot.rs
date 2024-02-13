@@ -1,51 +1,39 @@
-
-
-
-use std::collections::HashMap;
 use rand::thread_rng;
-use robotics_lib::interface::{Direction, get_score, put};
+use std::collections::HashMap;
+use robotics_lib::interface::{craft, Direction, get_score, put, teleport, Tools};
 use robotics_lib::runner::Runnable;
 use robotics_lib::world::tile::{Content, TileType};
 use robotics_lib::world::World;
 use robotics_lib::interface::where_am_i;
-
 use robotics_lib::interface::robot_map;
 use robotics_lib::interface::go;
-
-
 use robotics_lib::runner::{Robot};
 use robotics_lib::event::events::Event;
-
-
-
-
-
+use robotics_lib::energy::Energy;
+use robotics_lib::world::coordinates::Coordinate;
+use robotics_lib::runner::backpack::BackPack;
 use robotics_lib::world::environmental_conditions::WeatherType;
-
+use robotics_lib::runner::Runner;
 use rand::Rng;
-
+use rip_worldgenerator::MyWorldGen;
 use rust_and_furious_dynamo::dynamo::Dynamo;
-use rustici_planner::tool::{Destination};
+use rustici_planner::tool::{Action, Destination, PlannerResult};
 use rustici_planner::tool::Planner;
-
-
-
-
-
-use robotics_lib::world::tile::TileType::{DeepWater, Lava, Teleport, Wall};
+use std::{process, thread};
+use std::time::Duration;
+use robotics_lib::world::tile::TileType::{DeepWater, Lava, ShallowWater, Teleport, Wall};
 use queues::queue;
 use queues::Queue;
 use queues::IsQueue;
 use colored::Colorize;
-
 use oxagaudiotool::OxAgAudioTool;
 use oxagaudiotool::sound_config::OxAgSoundConfig;
 use ohcrab_weather::weather_tool::WeatherPredictionTool;
-
+use robotics_lib::world::tile::Content::{Bush, Coin, Fire, JollyBlock, Tree, Water};
 use spyglass::spyglass::{Spyglass, SpyglassResult};
 use spyglass::spyglass::SpyglassResult::{Failed, Paused, Stopped};
 
-pub struct MirtoRobot {
+pub(crate) struct MirtoRobot {
     pub robot: Robot,
     pub audio_tool: OxAgAudioTool,
     pub weather_prediction_tool: WeatherPredictionTool,
@@ -59,7 +47,7 @@ impl MirtoRobot {
     pub fn new(robot: Robot, is_the_goal_woodworking: bool) -> Self{
         MirtoRobot {
             robot,
-            audio_tool: OxAgAudioTool::new(HashMap::new(), HashMap::new(), HashMap::new()).unwrap(),
+            audio_tool: OxAgAudioTool::new(HashMap::new(), HashMap::new(), HashMap::new()).unwrap(), //TODO invocare i metodi sotto
             weather_prediction_tool:  WeatherPredictionTool::new(),
             tickets_to_wait: 8,
             tickets: 0,
@@ -179,6 +167,21 @@ impl MirtoRobot {
         mapping
     }
 
+    pub fn recharge_all_energy(&mut self){
+        *self.get_energy_mut() = Dynamo::update_energy();
+        self.handle_event(Event::EnergyRecharged(1000));
+    }
+
+    pub fn do_u_have_this_content(&self, content: Content) -> bool{
+        let backpack = self.get_backpack().get_contents();
+        for (c, q) in backpack{
+            if *c == content && *q > 0{
+                return true;
+            }
+        }
+        return false;
+    }
+
     pub fn is_point_inside_map(i: i32, j: i32, size: i32) -> bool{
         if i >= 0 && i < size && j >= 0 && j < size{
             true
@@ -212,7 +215,7 @@ impl MirtoRobot {
                         visited[i][j] = true;
                     }
                     Some(t) => {
-                        if !Self::is_a_valid_tyle(t.tile_type.clone()) || t.tile_type == Teleport(true){
+                        if !Self::is_a_walkable_tyle(t.tile_type.clone()) || t.tile_type == Teleport(true){
                             visited[i][j] = true;
                         }
                     }
@@ -224,7 +227,7 @@ impl MirtoRobot {
 
         while queue.size() != 0 {
             let (i, j) = queue.remove().unwrap();
-            if Self::is_point_inside_map(i as i32 -1 , j as i32, size as i32) && !visited[i-1][j] {
+            if Self::is_point_inside_map((i as i32 -1) , j as i32, size as i32) && !visited[i-1][j] {
                 visited[i-1][j] = true;
                 if let Some(tile) = &map[i-1][j]{
                     if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
@@ -233,7 +236,7 @@ impl MirtoRobot {
                 }
                 queue.add((i-1, j));
             }
-            if Self::is_point_inside_map(i as i32 + 1 , j as i32, size as i32) && !visited[i+1][j] {
+            if Self::is_point_inside_map((i as i32 + 1) , j as i32, size as i32) && !visited[i+1][j] {
                 visited[i+1][j] = true;
                 if let Some(tile) = &map[i+1][j]{
                     if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
@@ -242,7 +245,7 @@ impl MirtoRobot {
                 }
                 queue.add((i+1, j));
             }
-            if Self::is_point_inside_map(i as i32, j as i32 -1 , size as i32) && !visited[i][j-1] {
+            if Self::is_point_inside_map(i as i32, (j as i32 -1) , size as i32) && !visited[i][j-1] {
                 visited[i][j-1] = true;
                 if let Some(tile) = &map[i][j-1]{
                     if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
@@ -251,7 +254,7 @@ impl MirtoRobot {
                 }
                 queue.add((i, j-1));
             }
-            if Self::is_point_inside_map(i as i32, j as i32 +1 , size as i32) && !visited[i][j+1] {
+            if Self::is_point_inside_map(i as i32, (j as i32 +1) , size as i32) && !visited[i][j+1] {
                 visited[i][j+1] = true;
                 if let Some(tile) = &map[i][j+1]{
                     if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
@@ -268,19 +271,62 @@ impl MirtoRobot {
     pub fn get_backpack_objects_number(&mut self) -> usize{
         let mut size = 0;
         let back_pack_contents = self.robot.backpack.get_contents();
-        for (_content, quantity) in back_pack_contents{
+        for (content, quantity) in back_pack_contents{
             size = size + quantity;
         }
         size
     }
 
-    pub fn empty_content_around(&mut self, world: &mut World) -> Option<Vec<Direction>>{
+    pub fn is_a_valid_tyle_for_content(t: &TileType, content: &Content) -> bool{
+        if !Self::is_a_walkable_tyle(t.clone()){
+            false
+        }
+        else {
+            match content {
+                Tree(_) => {
+                    match t {
+                        ShallowWater => { false }
+                        Teleport(true) => { false }
+                        TileType::Sand => { false }
+                        TileType::Street => { false }
+                        TileType::Snow => { false }
+                        _ => { true }
+                    }
+                }
+                Coin(_) => {
+                    match t {
+                        ShallowWater => { false }
+                        _ => { true }
+                    }
+                }
+                Bush(_) => {
+                    match t {
+                        ShallowWater => { false }
+                        Teleport(true) => { false }
+                        TileType::Sand => { false }
+                        TileType::Street => { false }
+                        _ => { true }
+                    }
+                }
+                JollyBlock(_) => {
+                    match t {
+                        ShallowWater => { false }
+                        Teleport(true) => { false }
+                        _ => { true }
+                    }
+                }
+                _ => { false }
+            }
+        }
+    }
+
+    pub fn empty_valid_content_around(&mut self, world: &mut World, content: &Content) -> Option<Vec<Direction>>{
         let around = where_am_i(self, world).0;
         let mut vec = vec![];
         match &around[1][0]{
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle(t.tile_type.clone()) && t.tile_type != Teleport(true){
+                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
                     vec.push(Direction::Left);
                 }
             }
@@ -288,7 +334,7 @@ impl MirtoRobot {
         match &around[0][1] {
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle(t.tile_type.clone()) && t.tile_type != Teleport(true){
+                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
                     vec.push(Direction::Up);
                 }
             }
@@ -296,7 +342,7 @@ impl MirtoRobot {
         match &around[1][2] {
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle(t.tile_type.clone()) && t.tile_type != Teleport(true) {
+                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
                     vec.push(Direction::Right);
                 }
             }
@@ -304,7 +350,7 @@ impl MirtoRobot {
         match &around[2][1] {
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle(t.tile_type.clone()) && t.tile_type != Teleport(true) {
+                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
                     vec.push(Direction::Down);
                 }
             }
@@ -321,15 +367,12 @@ impl MirtoRobot {
         let back_pack_contents = self.robot.backpack.get_contents().clone();
         for (content, quantity) in back_pack_contents{
             if quantity > 0 {
-                let direction_to_put = self.empty_content_around(world);
+                let direction_to_put = self.empty_valid_content_around(world, &content);
                 match direction_to_put {
                     None => {}
                     Some(v) => {
                         for i in 0..v.len(){
-                            match put(self, world, content.clone(), quantity, v[i].clone()) {
-                                Err(_) => {},
-                                Ok(_) => {},
-                            }
+                            let _ = put(self, world, content.clone(), quantity, v[i].clone());
                         }
                     }
                 }
@@ -337,15 +380,14 @@ impl MirtoRobot {
         }
     }
 
-    pub fn is_a_valid_tyle(t: TileType) -> bool{
+    pub fn is_a_walkable_tyle(t: TileType) -> bool{
         if t == Wall || t == DeepWater || t == Lava{
             return false;
         }
         return true;
     }
     pub fn empty_your_backpack_with_a_walk(&mut self, world: &mut World, visited: &mut Vec<Vec<bool>>){
-        *self.get_energy_mut() = Dynamo::update_energy();
-        self.handle_event(Event::EnergyRecharged(1000));
+        self.recharge_all_energy();
 
         let map = robot_map(world).unwrap();
         let i_robot = self.robot.coordinate.get_row();
@@ -357,25 +399,33 @@ impl MirtoRobot {
             visited[i_robot - 1][j_robot] = true;
             go(self, world, Direction::Up);
             self.empty_your_backpack_with_a_walk(world, visited);
-            go(self, world, Direction::Down);
+            if self.get_backpack_objects_number() > 0 {
+                go(self, world, Direction::Down);
+            }
         }
         if self.get_backpack_objects_number() > 0 && Self::is_point_inside_map(i_robot as i32 + 1, j_robot as i32, map.len() as i32)  && !visited[i_robot + 1][j_robot] {
             visited[i_robot + 1][j_robot] = true;
             go(self, world, Direction::Down);
             self.empty_your_backpack_with_a_walk(world, visited);
-            go(self, world, Direction::Up);
+            if self.get_backpack_objects_number() > 0 {
+                go(self, world, Direction::Up);
+            }
         }
         if self.get_backpack_objects_number() > 0 && Self::is_point_inside_map(i_robot as i32, j_robot as i32 - 1 , map.len() as i32)  && !visited[i_robot][j_robot-1]{
             visited[i_robot][j_robot - 1] = true;
             go(self, world, Direction::Left);
             self.empty_your_backpack_with_a_walk(world, visited);
-            go(self, world, Direction::Right);
+            if self.get_backpack_objects_number() > 0 {
+                go(self, world, Direction::Right);
+            }
         }
         if self.get_backpack_objects_number() > 0 && Self::is_point_inside_map(i_robot as i32, j_robot as i32 + 1 , map.len() as i32)  && !visited[i_robot][j_robot+1] {
             visited[i_robot][j_robot + 1] = true;
             go(self, world, Direction::Right);
             self.empty_your_backpack_with_a_walk(world, visited);
-            go(self, world, Direction::Left);
+            if self.get_backpack_objects_number() > 0 {
+                go(self, world, Direction::Left);
+            }
         }
     }
 
@@ -391,7 +441,7 @@ impl MirtoRobot {
                         visited[i][j] = true;
                     },
                     Some(t) => {
-                        if !Self::is_a_valid_tyle(t.tile_type.clone()){
+                        if !Self::is_a_walkable_tyle(t.tile_type.clone()){
                             visited[i][j] = true;
                         }
                     }
@@ -415,8 +465,7 @@ impl MirtoRobot {
                 |_| false,
             );
             loop {
-                *self.get_energy_mut() = Dynamo::update_energy();
-                self.handle_event(Event::EnergyRecharged(1000));
+                self.recharge_all_energy();
                 spyglass.set_energy_budget(Some(self.get_energy().get_energy_level()));
 
                 match spyglass.new_discover(self, world) {
@@ -424,13 +473,12 @@ impl MirtoRobot {
                     Stopped(_) => { break; }
                     SpyglassResult::Paused => {
                         loop {
-                            *self.get_energy_mut() = Dynamo::update_energy();
-                            self.handle_event(Event::EnergyRecharged(1000));
+                            self.recharge_all_energy();
                             match spyglass.resume_discover(self, world) {
                                 SpyglassResult::Complete => { break; }
                                 Stopped(_) => { break; }
                                 Paused => {}
-                                Failed(_f) => { break; }
+                                Failed(f) => { break; }
                             }
                         }
                     }
@@ -440,11 +488,10 @@ impl MirtoRobot {
             self.used_spyglass = true;
         }
         else{
-            *self.get_energy_mut() = Dynamo::update_energy();
-            self.handle_event(Event::EnergyRecharged(1000));
+            self.recharge_all_energy();
             let map_size = robot_map(world).unwrap().len();
             let destination = Destination::explore(self.robot.energy.get_energy_level(), map_size);
-            let _result = Planner::planner(self, destination, world);
+            let result = Planner::planner(self, destination, world).err();
         }
     }
 
@@ -453,10 +500,10 @@ impl MirtoRobot {
         if self.tickets == self.tickets_to_wait{
             self.tickets_to_wait = thread_rng().gen_range(7..=12);
             self.tickets = 0;
-            let is_the_new_goal_woodworking;
+            let mut is_the_new_goal_woodworking;
             match self.weather_prediction_tool.predict(self.tickets_to_wait){
                 Ok(w ) => {
-                    //println!("predicted_weather: {:?}", w);
+                    println!("new predicted_weather: {:?}", w);
                     match w {
                         WeatherType::Sunny => {
                             if thread_rng().gen_range(1..=100000) < 80000{
@@ -486,22 +533,20 @@ impl MirtoRobot {
                         WeatherType::TrentinoSnow => { is_the_new_goal_woodworking = false; }
                     }
                 },
-                Err(_e) => { is_the_new_goal_woodworking = false; },
+                Err(e) => { is_the_new_goal_woodworking = false; },
             }
             if is_the_new_goal_woodworking != self.is_the_goal_woodworking{
-                //println!("modifica modalità robot...");
+                println!("changing robot mode...");
                 self.is_the_goal_woodworking = is_the_new_goal_woodworking;
-                //println!("svuotando lo zaino ...");
+                println!("emptying the backpack...");
                 self.empty_your_backpack(world);
             }
         }
 
-        *self.get_energy_mut() = Dynamo::update_energy();
-        self.handle_event(Event::EnergyRecharged(1000));
-        if self.is_the_goal_woodworking {
+        self.recharge_all_energy();
+        if self.is_the_goal_woodworking || true{ //THIS IS SETTED TO TRUE JUST FOR DEBUG PURPOSE, BECAUSE MY ROBOT HAS TWO MODE AND I WANT IT TO WORK WITH THIS MODE (WOODWORKING)
             self.make_next_thing_for_woodworker_goal(world);
-        }
-        else {
+        } else {
             self.make_next_thing_for_mirto_goal(world);
         }
     }
