@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::camera::Camera3DComponent;
 
 
 use crate::game_data::{GameData, MySet};
@@ -45,9 +46,11 @@ fn feed_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<Gam
         game_data.feed_visibility = !game_data.feed_visibility;
     }
 }
-fn map_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){ ///Pressing M the user can visualize the entire world known///
+fn map_show_hide(keyboard_input: Res<Input<KeyCode>>,
+                 mut game_data: ResMut<GameData>,
+                mut query: Query<&mut Transform,With<Camera3DComponent>>
+){ ///Pressing M the user can visualize the entire world known///
     if keyboard_input.just_pressed(KeyCode::M) {
-        info!("MAPPAPAAAA");
         if game_data.camera_data.camera_mode != 3{
             game_data.camera_data.camera_mode_bu = game_data.camera_data.camera_mode;
             game_data.camera_data.camera_direction_bu = game_data.camera_data.camera_direction.clone();
@@ -56,8 +59,8 @@ fn map_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<Game
 
             game_data.camera_data.camera_mode = 3;
             game_data.camera_data.camera_direction = crate::Direction::Up;
-            game_data.camera_data.camera_transform = Transform::from_xyz(0.0,game_data.map_radius * 1.5,0.0).looking_at(Vec3::ZERO,Vec3::Z);
-            game_data.camera_data.camera_transform.translation = Transform::from_xyz(game_data.robot_data.robot_translation.x,game_data.map_radius * 1.5,game_data.robot_data.robot_translation.z).translation;
+            game_data.camera_data.camera_transform = Transform::from_xyz(0.0,0.0,0.0).looking_at(Vec3::ZERO,Vec3::Z);
+            game_data.camera_data.camera_transform.translation = Transform::from_xyz(game_data.world_size as f32/2.0,game_data.map_radius * 1.04,game_data.world_size as f32/2.0).translation;
             game_data.camera_data.camera_velocity = Vec3::ZERO;
         }else {
             game_data.camera_data.camera_mode = game_data.camera_data.camera_mode_bu;
@@ -65,6 +68,8 @@ fn map_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<Game
             game_data.camera_data.camera_transform = game_data.camera_data.camera_transform_bu;
             game_data.camera_data.camera_velocity = game_data.camera_data.camera_velocity_bu;
         }
+        let mut camera_transform = query.single_mut();
+        camera_transform.translation = game_data.camera_data.camera_transform.translation;
     }
 }
 fn content_show_hide(keyboard_input: Res<Input<KeyCode>>,

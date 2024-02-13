@@ -98,7 +98,7 @@ fn discover_and_update_tile(mut commands: Commands,
                                 }
                                 Option::None => { /* I will insert a new tile because it was discovered*/
                                     //info!("ho discoverato una nuova tile");
-                                    let new_tile_radius = f32::sqrt((coordinates.0*coordinates.0) + (coordinates.1*coordinates.1)); // TODO così è la distanza da (0,0)
+                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
                                     if new_tile_radius > game_data.map_radius {
                                         game_data.map_radius = new_tile_radius;
                                     }
