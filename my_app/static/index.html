@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rocket Visualizer</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="text/javascript" src="./visualizer.js"></script>
+</head>
+<body>
+  <h1>VISUALIZER</h1>
+  <header id="commands">
+    <button id="automatic_tick_processing" onclick="enable_auto_mode()"> automatic tick </button>
+    <button id="stop_auto" onclick="stop_auto_mode()" disabled> stop </button>
+    <button id="next_tick" onclick="process_next_tick()"> next tick </button>
+    <button id="view_content" onclick="view_content()"> disable content </button>
+    <button id="zoom_out" onclick="zoom_out()"> - </button>
+    <button id="zoom_in" onclick="zoom_in()"> + </button>
+    <button id="go_left" onclick="go_left()"> < </button>
+    <button id="go_right" onclick="go_right()"> > </button>
+    <button id="go_up" onclick="go_up()"> ^ </button>
+    <button id="go_down" onclick="go_down()"> v </button>
+  </header>
+  <div id="container">
+    <div id="central_panel">
+      <div class="labels">
+        <h3 id="time"><span id="update_time"> 00:00 </span></h3>
+        <h3>Points: <span id="update_points"> 0 </span></h3>
+        <h3>Energy: <span id="update_energy"> 0 </span></h3>
+        <h3><img id="update_weather" src="" alt="weather" width="80"></h3>
+      </div>
+      <ul id = "backpack">
+        <li><span><img src="./images/tree.svg" alt="Tree" width="50"></span>: <span id="update_Tree">0</span></li>
+        <li><span><img src="./images/rock.svg" alt="Rock" width="50"></span>: <span id="update_Rock">0</span></li>
+        <li><span><img src="./images/garbage.svg" alt="Garbage" width="50"></span>: <span id="update_Garbage" >0</span></li>
+        <li><span><img src="./images/fire.svg" alt="Fire" width="50"></span>: <span id="update_Fire">0</span></li>
+        <li><span><img src="./images/coin3.svg" alt="Coin" width="50"></span>: <span id="update_Coin">0</span></li>
+        <li><span><img src="./images/water.svg" alt="Water" width="50"></span>: <span id="update_Water">0</span></li>
+        <li><span><img src="./images/fish.svg" alt="Fish" width="50"></span>: <span id="update_Fish">0</span></li>
+        <li><span><img src="./images/bush.svg" alt="Bush" width="50"></span>: <span id="update_Bush">0</span></li>
+        <li><span><img src="./images/jollyblock.svg" alt="JollyBlock" width="50">: </span><span id="update_JollyBlock">0</span></li>
+      </ul>
+    </div>
+    <div id="world">
+        <canvas id="worldCanvas" width="1024vmin" height="1024vmin"></canvas>
+    </div>
+  </div>
+</body>
+</html>
