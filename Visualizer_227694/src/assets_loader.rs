@@ -48,6 +48,16 @@ pub struct ImageAssets{
     pub energy:Handle<Image>,
     pub points_border:Handle<Image>,
     pub points:Handle<Image>,
+    pub sunny:Handle<Image>,
+    pub night:Handle<Image>,
+    pub rainy:Handle<Image>,
+    pub rainy_night:Handle<Image>,
+    pub trentino_snow:Handle<Image>,
+    pub trentino_snow_night:Handle<Image>,
+    pub tropical_monson:Handle<Image>,
+    pub tropical_monson_night:Handle<Image>,
+    pub foggy:Handle<Image>,
+    pub foggy_night:Handle<Image>,
 }
 pub struct AssetsLoaderPlugin;
 
@@ -107,5 +117,15 @@ pub fn load_images(mut image_assets: ResMut<ImageAssets>, asset_server: Res<Asse
         energy:asset_server.load("textures/EnergyBox.png"),
         points_border:asset_server.load("textures/PointsBorder.png"),
         points:asset_server.load("textures/PointsBox.png"),
+        sunny:asset_server.load("textures/sunny.png"),
+        night:asset_server.load("textures/night.png"),
+        rainy:asset_server.load("textures/rainy.png"),
+        rainy_night:asset_server.load("textures/rainy_night.png"),
+        trentino_snow:asset_server.load("textures/trentino_snow.png"),
+        trentino_snow_night:asset_server.load("textures/trentino_snow.png"),
+        tropical_monson:asset_server.load("textures/tropical_monson.png"),
+        tropical_monson_night:asset_server.load("textures/tropical_monson.png"),
+        foggy:asset_server.load("textures/foggy.png"),
+        foggy_night:asset_server.load("textures/foggy_night.png"),
     }
 }

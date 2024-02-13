@@ -24,6 +24,10 @@ pub struct BackPackImageComponent;
 pub struct BackPackUpdateComponent;
 #[derive(Component)]
 pub struct FeedComponent;
+#[derive(Component)]
+pub struct ClockComponent;
+#[derive(Component)]
+pub struct ClockImageComponent;
 pub struct GUIPlugin;
 
 impl Plugin for GUIPlugin{
@@ -311,6 +315,33 @@ fn create_gui(mut commands: Commands,
             },
             ..default()
         },BackPackImageComponent));
+    commands.spawn((
+        TextBundle::from_section(
+            "",
+            TextStyle {
+                font_size: 25.0,
+                color: Color::rgb(1.0, 1.0, 1.0),
+                ..default()
+            },
+        ).with_style(Style {
+            position_type: PositionType::Absolute,
+            top: Val::Px(55.0),
+            left: Val::Px(5.0),
+            ..default()
+        }),ClockComponent));
+    commands.spawn(
+        (ImageBundle {
+            image: image_assets.fish.clone().into(),
+            style: Style {
+                position_type: PositionType::Absolute,
+                top: Val::Px(50.0),
+                left: Val::Px(75.0),
+                width: Val::Px(48.0),
+                height: Val::Px(48.0),
+                ..default()
+            },
+            ..default()
+        },ClockImageComponent));
 }
 fn update_energy(mut energy_query: Query<&mut Text,With<EnergyComponent>>,
                  game_data: Res<GameData>,
