@@ -49,6 +49,7 @@ impl VisualizerGLC{
                 update_world: true,
                 robot_data: RobotData::new(),
                 camera_data : CameraData::new(),
+                current_tile_elevation: 0.0,
                 timer: Timer::from_seconds(0.2, TimerMode::Repeating),
                 next_action: false,
                 frames: 0,
@@ -76,7 +77,7 @@ impl VisualizerGLC{
 }
 
 fn main() {
-    VisualizerGLC::run(true,150);
+    VisualizerGLC::run(true,50);
 }
 
 fn from_map_to_option_world(map: &Vec<Vec<Tile>>)->Vec<Vec<Option<Tile>>>{ //Used to load the entire world for testing purpose

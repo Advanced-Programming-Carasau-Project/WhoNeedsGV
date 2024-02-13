@@ -173,21 +173,14 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                     Moved(tile,(x,z)) =>{
                         let mut direction = game_data.robot_data.robot_direction.clone();
                         match (*x as f32 - f32::round(game_data.robot_data.robot_translation.x) , *z as f32 - f32::round(game_data.robot_data.robot_translation.z)) {
-                            (-1.0,0.0) => {
-                                direction = crate::Direction::Right;
-                            }
-                            (1.0,0.0) => {
-                                direction = crate::Direction::Left;
-                            }
-                            (0.0,1.0) => {
-                                direction = crate::Direction::Up;
-                            }
-                            (0.0,-1.0) => {
-                                direction = crate::Direction::Down;
-                            }
+                            (-1.0,0.0) => { direction = crate::Direction::Right; }
+                            (1.0,0.0) => { direction = crate::Direction::Left; }
+                            (0.0,1.0) => { direction = crate::Direction::Up; }
+                            (0.0,-1.0) => { direction = crate::Direction::Down; }
                             _ => { //Teleport only way the robot can move by more than 1 tile
                                 robot_transform.translation = Transform::from_xyz(*x as f32, (tile.elevation as f32 / 10.0) - 0.95, *z as f32).translation;
                                 game_data.robot_data.robot_translation = Transform::from_xyz(*x as f32, (tile.elevation as f32 / 10.0) - 0.95, *z as f32).translation;
+                                game_data.current_tile_elevation = tile.elevation as f32;
                                 game_data.feed.push(format!("Teleported to ({},{}) on {:?}",x,z,tile.tile_type));
                                 if game_data.feed.len() == 8{
                                     game_data.feed.remove(7);
@@ -195,7 +188,8 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 return;
                             }
                         }
-                        let elevation = tile.elevation as f32 - (robot_transform.translation.y * 10.0);
+                        let elevation = tile.elevation as f32 - game_data.current_tile_elevation ;
+                        game_data.current_tile_elevation = tile.elevation as f32;
                         match direction {
                             crate::Direction::Right => {
                                 game_data.robot_data.robot_translation = Transform::from_xyz(robot_transform.translation.x - 1.0, robot_transform.translation.y + elevation/10.0, robot_transform.translation.z).looking_at(Vec3::ZERO, Vec3::Z).translation;

@@ -95,21 +95,20 @@ fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: 
 
     let mondo = robot_view.lock().unwrap();
 
-    let robot_elevation;
     match &mondo[spawn_point.0][spawn_point.1] {
         None => {
             panic!("spawn point unknown");
         }
         Some(tile) => {
-            robot_elevation = tile.elevation as f32;
+            game_data.current_tile_elevation = tile.elevation as f32;
         }
     }
 
     game_data.robot_data.energy = robot_energy;
-    game_data.robot_data.robot_translation = Transform::from_translation(Vec3::new(spawn_point.0 as f32,robot_elevation / 10.0 - 0.95,spawn_point.1 as f32)).translation;
+    game_data.robot_data.robot_translation = Transform::from_translation(Vec3::new(spawn_point.0 as f32,game_data.current_tile_elevation  / 10.0 - 0.95,spawn_point.1 as f32)).translation;
 
     game_data.camera_data.camera_transform = Transform::from_translation(Vec3::new(0.0,10.0,0.0)).looking_at(Vec3::ZERO,Vec3::Z);
-    game_data.camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(spawn_point.0 as f32,(robot_elevation / 10.0) + 9.05,spawn_point.1 as f32)).translation;
+    game_data.camera_data.camera_transform.translation = Transform::from_translation(Vec3::new(spawn_point.0 as f32, (game_data.current_tile_elevation / 10.0) + 9.05, spawn_point.1 as f32)).translation;
 
     commands.insert_resource(runner);
 }

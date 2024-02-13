@@ -68,40 +68,49 @@ fn change_camera(
                 }
             }
             *camera_transform = game_data.camera_data.camera_transform;
-        }else if game_data.camera_data.camera_mode == 2{//CAMERA 0 (free cam)
+        }else if game_data.camera_data.camera_mode == 2{//CAMERA 0 (Top camera)
             game_data.camera_data.camera_transform =  Transform::from_xyz(game_data.robot_data.robot_translation.x, game_data.robot_data.robot_translation.y + CAMERA_0_VERTICAL_DISTANCE, game_data.robot_data.robot_translation.z).looking_at(Vec3::new(game_data.robot_data.robot_translation.x, 0.0, game_data.robot_data.robot_translation.z),Vec3::Z);
             *camera_transform = game_data.camera_data.camera_transform;
             game_data.camera_data.camera_mode = 0;
         }
     }
-    if keyboard_input.pressed(KeyCode::V) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3){
+    if keyboard_input.just_pressed(KeyCode::R){ // if in camera 0 it stops/starts to follow the robot
+        if game_data.camera_data.camera_mode == 0{
+            game_data.camera_data.camera_mode = 4;
+        }else if game_data.camera_data.camera_mode == 4{
+            game_data.camera_data.camera_transform =  Transform::from_xyz(game_data.robot_data.robot_translation.x, game_data.robot_data.robot_translation.y + CAMERA_0_VERTICAL_DISTANCE, game_data.robot_data.robot_translation.z).looking_at(Vec3::new(game_data.robot_data.robot_translation.x, 0.0, game_data.robot_data.robot_translation.z),Vec3::Z);
+            *camera_transform = game_data.camera_data.camera_transform;
+            game_data.camera_data.camera_mode = 0;
+        }
+    }
+    if keyboard_input.pressed(KeyCode::V) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3 || game_data.camera_data.camera_mode == 4){
         camera_transform.translation.y += 12.0 * time.delta_seconds();
     }
-    if keyboard_input.pressed(KeyCode::X) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3){
+    if keyboard_input.pressed(KeyCode::X) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3 || game_data.camera_data.camera_mode == 4){
         camera_transform.translation.y -= 12.0 * time.delta_seconds();
     }
-    if keyboard_input.pressed(KeyCode::D) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3){
+    if keyboard_input.pressed(KeyCode::D) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3 || game_data.camera_data.camera_mode == 4){
         camera_transform.translation.x -= 12.0 * time.delta_seconds();
     }
-    if keyboard_input.pressed(KeyCode::A) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3){
+    if keyboard_input.pressed(KeyCode::A) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3 || game_data.camera_data.camera_mode == 4){
         camera_transform.translation.x += 12.0 * time.delta_seconds();
     }
-    if keyboard_input.pressed(KeyCode::W) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3){
+    if keyboard_input.pressed(KeyCode::W) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3 || game_data.camera_data.camera_mode == 4){
         camera_transform.translation.z += 12.0 * time.delta_seconds();
     }
-    if keyboard_input.pressed(KeyCode::S) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3){
+    if keyboard_input.pressed(KeyCode::S) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3 || game_data.camera_data.camera_mode == 4){
         camera_transform.translation.z -= 12.0 * time.delta_seconds();
     }
-    if keyboard_input.pressed(KeyCode::Q) && game_data.camera_data.camera_mode == 0 {
+    if keyboard_input.pressed(KeyCode::Q) && game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4 {
         camera_transform.rotate_y(1.0 * time.delta_seconds());
     }
-    if keyboard_input.pressed(KeyCode::E) && game_data.camera_data.camera_mode == 0{
+    if keyboard_input.pressed(KeyCode::E) && game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4{
         camera_transform.rotate_y(-1.0 * time.delta_seconds());
     }
-    if keyboard_input.pressed(KeyCode::ShiftLeft) && game_data.camera_data.camera_mode == 0 {
+    if keyboard_input.pressed(KeyCode::ShiftLeft) && game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4 {
         camera_transform.rotate_x(1.0 * time.delta_seconds());
     }
-    if keyboard_input.pressed(KeyCode::ControlLeft) && game_data.camera_data.camera_mode == 0{
+    if keyboard_input.pressed(KeyCode::ControlLeft) && game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4{
         camera_transform.rotate_x(-1.0 * time.delta_seconds());
     }
     game_data.camera_data.camera_transform = *camera_transform;
@@ -116,7 +125,7 @@ fn camera_follow_robot(
     }
     match crate::rudimental_a_i::events.try_lock() {
         Ok(events_guard) => {
-            if game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3{
+            if game_data.camera_data.camera_mode == 3 || game_data.camera_data.camera_mode == 4{
                 return;
             }
             let mut camera_transform = camera_query.single_mut();
@@ -140,7 +149,7 @@ fn camera_follow_robot(
                             }
                             _ => { //Teleport only way the robot can move by more than 1 tile
                                 let destination = (*x as f32,*z as f32);
-                                let destination_elevation = tile.elevation as f32 - (camera_transform.translation.y * 10.0);
+                                let destination_elevation = tile.elevation as f32 - game_data.current_tile_elevation;
 
                                 if game_data.camera_data.camera_mode == 1{
                                     camera_transform.translation = Transform::from_xyz(destination.0, camera_transform.translation.y + destination_elevation/10.0, destination.1 - 5.0).translation;
@@ -184,7 +193,7 @@ fn camera_follow_robot(
                                 return;
                             }
                         }
-                        let elevation = tile.elevation as f32 - (camera_transform.translation.y * 10.0);
+                        let elevation = tile.elevation as f32 - game_data.current_tile_elevation ;
                         match direction {
                             Direction::Right => {
                                 if game_data.camera_data.camera_mode != 3{

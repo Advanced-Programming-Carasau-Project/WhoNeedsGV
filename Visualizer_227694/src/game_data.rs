@@ -80,6 +80,7 @@ pub(crate) struct GameData{ // a resource used to store all data concerning the 
     pub(crate) update_world:bool,
     pub(crate) robot_data:RobotData,
     pub(crate) camera_data:CameraData,
+    pub(crate) current_tile_elevation:f32,
     pub(crate) timer:Timer,
     pub(crate) next_action:bool,
     pub(crate) frames:usize,
