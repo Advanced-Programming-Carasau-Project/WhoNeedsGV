@@ -21,14 +21,15 @@ pub(crate) struct RobotData{
 impl RobotData{
     pub(crate) fn new()->Self{
         let mut back_pack = HashMap::new();
-        back_pack.insert(Water(0),0);
-        back_pack.insert(Tree(0),0);
-        back_pack.insert(Rock(0),0);
-        back_pack.insert(Fish(0),0);
-        back_pack.insert(Coin(0),0);
-        back_pack.insert(Bush(0),0);
-        back_pack.insert(JollyBlock(0),0);
-        back_pack.insert(Garbage(0),0);
+        back_pack.insert(Water(0).to_default(),0);
+        back_pack.insert(Tree(0).to_default(),0);
+        back_pack.insert(Rock(0).to_default(),0);
+        back_pack.insert(Fish(0).to_default(),0);
+        back_pack.insert(Coin(0).to_default(),0);
+        back_pack.insert(Bush(0).to_default(),0);
+        back_pack.insert(JollyBlock(0).to_default(),0);
+        back_pack.insert(Garbage(0).to_default(),0);
+        back_pack.insert(Scarecrow.to_default(),0);
         let back_pack_update = back_pack.clone();
         RobotData{
             back_pack,

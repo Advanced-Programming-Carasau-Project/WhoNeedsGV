@@ -161,7 +161,7 @@ fn create_gui(mut commands: Commands,
             left: Val::Px(130.0),
             ..default()
         }),PointsUpdateComponent));
-    commands.spawn((
+    /*commands.spawn((
         TextBundle::from_section(
             "----BackPack----\n Water:0\n Rock:0\n Tree:0\n Bush:0\n JollyBlock:0   \n Garbage:0\n Coin:0\n Fish:0\n----BackPack----",
             TextStyle {
@@ -173,6 +173,33 @@ fn create_gui(mut commands: Commands,
             position_type: PositionType::Absolute,
             top: Val::Px(5.0),
             right: Val::Px(5.0),
+            ..default()
+        }),BackPackComponent));*/
+    commands.spawn(
+        (ImageBundle {
+            image: image_assets.back_pack.clone().into(),
+            style: Style {
+                position_type: PositionType::Absolute,
+                top: Val::Px(1.0),
+                right: Val::Px(1.0),
+                width: Val::Px(160.0),
+                height: Val::Px(290.0),
+                ..default()
+            },
+            ..default()
+        },BackPackImageComponent));
+    commands.spawn((
+        TextBundle::from_section(
+            "\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n",
+            TextStyle {
+                font_size: 22.0,
+                color: Color::rgb(0.0, 0.0, 0.0),
+                ..default()
+            },
+        ).with_style(Style {
+            position_type: PositionType::Absolute,
+            top: Val::Px(17.0),
+            right: Val::Px(25.0),
             ..default()
         }),BackPackComponent));
     commands.spawn((
@@ -191,7 +218,7 @@ fn create_gui(mut commands: Commands,
         }),BackPackUpdateComponent));
     commands.spawn((
         TextBundle::from_section(
-            "-----Feed-----\n-----Feed-----",
+            "",
             TextStyle {
                 font_size: 20.0,
                 color: Color::rgb(1.0, 1.0, 1.0),
@@ -419,7 +446,7 @@ fn update_feed(mut feed_query: Query<&mut Text,With<FeedComponent>>,
             }
             i += 1;
         }
-        feed_text.sections[0].value = format!("-----Feed-----{}\n-----Feed-----", feed_string);
+        feed_text.sections[0].value = format!("{}", feed_string);
     }
 }
 fn update_backpack(mut back_pack_query: Query<&mut Text,With<BackPackComponent>>,
@@ -437,17 +464,9 @@ fn update_backpack(mut back_pack_query: Query<&mut Text,With<BackPackComponent>>
         let bush = game_data.robot_data.back_pack.get(&Content::Bush(0).to_default()).unwrap();
         let garbage = game_data.robot_data.back_pack.get(&Content::Garbage(0).to_default()).unwrap();
         let coin = game_data.robot_data.back_pack.get(&Content::Coin(0).to_default()).unwrap();
-        back_pack_text.sections[0].value = format!("-----BackPack-----\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n-----BackPack-----", water, rock, tree, bush, jolly_block, garbage, coin, fish);
-    }else if game_data.robot_data.back_pack_visibility == 2{
-        let water = game_data.robot_data.back_pack.get(&Content::Water(0).to_default()).unwrap();
-        let tree = game_data.robot_data.back_pack.get(&Content::Tree(0).to_default()).unwrap();
-        let rock = game_data.robot_data.back_pack.get(&Content::Rock(0).to_default()).unwrap();
-        let fish = game_data.robot_data.back_pack.get(&Content::Fish(0).to_default()).unwrap();
-        let jolly_block = game_data.robot_data.back_pack.get(&Content::JollyBlock(0).to_default()).unwrap();
-        let bush = game_data.robot_data.back_pack.get(&Content::Bush(0).to_default()).unwrap();
-        let garbage = game_data.robot_data.back_pack.get(&Content::Garbage(0).to_default()).unwrap();
-        let coin = game_data.robot_data.back_pack.get(&Content::Coin(0).to_default()).unwrap();
-        back_pack_text.sections[0].value = format!("-----BackPack-----\n  Water   :{}\n   Rock   :{}\n   Tree   :{}\n   Bush   :{}\n  Jolly   :{}\nGarbage   :{}\n   Coin   :{}\n   Fish   :{}\n-----BackPack-----", water, rock, tree, bush, jolly_block, garbage, coin, fish);
+        let scarecrow = game_data.robot_data.back_pack.get(&Content::Scarecrow.to_default()).unwrap();
+        //back_pack_text.sections[0].value = format!("-----BackPack-----\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n-----BackPack-----", water, rock, tree, bush, jolly_block, garbage, coin, fish);
+        back_pack_text.sections[0].value = format!("\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n", water, rock, tree, bush, jolly_block, garbage, coin, fish,scarecrow);
     }
 }
 fn update_backpack_images(mut back_pack_images_query: Query<&mut Visibility,With<BackPackImageComponent>>,

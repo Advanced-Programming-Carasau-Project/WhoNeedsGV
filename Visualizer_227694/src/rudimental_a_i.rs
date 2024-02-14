@@ -95,7 +95,7 @@ fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: 
 
     let mondo = robot_view.lock().unwrap();
 
-    match &mondo[spawn_point.0][spawn_point.1] {
+    match &mondo[spawn_point.0][spawn_point.1]{
         None => {
             panic!("spawn point unknown");
         }

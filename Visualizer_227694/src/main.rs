@@ -77,7 +77,7 @@ impl VisualizerGLC{
 }
 
 fn main() {
-    VisualizerGLC::run(true,40);
+    VisualizerGLC::run(true,100);
 }
 
 fn from_map_to_option_world(map: &Vec<Vec<Tile>>)->Vec<Vec<Option<Tile>>>{ //Used to load the entire world for testing purpose

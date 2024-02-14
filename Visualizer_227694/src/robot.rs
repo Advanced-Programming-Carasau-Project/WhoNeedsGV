@@ -80,7 +80,7 @@ fn robot_energy(mut game_data: ResMut<GameData>){
                         }
                         EnergyConsumed(energy) => {
                             game_data.robot_data.energy -= energy as i32;
-                            game_data.robot_data.energy_update = energy as i32;
+                            game_data.robot_data.energy_update = -1 * energy as i32;
                             game_data.feed.push(format!("{}",events_guard[0]));
                             events_guard.remove(0);
                             energy_events = true;

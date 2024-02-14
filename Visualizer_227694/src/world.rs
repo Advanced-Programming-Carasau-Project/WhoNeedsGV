@@ -1,3 +1,4 @@
+use std::sync::TryLockResult;
 use bevy::ecs::bundle::DynamicBundle;
 use bevy::prelude::*;
 use robotics_lib::world::tile::*;
@@ -28,9 +29,10 @@ impl Plugin for WorldPlugin{
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, create_ground_and_light)
             .add_systems(Update, discover_and_update_tile.in_set(MySet::Fourth))
+            .add_systems(Update, discover_tile_under_robot.in_set(MySet::Third))
             .add_systems(Update,update_content.in_set(MySet::Fifth))
             .add_systems(Update, hide_content_under_robot.in_set(MySet::Sixth))
-            .add_systems(Update, next_runner_tick.in_set(MySet::Eighth));
+            .add_systems(Update, next_event_action.in_set(MySet::Eighth));
     }
 }
 
@@ -56,17 +58,860 @@ fn create_ground_and_light(
     });
 
 }
+pub(crate) fn create_tile_model(){
+
+}
+fn discover_tile_under_robot(mut commands: Commands,
+                            scene_assets: Res<SceneAssets>,
+                            mut game_data: ResMut<GameData>,
+){
+    if !game_data.next_action{
+        return;
+    }
+    match events.try_lock() {
+        Ok(mut events_guard) => {
+            if events_guard.len() != 0 {
+                match &events_guard[0] {
+                    Moved(tile,(x,z)) =>{
+                        match &game_data.world[*x][*z] {
+                            Some(old_tile) =>{
+                                return;
+                            }
+                            Option::None => {
+                                game_data.world[*x][*z] = Some(tile.clone());
+                                let coordinates = (*x as f32,*z as f32);
+                                let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
+                                if new_tile_radius > game_data.map_radius {
+                                    game_data.map_radius = new_tile_radius;
+                                }
+
+                                let tile_scene;
+                                let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
+                                let content_scene;
+                                let mut content_transform = Transform{
+                                    translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.0 ,coordinates.1).translation,
+                                    rotation: Default::default(),
+                                    scale: Transform::from_scale(Vec3::new(0.1,0.1,0.1)).scale,
+                                };
+                                match tile.tile_type {
+                                    DeepWater => { tile_scene = scene_assets.deep_water.clone(); }
+                                    ShallowWater => { tile_scene = scene_assets.shallow_water.clone(); }
+                                    Sand => { tile_scene = scene_assets.sand.clone(); }
+                                    Grass => { tile_scene = scene_assets.grass.clone(); }
+                                    Street => { tile_scene = scene_assets.street.clone(); }
+                                    Hill => { tile_scene = scene_assets.hill.clone(); }
+                                    Mountain => { tile_scene = scene_assets.mountain.clone(); }
+                                    Snow => { tile_scene = scene_assets.snow.clone(); }
+                                    Lava => { tile_scene = scene_assets.lava.clone(); }
+                                    Teleport(_) => { tile_scene = scene_assets.teleport.clone(); }
+                                    Wall => { tile_scene = scene_assets.wall.clone();
+                                        tile_scale = Transform::from_scale(Vec3::new(0.5,1.5,0.5)).scale;}
+                                }
+                                match tile.content {
+                                    Rock(n) => {
+                                        if n < 2 {
+                                            content_scene = scene_assets.rock1.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                        }else if n < 3 {
+                                            content_scene = scene_assets.rock2.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.18,0.18,0.18)).scale;
+                                        }else {
+                                            content_scene = scene_assets.rock3.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.27,0.27,0.27)).scale;
+                                        }
+                                    }
+                                    Tree(n) => {
+                                        if n < 2 {
+                                            content_scene = scene_assets.tree1.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.09,0.09,0.09)).scale;
+                                        }else if n < 4 {
+                                            content_scene = scene_assets.tree2.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.08,0.08,0.08)).scale;
+                                        }else {
+                                            content_scene = scene_assets.tree3.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                        }
+                                    }
+                                    Garbage(_) => {
+                                        content_scene = scene_assets.garbage.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.005,0.005,0.005)).scale;
+                                    }
+                                    Fire => {
+                                        content_scene = scene_assets.fire.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.7,0.7,0.7)).scale;
+                                        content_transform.translation.y += 0.05;
+                                    }
+                                    Coin(_) => {
+                                        content_scene = scene_assets.coin.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                    }
+                                    Bin(_) => {
+                                        content_scene = scene_assets.bin.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                        content_transform.translation.y += 0.45;
+                                    }
+                                    Crate(_) => {
+                                        content_scene = scene_assets.crate_.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                        content_transform.translation.y += 0.15;
+                                    }
+                                    Bank(_) => {
+                                        content_scene = scene_assets.bank.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.01,0.01,0.01)).scale;
+                                        content_transform.rotate_y(f32::to_degrees(180.0));
+                                    }
+                                    Water(_) => {
+                                        content_scene = Default::default();
+                                    }
+                                    Market(_) => {
+                                        content_scene = scene_assets.market.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                    }
+                                    Fish(_) => {
+                                        content_scene = scene_assets.fish.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.02,0.02,0.02)).scale;
+                                    }
+                                    Building => {
+                                        content_scene = scene_assets.building.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.007,0.007,0.007)).scale;
+                                    }
+                                    Bush(_) => {
+                                        content_scene = scene_assets.bush.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                    }
+                                    JollyBlock(_) => {
+                                        if game_data.ai{
+                                            content_scene = scene_assets.mirto.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                        }else {
+                                            content_scene = scene_assets.jolly_block.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                        }
+                                    }
+                                    Scarecrow => {
+                                        content_scene = scene_assets.scarecrow.clone();
+                                        content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                    }
+                                    None => {
+                                        content_scene = Default::default();
+                                    }
+                                }
+                                commands.spawn(
+                                    (
+                                        TileBundle{
+                                            model: SceneBundle{
+                                                scene: tile_scene,
+                                                transform: Transform{
+                                                    translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.5 ,coordinates.1).translation,
+                                                    rotation: Default::default(),
+                                                    scale: tile_scale,
+                                                } ,
+                                                ..default()
+                                            },
+                                        },
+                                        TileComponent
+                                    )
+                                );
+                                let mut visibility = Visibility::Visible;
+                                if !game_data.content_visibility {
+                                    visibility = Visibility::Hidden;
+                                }
+                                commands.spawn(
+                                    (
+                                        ContentBundle{
+                                            model: SceneBundle{
+                                                scene: content_scene,
+                                                transform: content_transform,
+                                                visibility,
+                                                ..default()
+                                            }
+                                        },
+                                        ContentComponent
+                                    )
+                                );
+                            }
+                        }
+                        let world_guard = robot_view.lock().unwrap();
+                        if *x > 0{
+                            let tile = world_guard[*x - 1][*z].clone().unwrap();
+                            match &game_data.world[*x - 1][*z] {
+                                Some(old_tile) =>{
+                                    return;
+                                }
+                                Option::None => {
+                                    game_data.world[*x - 1][*z] = Some(tile.clone());
+                                    let coordinates = ((*x - 1) as f32,*z as f32);
+                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
+                                    if new_tile_radius > game_data.map_radius {
+                                        game_data.map_radius = new_tile_radius;
+                                    }
+
+                                    let tile_scene;
+                                    let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
+                                    let content_scene;
+                                    let mut content_transform = Transform{
+                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.0 ,coordinates.1).translation,
+                                        rotation: Default::default(),
+                                        scale: Transform::from_scale(Vec3::new(0.1,0.1,0.1)).scale,
+                                    };
+                                    match tile.tile_type {
+                                        DeepWater => { tile_scene = scene_assets.deep_water.clone(); }
+                                        ShallowWater => { tile_scene = scene_assets.shallow_water.clone(); }
+                                        Sand => { tile_scene = scene_assets.sand.clone(); }
+                                        Grass => { tile_scene = scene_assets.grass.clone(); }
+                                        Street => { tile_scene = scene_assets.street.clone(); }
+                                        Hill => { tile_scene = scene_assets.hill.clone(); }
+                                        Mountain => { tile_scene = scene_assets.mountain.clone(); }
+                                        Snow => { tile_scene = scene_assets.snow.clone(); }
+                                        Lava => { tile_scene = scene_assets.lava.clone(); }
+                                        Teleport(_) => { tile_scene = scene_assets.teleport.clone(); }
+                                        Wall => { tile_scene = scene_assets.wall.clone();
+                                            tile_scale = Transform::from_scale(Vec3::new(0.5,1.5,0.5)).scale;}
+                                    }
+                                    match tile.content {
+                                        Rock(n) => {
+                                            if n < 2 {
+                                                content_scene = scene_assets.rock1.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                            }else if n < 3 {
+                                                content_scene = scene_assets.rock2.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.18,0.18,0.18)).scale;
+                                            }else {
+                                                content_scene = scene_assets.rock3.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.27,0.27,0.27)).scale;
+                                            }
+                                        }
+                                        Tree(n) => {
+                                            if n < 2 {
+                                                content_scene = scene_assets.tree1.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.09,0.09,0.09)).scale;
+                                            }else if n < 4 {
+                                                content_scene = scene_assets.tree2.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.08,0.08,0.08)).scale;
+                                            }else {
+                                                content_scene = scene_assets.tree3.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                            }
+                                        }
+                                        Garbage(_) => {
+                                            content_scene = scene_assets.garbage.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.005,0.005,0.005)).scale;
+                                        }
+                                        Fire => {
+                                            content_scene = scene_assets.fire.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.7,0.7,0.7)).scale;
+                                            content_transform.translation.y += 0.05;
+                                        }
+                                        Coin(_) => {
+                                            content_scene = scene_assets.coin.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                        }
+                                        Bin(_) => {
+                                            content_scene = scene_assets.bin.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                            content_transform.translation.y += 0.45;
+                                        }
+                                        Crate(_) => {
+                                            content_scene = scene_assets.crate_.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            content_transform.translation.y += 0.15;
+                                        }
+                                        Bank(_) => {
+                                            content_scene = scene_assets.bank.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.01,0.01,0.01)).scale;
+                                            content_transform.rotate_y(f32::to_degrees(180.0));
+                                        }
+                                        Water(_) => {
+                                            content_scene = Default::default();
+                                        }
+                                        Market(_) => {
+                                            content_scene = scene_assets.market.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                        }
+                                        Fish(_) => {
+                                            content_scene = scene_assets.fish.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.02,0.02,0.02)).scale;
+                                        }
+                                        Building => {
+                                            content_scene = scene_assets.building.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.007,0.007,0.007)).scale;
+                                        }
+                                        Bush(_) => {
+                                            content_scene = scene_assets.bush.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }
+                                        JollyBlock(_) => {
+                                            if game_data.ai{
+                                                content_scene = scene_assets.mirto.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                            }else {
+                                                content_scene = scene_assets.jolly_block.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            }
+                                        }
+                                        Scarecrow => {
+                                            content_scene = scene_assets.scarecrow.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }
+                                        None => {
+                                            content_scene = Default::default();
+                                        }
+                                    }
+                                    commands.spawn(
+                                        (
+                                            TileBundle{
+                                                model: SceneBundle{
+                                                    scene: tile_scene,
+                                                    transform: Transform{
+                                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.5 ,coordinates.1).translation,
+                                                        rotation: Default::default(),
+                                                        scale: tile_scale,
+                                                    } ,
+                                                    ..default()
+                                                },
+                                            },
+                                            TileComponent
+                                        )
+                                    );
+                                    let mut visibility = Visibility::Visible;
+                                    if !game_data.content_visibility {
+                                        visibility = Visibility::Hidden;
+                                    }
+                                    commands.spawn(
+                                        (
+                                            ContentBundle{
+                                                model: SceneBundle{
+                                                    scene: content_scene,
+                                                    transform: content_transform,
+                                                    visibility,
+                                                    ..default()
+                                                }
+                                            },
+                                            ContentComponent
+                                        )
+                                    );
+                                }
+                            }
+                        }
+                        if *z > 0{
+                            let tile = world_guard[*x][*z - 1].clone().unwrap();
+                            match &game_data.world[*x][*z - 1] {
+                                Some(old_tile) =>{
+                                    return;
+                                }
+                                Option::None => {
+                                    game_data.world[*x][*z - 1] = Some(tile.clone());
+                                    let coordinates = (*x as f32,(*z - 1) as f32);
+                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
+                                    if new_tile_radius > game_data.map_radius {
+                                        game_data.map_radius = new_tile_radius;
+                                    }
+
+                                    let tile_scene;
+                                    let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
+                                    let content_scene;
+                                    let mut content_transform = Transform{
+                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.0 ,coordinates.1).translation,
+                                        rotation: Default::default(),
+                                        scale: Transform::from_scale(Vec3::new(0.1,0.1,0.1)).scale,
+                                    };
+                                    match tile.tile_type {
+                                        DeepWater => { tile_scene = scene_assets.deep_water.clone(); }
+                                        ShallowWater => { tile_scene = scene_assets.shallow_water.clone(); }
+                                        Sand => { tile_scene = scene_assets.sand.clone(); }
+                                        Grass => { tile_scene = scene_assets.grass.clone(); }
+                                        Street => { tile_scene = scene_assets.street.clone(); }
+                                        Hill => { tile_scene = scene_assets.hill.clone(); }
+                                        Mountain => { tile_scene = scene_assets.mountain.clone(); }
+                                        Snow => { tile_scene = scene_assets.snow.clone(); }
+                                        Lava => { tile_scene = scene_assets.lava.clone(); }
+                                        Teleport(_) => { tile_scene = scene_assets.teleport.clone(); }
+                                        Wall => { tile_scene = scene_assets.wall.clone();
+                                            tile_scale = Transform::from_scale(Vec3::new(0.5,1.5,0.5)).scale;}
+                                    }
+                                    match tile.content {
+                                        Rock(n) => {
+                                            if n < 2 {
+                                                content_scene = scene_assets.rock1.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                            }else if n < 3 {
+                                                content_scene = scene_assets.rock2.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.18,0.18,0.18)).scale;
+                                            }else {
+                                                content_scene = scene_assets.rock3.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.27,0.27,0.27)).scale;
+                                            }
+                                        }
+                                        Tree(n) => {
+                                            if n < 2 {
+                                                content_scene = scene_assets.tree1.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.09,0.09,0.09)).scale;
+                                            }else if n < 4 {
+                                                content_scene = scene_assets.tree2.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.08,0.08,0.08)).scale;
+                                            }else {
+                                                content_scene = scene_assets.tree3.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                            }
+                                        }
+                                        Garbage(_) => {
+                                            content_scene = scene_assets.garbage.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.005,0.005,0.005)).scale;
+                                        }
+                                        Fire => {
+                                            content_scene = scene_assets.fire.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.7,0.7,0.7)).scale;
+                                            content_transform.translation.y += 0.05;
+                                        }
+                                        Coin(_) => {
+                                            content_scene = scene_assets.coin.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                        }
+                                        Bin(_) => {
+                                            content_scene = scene_assets.bin.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                            content_transform.translation.y += 0.45;
+                                        }
+                                        Crate(_) => {
+                                            content_scene = scene_assets.crate_.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            content_transform.translation.y += 0.15;
+                                        }
+                                        Bank(_) => {
+                                            content_scene = scene_assets.bank.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.01,0.01,0.01)).scale;
+                                            content_transform.rotate_y(f32::to_degrees(180.0));
+                                        }
+                                        Water(_) => {
+                                            content_scene = Default::default();
+                                        }
+                                        Market(_) => {
+                                            content_scene = scene_assets.market.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                        }
+                                        Fish(_) => {
+                                            content_scene = scene_assets.fish.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.02,0.02,0.02)).scale;
+                                        }
+                                        Building => {
+                                            content_scene = scene_assets.building.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.007,0.007,0.007)).scale;
+                                        }
+                                        Bush(_) => {
+                                            content_scene = scene_assets.bush.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }
+                                        JollyBlock(_) => {
+                                            if game_data.ai{
+                                                content_scene = scene_assets.mirto.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                            }else {
+                                                content_scene = scene_assets.jolly_block.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            }
+                                        }
+                                        Scarecrow => {
+                                            content_scene = scene_assets.scarecrow.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }
+                                        None => {
+                                            content_scene = Default::default();
+                                        }
+                                    }
+                                    commands.spawn(
+                                        (
+                                            TileBundle{
+                                                model: SceneBundle{
+                                                    scene: tile_scene,
+                                                    transform: Transform{
+                                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.5 ,coordinates.1).translation,
+                                                        rotation: Default::default(),
+                                                        scale: tile_scale,
+                                                    } ,
+                                                    ..default()
+                                                },
+                                            },
+                                            TileComponent
+                                        )
+                                    );
+                                    let mut visibility = Visibility::Visible;
+                                    if !game_data.content_visibility {
+                                        visibility = Visibility::Hidden;
+                                    }
+                                    commands.spawn(
+                                        (
+                                            ContentBundle{
+                                                model: SceneBundle{
+                                                    scene: content_scene,
+                                                    transform: content_transform,
+                                                    visibility,
+                                                    ..default()
+                                                }
+                                            },
+                                            ContentComponent
+                                        )
+                                    );
+                                }
+                            }
+                        }
+                        if *z < game_data.world_size - 1{
+                            let tile = world_guard[*x][*z + 1].clone().unwrap();
+                            match &game_data.world[*x][*z + 1] {
+                                Some(old_tile) =>{
+                                    return;
+                                }
+                                Option::None => {
+                                    game_data.world[*x][*z + 1] = Some(tile.clone());
+                                    let coordinates = (*x as f32,(*z + 1) as f32);
+                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
+                                    if new_tile_radius > game_data.map_radius {
+                                        game_data.map_radius = new_tile_radius;
+                                    }
+
+                                    let tile_scene;
+                                    let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
+                                    let content_scene;
+                                    let mut content_transform = Transform{
+                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.0 ,coordinates.1).translation,
+                                        rotation: Default::default(),
+                                        scale: Transform::from_scale(Vec3::new(0.1,0.1,0.1)).scale,
+                                    };
+                                    match tile.tile_type {
+                                        DeepWater => { tile_scene = scene_assets.deep_water.clone(); }
+                                        ShallowWater => { tile_scene = scene_assets.shallow_water.clone(); }
+                                        Sand => { tile_scene = scene_assets.sand.clone(); }
+                                        Grass => { tile_scene = scene_assets.grass.clone(); }
+                                        Street => { tile_scene = scene_assets.street.clone(); }
+                                        Hill => { tile_scene = scene_assets.hill.clone(); }
+                                        Mountain => { tile_scene = scene_assets.mountain.clone(); }
+                                        Snow => { tile_scene = scene_assets.snow.clone(); }
+                                        Lava => { tile_scene = scene_assets.lava.clone(); }
+                                        Teleport(_) => { tile_scene = scene_assets.teleport.clone(); }
+                                        Wall => { tile_scene = scene_assets.wall.clone();
+                                            tile_scale = Transform::from_scale(Vec3::new(0.5,1.5,0.5)).scale;}
+                                    }
+                                    match tile.content {
+                                        Rock(n) => {
+                                            if n < 2 {
+                                                content_scene = scene_assets.rock1.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                            }else if n < 3 {
+                                                content_scene = scene_assets.rock2.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.18,0.18,0.18)).scale;
+                                            }else {
+                                                content_scene = scene_assets.rock3.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.27,0.27,0.27)).scale;
+                                            }
+                                        }
+                                        Tree(n) => {
+                                            if n < 2 {
+                                                content_scene = scene_assets.tree1.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.09,0.09,0.09)).scale;
+                                            }else if n < 4 {
+                                                content_scene = scene_assets.tree2.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.08,0.08,0.08)).scale;
+                                            }else {
+                                                content_scene = scene_assets.tree3.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                            }
+                                        }
+                                        Garbage(_) => {
+                                            content_scene = scene_assets.garbage.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.005,0.005,0.005)).scale;
+                                        }
+                                        Fire => {
+                                            content_scene = scene_assets.fire.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.7,0.7,0.7)).scale;
+                                            content_transform.translation.y += 0.05;
+                                        }
+                                        Coin(_) => {
+                                            content_scene = scene_assets.coin.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                        }
+                                        Bin(_) => {
+                                            content_scene = scene_assets.bin.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                            content_transform.translation.y += 0.45;
+                                        }
+                                        Crate(_) => {
+                                            content_scene = scene_assets.crate_.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            content_transform.translation.y += 0.15;
+                                        }
+                                        Bank(_) => {
+                                            content_scene = scene_assets.bank.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.01,0.01,0.01)).scale;
+                                            content_transform.rotate_y(f32::to_degrees(180.0));
+                                        }
+                                        Water(_) => {
+                                            content_scene = Default::default();
+                                        }
+                                        Market(_) => {
+                                            content_scene = scene_assets.market.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                        }
+                                        Fish(_) => {
+                                            content_scene = scene_assets.fish.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.02,0.02,0.02)).scale;
+                                        }
+                                        Building => {
+                                            content_scene = scene_assets.building.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.007,0.007,0.007)).scale;
+                                        }
+                                        Bush(_) => {
+                                            content_scene = scene_assets.bush.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }
+                                        JollyBlock(_) => {
+                                            if game_data.ai{
+                                                content_scene = scene_assets.mirto.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                            }else {
+                                                content_scene = scene_assets.jolly_block.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            }
+                                        }
+                                        Scarecrow => {
+                                            content_scene = scene_assets.scarecrow.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }
+                                        None => {
+                                            content_scene = Default::default();
+                                        }
+                                    }
+                                    commands.spawn(
+                                        (
+                                            TileBundle{
+                                                model: SceneBundle{
+                                                    scene: tile_scene,
+                                                    transform: Transform{
+                                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.5 ,coordinates.1).translation,
+                                                        rotation: Default::default(),
+                                                        scale: tile_scale,
+                                                    } ,
+                                                    ..default()
+                                                },
+                                            },
+                                            TileComponent
+                                        )
+                                    );
+                                    let mut visibility = Visibility::Visible;
+                                    if !game_data.content_visibility {
+                                        visibility = Visibility::Hidden;
+                                    }
+                                    commands.spawn(
+                                        (
+                                            ContentBundle{
+                                                model: SceneBundle{
+                                                    scene: content_scene,
+                                                    transform: content_transform,
+                                                    visibility,
+                                                    ..default()
+                                                }
+                                            },
+                                            ContentComponent
+                                        )
+                                    );
+                                }
+                            }
+                        }
+                        if *x < game_data.world_size - 1{
+                            let tile = world_guard[*x + 1][*z].clone().unwrap();
+                            match &game_data.world[*x + 1][*z] {
+                                Some(old_tile) =>{
+                                    return;
+                                }
+                                Option::None => {
+                                    game_data.world[*x + 1][*z] = Some(tile.clone());
+                                    let coordinates = ((*x + 1) as f32,*z as f32);
+                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
+                                    if new_tile_radius > game_data.map_radius {
+                                        game_data.map_radius = new_tile_radius;
+                                    }
+
+                                    let tile_scene;
+                                    let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
+                                    let content_scene;
+                                    let mut content_transform = Transform{
+                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.0 ,coordinates.1).translation,
+                                        rotation: Default::default(),
+                                        scale: Transform::from_scale(Vec3::new(0.1,0.1,0.1)).scale,
+                                    };
+                                    match tile.tile_type {
+                                        DeepWater => { tile_scene = scene_assets.deep_water.clone(); }
+                                        ShallowWater => { tile_scene = scene_assets.shallow_water.clone(); }
+                                        Sand => { tile_scene = scene_assets.sand.clone(); }
+                                        Grass => { tile_scene = scene_assets.grass.clone(); }
+                                        Street => { tile_scene = scene_assets.street.clone(); }
+                                        Hill => { tile_scene = scene_assets.hill.clone(); }
+                                        Mountain => { tile_scene = scene_assets.mountain.clone(); }
+                                        Snow => { tile_scene = scene_assets.snow.clone(); }
+                                        Lava => { tile_scene = scene_assets.lava.clone(); }
+                                        Teleport(_) => { tile_scene = scene_assets.teleport.clone(); }
+                                        Wall => { tile_scene = scene_assets.wall.clone();
+                                            tile_scale = Transform::from_scale(Vec3::new(0.5,1.5,0.5)).scale;}
+                                    }
+                                    match tile.content {
+                                        Rock(n) => {
+                                            if n < 2 {
+                                                content_scene = scene_assets.rock1.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                            }else if n < 3 {
+                                                content_scene = scene_assets.rock2.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.18,0.18,0.18)).scale;
+                                            }else {
+                                                content_scene = scene_assets.rock3.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.27,0.27,0.27)).scale;
+                                            }
+                                        }
+                                        Tree(n) => {
+                                            if n < 2 {
+                                                content_scene = scene_assets.tree1.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.09,0.09,0.09)).scale;
+                                            }else if n < 4 {
+                                                content_scene = scene_assets.tree2.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.08,0.08,0.08)).scale;
+                                            }else {
+                                                content_scene = scene_assets.tree3.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
+                                            }
+                                        }
+                                        Garbage(_) => {
+                                            content_scene = scene_assets.garbage.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.005,0.005,0.005)).scale;
+                                        }
+                                        Fire => {
+                                            content_scene = scene_assets.fire.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.7,0.7,0.7)).scale;
+                                            content_transform.translation.y += 0.05;
+                                        }
+                                        Coin(_) => {
+                                            content_scene = scene_assets.coin.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                        }
+                                        Bin(_) => {
+                                            content_scene = scene_assets.bin.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                            content_transform.translation.y += 0.45;
+                                        }
+                                        Crate(_) => {
+                                            content_scene = scene_assets.crate_.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            content_transform.translation.y += 0.15;
+                                        }
+                                        Bank(_) => {
+                                            content_scene = scene_assets.bank.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.01,0.01,0.01)).scale;
+                                            content_transform.rotate_y(f32::to_degrees(180.0));
+                                        }
+                                        Water(_) => {
+                                            content_scene = Default::default();
+                                        }
+                                        Market(_) => {
+                                            content_scene = scene_assets.market.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
+                                        }
+                                        Fish(_) => {
+                                            content_scene = scene_assets.fish.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.02,0.02,0.02)).scale;
+                                        }
+                                        Building => {
+                                            content_scene = scene_assets.building.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.007,0.007,0.007)).scale;
+                                        }
+                                        Bush(_) => {
+                                            content_scene = scene_assets.bush.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }
+                                        JollyBlock(_) => {
+                                            if game_data.ai{
+                                                content_scene = scene_assets.mirto.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                            }else {
+                                                content_scene = scene_assets.jolly_block.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
+                                            }
+                                        }
+                                        Scarecrow => {
+                                            content_scene = scene_assets.scarecrow.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }
+                                        None => {
+                                            content_scene = Default::default();
+                                        }
+                                    }
+                                    commands.spawn(
+                                        (
+                                            TileBundle{
+                                                model: SceneBundle{
+                                                    scene: tile_scene,
+                                                    transform: Transform{
+                                                        translation: Transform::from_xyz(coordinates.0,(tile.elevation as f32 / 10.0) - 2.5 ,coordinates.1).translation,
+                                                        rotation: Default::default(),
+                                                        scale: tile_scale,
+                                                    } ,
+                                                    ..default()
+                                                },
+                                            },
+                                            TileComponent
+                                        )
+                                    );
+                                    let mut visibility = Visibility::Visible;
+                                    if !game_data.content_visibility {
+                                        visibility = Visibility::Hidden;
+                                    }
+                                    commands.spawn(
+                                        (
+                                            ContentBundle{
+                                                model: SceneBundle{
+                                                    scene: content_scene,
+                                                    transform: content_transform,
+                                                    visibility,
+                                                    ..default()
+                                                }
+                                            },
+                                            ContentComponent
+                                        )
+                                    );
+                                }
+                            }
+                        }
+                    }
+                    _ => {
+                        return;
+                    }
+                }
+
+            }
+        }
+        Err(_) => {
+            return;
+        }
+        _ => {
+            return;
+        }
+    }
+}
 fn discover_and_update_tile(mut commands: Commands,
                  scene_assets: Res<SceneAssets>,
                  mut game_data: ResMut<GameData>,
                  mut tile_query: Query<(&Transform,&mut Handle<Scene>),With<TileComponent>>,
 ){
+    {
+        if events.lock().unwrap().len() > 0 {
+            //info!("Eventi");
+            return;
+        }
+    }
+
     if !game_data.update_world{
         return;
     }
     game_data.update_world = false;
+
     match robot_view.try_lock() {
         Ok(world_guard) => {
+            info!("Updating _ World");
             for i in 0..world_guard.len(){
                 for j in 0..world_guard.len() {
                     match &world_guard[i][j] {
@@ -255,12 +1100,17 @@ fn discover_and_update_tile(mut commands: Commands,
                                             TileComponent
                                         )
                                     );
+                                    let mut visibility = Visibility::Visible;
+                                    if !game_data.content_visibility {
+                                        visibility = Visibility::Hidden;
+                                    }
                                     commands.spawn(
                                         (
                                             ContentBundle{
                                                 model: SceneBundle{
                                                     scene: content_scene,
                                                     transform: content_transform,
+                                                    visibility,
                                                     ..default()
                                                 }
                                             },
@@ -425,7 +1275,7 @@ fn hide_content_under_robot(mut content_query: Query<(&mut Transform, &mut Visib
         }
     }
 }
-fn next_runner_tick(mut game_data: ResMut<GameData>){
+fn next_event_action(mut game_data: ResMut<GameData>){
     if game_data.next_action{
         let mut events_guard = events.lock().unwrap();
         if events_guard.len() > 0{
@@ -437,23 +1287,13 @@ fn next_runner_tick(mut game_data: ResMut<GameData>){
                     }
                     events_guard.remove(0);
                 }
-                Terminated => {}
-                TimeChanged(_) => {}
-                DayChanged(_) => {}
-                EnergyRecharged(_) => {}
-                EnergyConsumed(_) => {}
-                Moved(_, _) => {}
-                TileContentUpdated(_, _) => {}
-                AddedToBackpack(_, _) => {}
-                RemovedFromBackpack(_, _) => {}
+                _ => {}
             }
 
+        }else if events_guard.len() == 0 && game_data.autoplay{
+            game_data.next += 1;
         }
-        if events_guard.len() == 0{
-            if game_data.autoplay {
-                game_data.next += 1;
-            }
-        }
+
         game_data.next_action = false;
     }
 }

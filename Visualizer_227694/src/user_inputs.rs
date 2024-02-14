@@ -12,7 +12,7 @@ impl Plugin for InputPlugin{
         app.add_systems(Update,go_stop.in_set(MySet::First))
             .add_systems(Update,next.in_set(MySet::First))
             .add_systems(Update,back_pack_show_hide.in_set(MySet::First))
-            .add_systems(Update,map_show_hide.in_set(MySet::First))
+            .add_systems(Update,map_show_hide.in_set(MySet::Eighth))
             .add_systems(Update,content_show_hide.in_set(MySet::First))
             .add_systems(Update,feed_show_hide.in_set(MySet::First));
     }
@@ -21,22 +21,20 @@ impl Plugin for InputPlugin{
 fn go_stop(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
     if keyboard_input.just_pressed(KeyCode::Space){
         game_data.autoplay = !game_data.autoplay;
-        info!("autoplay? {}",game_data.autoplay);
     }
 }
 fn next(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
     if keyboard_input.just_pressed(KeyCode::Right){
-        info!("Nexttttt");
-        game_data.next += 1;
+        if game_data.next < 1{
+            game_data.next += 1;
+        }
     }
 }
 fn back_pack_show_hide(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
     if keyboard_input.just_pressed(KeyCode::B) {
         if game_data.robot_data.back_pack_visibility == 0{
             game_data.robot_data.back_pack_visibility = 1;
-        } else if game_data.robot_data.back_pack_visibility == 1 {
-            game_data.robot_data.back_pack_visibility = 2;
-        }else {
+        } else {
             game_data.robot_data.back_pack_visibility = 0;
         }
     }
