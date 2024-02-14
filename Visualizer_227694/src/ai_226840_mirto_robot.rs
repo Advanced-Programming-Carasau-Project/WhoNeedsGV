@@ -5,35 +5,45 @@ use robotics_lib::runner::Runnable;
 use robotics_lib::world::tile::{Content, TileType};
 use robotics_lib::world::World;
 use robotics_lib::interface::where_am_i;
+use robotics_lib::interface::robot_view;
 use robotics_lib::interface::robot_map;
 use robotics_lib::interface::go;
+use robotics_lib::world::tile::Tile;
+use robotics_lib::utils::LibError;
 use robotics_lib::runner::{Robot};
 use robotics_lib::event::events::Event;
 use robotics_lib::energy::Energy;
 use robotics_lib::world::coordinates::Coordinate;
 use robotics_lib::runner::backpack::BackPack;
+use robotics_lib::world::world_generator::Generator;
+use robotics_lib::world::environmental_conditions::EnvironmentalConditions;
 use robotics_lib::world::environmental_conditions::WeatherType;
 use robotics_lib::runner::Runner;
 use rand::Rng;
 use rip_worldgenerator::MyWorldGen;
 use rust_and_furious_dynamo::dynamo::Dynamo;
-use rustici_planner::tool::{Action, Destination, PlannerResult};
+use rustici_planner::tool::{Action, Destination, PlannerError, PlannerResult};
 use rustici_planner::tool::Planner;
 use std::{process, thread};
 use std::time::Duration;
+use ohcrab_collection::collection::{CollectTool, LibErrorExtended};
+use op_map::op_pathfinding::{get_best_action_to_element, ShoppingList};
+use op_map::op_pathfinding::OpActionInput::Put;
 use robotics_lib::world::tile::TileType::{DeepWater, Lava, ShallowWater, Teleport, Wall};
 use queues::queue;
 use queues::Queue;
 use queues::IsQueue;
 use colored::Colorize;
+use oxagaudiotool::error::error::OxAgAudioToolError;
 use oxagaudiotool::OxAgAudioTool;
 use oxagaudiotool::sound_config::OxAgSoundConfig;
 use ohcrab_weather::weather_tool::WeatherPredictionTool;
+use robotics_lib::event::events::Event::EnergyRecharged;
 use robotics_lib::world::tile::Content::{Bush, Coin, Fire, JollyBlock, Tree, Water};
 use spyglass::spyglass::{Spyglass, SpyglassResult};
 use spyglass::spyglass::SpyglassResult::{Failed, Paused, Stopped};
 
-pub(crate) struct MirtoRobot {
+pub struct MirtoRobot {
     pub robot: Robot,
     pub audio_tool: OxAgAudioTool,
     pub weather_prediction_tool: WeatherPredictionTool,
@@ -47,7 +57,7 @@ impl MirtoRobot {
     pub fn new(robot: Robot, is_the_goal_woodworking: bool) -> Self{
         MirtoRobot {
             robot,
-            audio_tool: OxAgAudioTool::new(HashMap::new(), HashMap::new(), HashMap::new()).unwrap(), //TODO invocare i metodi sotto
+            audio_tool: OxAgAudioTool::new(Self::map_audio_with_event(), Self::map_audio_with_tile(), Self::map_audio_with_weather()).unwrap(),
             weather_prediction_tool:  WeatherPredictionTool::new(),
             tickets_to_wait: 8,
             tickets: 0,
@@ -168,8 +178,8 @@ impl MirtoRobot {
     }
 
     pub fn recharge_all_energy(&mut self){
+        self.handle_event(Event::EnergyRecharged(1000-self.get_energy().get_energy_level()));
         *self.get_energy_mut() = Dynamo::update_energy();
-        self.handle_event(Event::EnergyRecharged(1000));
     }
 
     pub fn do_u_have_this_content(&self, content: Content) -> bool{
@@ -215,7 +225,7 @@ impl MirtoRobot {
                         visited[i][j] = true;
                     }
                     Some(t) => {
-                        if !Self::is_a_walkable_tyle(t.tile_type.clone()) || t.tile_type == Teleport(true){
+                        if !Self::is_a_walkable_tile(t.tile_type.clone()) || t.tile_type == Teleport(true){
                             visited[i][j] = true;
                         }
                     }
@@ -230,7 +240,7 @@ impl MirtoRobot {
             if Self::is_point_inside_map((i as i32 -1) , j as i32, size as i32) && !visited[i-1][j] {
                 visited[i-1][j] = true;
                 if let Some(tile) = &map[i-1][j]{
-                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) && tile.tile_type != TileType::ShallowWater {
                         return Some((Direction::Up, i, j));
                     }
                 }
@@ -239,7 +249,7 @@ impl MirtoRobot {
             if Self::is_point_inside_map((i as i32 + 1) , j as i32, size as i32) && !visited[i+1][j] {
                 visited[i+1][j] = true;
                 if let Some(tile) = &map[i+1][j]{
-                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) && tile.tile_type != TileType::ShallowWater {
                         return Some((Direction::Down, i, j));
                     }
                 }
@@ -248,7 +258,7 @@ impl MirtoRobot {
             if Self::is_point_inside_map(i as i32, (j as i32 -1) , size as i32) && !visited[i][j-1] {
                 visited[i][j-1] = true;
                 if let Some(tile) = &map[i][j-1]{
-                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) && tile.tile_type != TileType::ShallowWater {
                         return Some((Direction::Left, i, j));
                     }
                 }
@@ -257,7 +267,7 @@ impl MirtoRobot {
             if Self::is_point_inside_map(i as i32, (j as i32 +1) , size as i32) && !visited[i][j+1] {
                 visited[i][j+1] = true;
                 if let Some(tile) = &map[i][j+1]{
-                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) && tile.tile_type != TileType::ShallowWater {
                         return Some((Direction::Right, i, j));
                     }
                 }
@@ -277,8 +287,8 @@ impl MirtoRobot {
         size
     }
 
-    pub fn is_a_valid_tyle_for_content(t: &TileType, content: &Content) -> bool{
-        if !Self::is_a_walkable_tyle(t.clone()){
+    pub fn is_a_valid_tile_for_content(t: &TileType, content: &Content) -> bool{
+        if !Self::is_a_walkable_tile(t.clone()){
             false
         }
         else {
@@ -326,7 +336,7 @@ impl MirtoRobot {
         match &around[1][0]{
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
+                if t.content == Content::None && Self::is_a_valid_tile_for_content(&t.tile_type, content){
                     vec.push(Direction::Left);
                 }
             }
@@ -334,7 +344,7 @@ impl MirtoRobot {
         match &around[0][1] {
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
+                if t.content == Content::None && Self::is_a_valid_tile_for_content(&t.tile_type, content){
                     vec.push(Direction::Up);
                 }
             }
@@ -342,7 +352,7 @@ impl MirtoRobot {
         match &around[1][2] {
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
+                if t.content == Content::None && Self::is_a_valid_tile_for_content(&t.tile_type, content){
                     vec.push(Direction::Right);
                 }
             }
@@ -350,7 +360,7 @@ impl MirtoRobot {
         match &around[2][1] {
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
+                if t.content == Content::None && Self::is_a_valid_tile_for_content(&t.tile_type, content){
                     vec.push(Direction::Down);
                 }
             }
@@ -380,7 +390,7 @@ impl MirtoRobot {
         }
     }
 
-    pub fn is_a_walkable_tyle(t: TileType) -> bool{
+    pub fn is_a_walkable_tile(t: TileType) -> bool{
         if t == Wall || t == DeepWater || t == Lava{
             return false;
         }
@@ -441,7 +451,7 @@ impl MirtoRobot {
                         visited[i][j] = true;
                     },
                     Some(t) => {
-                        if !Self::is_a_walkable_tyle(t.tile_type.clone()){
+                        if !Self::is_a_walkable_tile(t.tile_type.clone()){
                             visited[i][j] = true;
                         }
                     }
@@ -544,9 +554,10 @@ impl MirtoRobot {
         }
 
         self.recharge_all_energy();
-        if self.is_the_goal_woodworking || true{ //THIS IS SETTED TO TRUE JUST FOR DEBUG PURPOSE, BECAUSE MY ROBOT HAS TWO MODE AND I WANT IT TO WORK WITH THIS MODE (WOODWORKING)
+        if self.is_the_goal_woodworking{
             self.make_next_thing_for_woodworker_goal(world);
-        } else {
+        }
+        else {
             self.make_next_thing_for_mirto_goal(world);
         }
     }

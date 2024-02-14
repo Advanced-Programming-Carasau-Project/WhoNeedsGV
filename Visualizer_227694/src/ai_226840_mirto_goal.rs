@@ -19,7 +19,7 @@ impl MirtoRobot{
         while self.do_u_have_this_content(Content::JollyBlock(0)) {
             let (d, i, j) = self.finds_the_nearest_content_not_on_fluids(world, Content::None).unwrap();
             if !(i == self.robot.coordinate.get_row() && j == self.robot.coordinate.get_col()) {
-                //println!("coordinate robot: {:?}, coordinate da raggiungere: {:?}", self.robot.coordinate, (i, j));
+                println!("coordinate robot: {:?}, coordinate da raggiungere: {:?}", self.robot.coordinate, (i, j));
                 let destination = Destination::go_to_coordinate((i, j));
                 let result = Planner::planner(self, destination, world).unwrap();
                 //println!("{:?}", result);
@@ -40,8 +40,8 @@ impl MirtoRobot{
                     _ => {}
                 }
             }
-            /*println!("coordinate robot: {:?} - direction: {:?}", self.robot.coordinate, d);
-            println!("{:?}", put(self, world, Content::JollyBlock(0), 1, d));*/
+            println!("coordinate robot: {:?} - direction: {:?}", self.robot.coordinate, d);
+            println!("{:?}", put(self, world, Content::JollyBlock(0), 1, d));
         }
     }
 
