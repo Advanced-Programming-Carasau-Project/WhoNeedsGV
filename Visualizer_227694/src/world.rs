@@ -75,7 +75,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                     Moved(tile,(x,z)) =>{
                         match &game_data.world[*x][*z] {
                             Some(old_tile) =>{
-                                return;
                             }
                             Option::None => {
                                 game_data.world[*x][*z] = Some(tile.clone());
@@ -236,7 +235,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                             let tile = world_guard[*x - 1][*z].clone().unwrap();
                             match &game_data.world[*x - 1][*z] {
                                 Some(old_tile) =>{
-                                    return;
                                 }
                                 Option::None => {
                                     game_data.world[*x - 1][*z] = Some(tile.clone());
@@ -397,7 +395,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                             let tile = world_guard[*x][*z - 1].clone().unwrap();
                             match &game_data.world[*x][*z - 1] {
                                 Some(old_tile) =>{
-                                    return;
                                 }
                                 Option::None => {
                                     game_data.world[*x][*z - 1] = Some(tile.clone());
@@ -558,7 +555,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                             let tile = world_guard[*x][*z + 1].clone().unwrap();
                             match &game_data.world[*x][*z + 1] {
                                 Some(old_tile) =>{
-                                    return;
                                 }
                                 Option::None => {
                                     game_data.world[*x][*z + 1] = Some(tile.clone());
@@ -719,7 +715,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                             let tile = world_guard[*x + 1][*z].clone().unwrap();
                             match &game_data.world[*x + 1][*z] {
                                 Some(old_tile) =>{
-                                    return;
                                 }
                                 Option::None => {
                                     game_data.world[*x + 1][*z] = Some(tile.clone());
