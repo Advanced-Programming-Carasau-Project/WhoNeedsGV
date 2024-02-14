@@ -11,6 +11,7 @@ lazy_static = "1.4.0"
 bevy = "0.12.1"
 robotics_lib = {version = "0.1.21", registry = "kellnr"}
 rip_worldgenerator = {version = "0.5.54", registry = "kellnr"}
+who_needs_gv_world_generator = {version = "0.2.3", registry = "kellnr"}
 
 rand = "0.8.5"
 queues = "1.0.2"

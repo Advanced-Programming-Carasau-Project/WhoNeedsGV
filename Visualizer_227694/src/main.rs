@@ -37,6 +37,8 @@ pub enum Direction{ //TODO capire come usarle comunque per la direzzione in cui 
     Down
 }
 
+pub const ACTIONS_VELOCITY:f32 = 0.1;
+
 pub struct VisualizerGLC;
 impl VisualizerGLC{
     pub fn run(ai: bool,world_size: usize){
@@ -50,7 +52,7 @@ impl VisualizerGLC{
                 robot_data: RobotData::new(),
                 camera_data : CameraData::new(),
                 current_tile_elevation: 0.0,
-                timer: Timer::from_seconds(0.2, TimerMode::Repeating),
+                timer: Timer::from_seconds(ACTIONS_VELOCITY, TimerMode::Repeating),
                 next_action: false,
                 frames: 0,
                 feed: vec![],

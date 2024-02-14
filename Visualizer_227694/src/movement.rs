@@ -1,10 +1,11 @@
 use bevy::prelude::*;
+use crate::ACTIONS_VELOCITY;
 use crate::game_data::{GameData, MySet};
 use crate::robot::*;
 
 pub struct MovementPlugin;
 
-const MOVEMENT_VELOCITY:f32 = 1.0 / 0.2;
+const MOVEMENT_VELOCITY:f32 = 1.0 / ACTIONS_VELOCITY;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {

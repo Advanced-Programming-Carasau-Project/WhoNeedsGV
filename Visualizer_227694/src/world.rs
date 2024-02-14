@@ -181,7 +181,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                                     JollyBlock(_) => {
                                         if game_data.ai{
                                             content_scene = scene_assets.mirto.clone();
-                                            content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
                                         }else {
                                             content_scene = scene_assets.jolly_block.clone();
                                             content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
@@ -285,7 +285,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                                                 content_transform.scale = Transform::from_scale(Vec3::new(0.09,0.09,0.09)).scale;
                                             }else if n < 4 {
                                                 content_scene = scene_assets.tree2.clone();
-                                                content_transform.scale = Transform::from_scale(Vec3::new(0.08,0.08,0.08)).scale;
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
                                             }else {
                                                 content_scene = scene_assets.tree3.clone();
                                                 content_transform.scale = Transform::from_scale(Vec3::new(0.12,0.12,0.12)).scale;
@@ -341,7 +341,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                                         JollyBlock(_) => {
                                             if game_data.ai{
                                                 content_scene = scene_assets.mirto.clone();
-                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.8,0.8,0.8)).scale;
                                             }else {
                                                 content_scene = scene_assets.jolly_block.clone();
                                                 content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
@@ -501,7 +501,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                                         JollyBlock(_) => {
                                             if game_data.ai{
                                                 content_scene = scene_assets.mirto.clone();
-                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
                                             }else {
                                                 content_scene = scene_assets.jolly_block.clone();
                                                 content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
@@ -661,7 +661,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                                         JollyBlock(_) => {
                                             if game_data.ai{
                                                 content_scene = scene_assets.mirto.clone();
-                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
                                             }else {
                                                 content_scene = scene_assets.jolly_block.clone();
                                                 content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
@@ -821,7 +821,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                                         JollyBlock(_) => {
                                             if game_data.ai{
                                                 content_scene = scene_assets.mirto.clone();
-                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
                                             }else {
                                                 content_scene = scene_assets.jolly_block.clone();
                                                 content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
@@ -1065,7 +1065,7 @@ fn discover_and_update_tile(mut commands: Commands,
                                         JollyBlock(_) => {
                                             if game_data.ai{
                                                 content_scene = scene_assets.mirto.clone();
-                                                content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
                                             }else {
                                                 content_scene = scene_assets.jolly_block.clone();
                                                 content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
@@ -1215,7 +1215,7 @@ fn update_content(mut content_query: Query<(&mut Transform,&mut Handle<Scene>),W
                                     JollyBlock(_) => {
                                         if game_data.ai{
                                             *content_scene = scene_assets.mirto.clone();
-                                            content_transform.scale = Transform::from_scale(Vec3::new(2.2,2.2,2.2)).scale;
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
                                         }else {
                                             *content_scene = scene_assets.jolly_block.clone();
                                             content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;

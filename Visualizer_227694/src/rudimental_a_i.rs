@@ -84,7 +84,8 @@ fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: 
     }else{
         robot = MirtoRobot::new(Robot::new(), true); //TODO qui creo il robot di MM
     }
-    let mut generator = rip_worldgenerator::MyWorldGen::new_param(game_data.world_size,1,1,1,true,false, 5, false, None);
+    //let mut generator = rip_worldgenerator::MyWorldGen::new_param(game_data.world_size,1,1,1,true,false, 5, false, None);
+    let mut generator = who_needs_gv_world_generator::WorldGenerator::new(game_data.world_size);
     let mut run = Runner::new(Box::new(robot), &mut generator).unwrap();
     let spawn_point = (run.get_robot().get_coordinate().get_row(),run.get_robot().get_coordinate().get_col());
     let robot_energy = run.get_robot().get_energy().get_energy_level() as i32;
