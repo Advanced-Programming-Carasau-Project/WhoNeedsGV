@@ -1,0 +1,32 @@
+la posizione del robot (usize, usize), va intesa come (r, c)
+update: credo sia (c, r)
+update 06/02 10.22 -> settato tutto [r][c], (r, c)
+
+todo:
+    fare in modo che i sistems di update vengano invocati solo quando c'è stata una modifica (usando gli stati)
+        (escluso i move)
+    rimuovere '&' in tutte le chiamate con .clone()
+    commenti in inglese(?)
+    switchare il colore da blu ad azzurro in base all'orario
+    bug dei loop degli alberi (e che ogni tanto la cella del robot non è sempre senza content
+        posso aggiungerci un content con la faccia di un robot
+    questione punteggio (percentuale?/pochi punti)
+
+
+
+schema:
+    backpack
+    energy
+    meteo
+
+    elevation --------------|
+    log                     |
+    score                   |--> uniti (stats)
+    hour                    |
+    daytime-----------------|
+
+    robot
+    world
+
+
+
