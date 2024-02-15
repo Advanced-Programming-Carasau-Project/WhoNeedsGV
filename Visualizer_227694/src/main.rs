@@ -11,6 +11,10 @@ mod rudimental_a_i;
 mod ai_226840_mirto_robot;
 mod ai_226840_mirto_goal;
 mod ai_226840_woodworker_goal;
+mod ai_226930_main;
+mod ai_226930_coin_collection;
+mod ai_226930_scare_crow_killing;
+mod ai_226930_print;
 
 use std::fmt::Debug;
 
@@ -37,7 +41,7 @@ pub enum Direction{
     Down
 }
 
-pub const ACTIONS_VELOCITY:f32 = 0.05;
+pub const ACTIONS_VELOCITY:f32 = 0.15;
 
 pub struct VisualizerGLC;
 impl VisualizerGLC{
@@ -78,7 +82,7 @@ impl VisualizerGLC{
 }
 
 fn main() {
-    VisualizerGLC::run(true,50);
+    VisualizerGLC::run(false,50);
 }
 
 fn from_map_to_option_world(map: &Vec<Vec<Tile>>)->Vec<Vec<Option<Tile>>>{ //Used to load the entire world for testing purpose
