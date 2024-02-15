@@ -79,10 +79,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                             Option::None => {
                                 game_data.world[*x][*z] = Some(tile.clone());
                                 let coordinates = (*x as f32,*z as f32);
-                                let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
-                                if new_tile_radius > game_data.map_radius {
-                                    game_data.map_radius = new_tile_radius;
-                                }
 
                                 let tile_scene;
                                 let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
@@ -239,10 +235,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                                 Option::None => {
                                     game_data.world[*x - 1][*z] = Some(tile.clone());
                                     let coordinates = ((*x - 1) as f32,*z as f32);
-                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
-                                    if new_tile_radius > game_data.map_radius {
-                                        game_data.map_radius = new_tile_radius;
-                                    }
 
                                     let tile_scene;
                                     let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
@@ -341,7 +333,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                                         JollyBlock(_) => {
                                             if game_data.ai{
                                                 content_scene = scene_assets.mirto.clone();
-                                                content_transform.scale = Transform::from_scale(Vec3::new(0.8,0.8,0.8)).scale;
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.4,0.4,0.4)).scale;
                                             }else {
                                                 content_scene = scene_assets.jolly_block.clone();
                                                 content_transform.scale = Transform::from_scale(Vec3::new(0.2,0.2,0.2)).scale;
@@ -399,10 +391,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                                 Option::None => {
                                     game_data.world[*x][*z - 1] = Some(tile.clone());
                                     let coordinates = (*x as f32,(*z - 1) as f32);
-                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
-                                    if new_tile_radius > game_data.map_radius {
-                                        game_data.map_radius = new_tile_radius;
-                                    }
 
                                     let tile_scene;
                                     let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
@@ -559,10 +547,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                                 Option::None => {
                                     game_data.world[*x][*z + 1] = Some(tile.clone());
                                     let coordinates = (*x as f32,(*z + 1) as f32);
-                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
-                                    if new_tile_radius > game_data.map_radius {
-                                        game_data.map_radius = new_tile_radius;
-                                    }
 
                                     let tile_scene;
                                     let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
@@ -719,10 +703,6 @@ fn discover_tile_under_robot(mut commands: Commands,
                                 Option::None => {
                                     game_data.world[*x + 1][*z] = Some(tile.clone());
                                     let coordinates = ((*x + 1) as f32,*z as f32);
-                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
-                                    if new_tile_radius > game_data.map_radius {
-                                        game_data.map_radius = new_tile_radius;
-                                    }
 
                                     let tile_scene;
                                     let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
@@ -962,12 +942,6 @@ fn discover_and_update_tile(mut commands: Commands,
                                     }
                                 }
                                 Option::None => { /* I will insert a new tile because it was discovered*/
-                                    //info!("ho discoverato una nuova tile");
-                                    let new_tile_radius = f32::sqrt(((coordinates.0 - game_data.world_size as f32) * (coordinates.0 - game_data.world_size as f32)) + ((coordinates.1 - game_data.world_size as f32) * (coordinates.1 - game_data.world_size as f32)));
-                                    if new_tile_radius > game_data.map_radius {
-                                        game_data.map_radius = new_tile_radius;
-                                    }
-
                                     let tile_scene;
                                     let mut tile_scale = Transform::from_scale(Vec3::new(0.5,0.5,0.5)).scale;
                                     let content_scene;

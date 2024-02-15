@@ -30,14 +30,14 @@ use crate::user_inputs::InputPlugin;
 use crate::weather::WeatherPlugin;
 use crate::world::WorldPlugin;
 #[derive(Debug,Clone)]
-pub enum Direction{ //TODO capire come usarle comunque per la direzzione in cui deve guardare il robot nonostante non abbia gia la pappa pronta
+pub enum Direction{
     Right,
     Left,
     Up,
     Down
 }
 
-pub const ACTIONS_VELOCITY:f32 = 0.1;
+pub const ACTIONS_VELOCITY:f32 = 0.05;
 
 pub struct VisualizerGLC;
 impl VisualizerGLC{
@@ -57,7 +57,6 @@ impl VisualizerGLC{
                 frames: 0,
                 feed: vec![],
                 feed_visibility: true,
-                map_radius: 0.0,
                 hided_content: (0.0, 0.0),
                 content_visibility: true,
                 ai,
@@ -79,7 +78,7 @@ impl VisualizerGLC{
 }
 
 fn main() {
-    VisualizerGLC::run(true,100);
+    VisualizerGLC::run(true,50);
 }
 
 fn from_map_to_option_world(map: &Vec<Vec<Tile>>)->Vec<Vec<Option<Tile>>>{ //Used to load the entire world for testing purpose

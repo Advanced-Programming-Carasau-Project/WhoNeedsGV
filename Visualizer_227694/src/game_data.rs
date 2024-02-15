@@ -87,7 +87,6 @@ pub(crate) struct GameData{ // a resource used to store all data concerning the 
     pub(crate) frames:usize,
     pub(crate) feed:Vec<String>,
     pub(crate) feed_visibility:bool,
-    pub(crate) map_radius:f32,
     pub(crate) hided_content:(f32,f32),
     pub(crate) content_visibility:bool,
     pub(crate) ai:bool,

@@ -181,10 +181,11 @@ fn move_robot(mut robot_query: Query<&mut Transform,With<RobotComponent>>,
                                 robot_transform.translation = Transform::from_xyz(*x as f32, (tile.elevation as f32 / 10.0) - 0.95, *z as f32).translation;
                                 game_data.robot_data.robot_translation = Transform::from_xyz(*x as f32, (tile.elevation as f32 / 10.0) - 0.95, *z as f32).translation;
                                 game_data.current_tile_elevation = tile.elevation as f32;
-                                game_data.feed.push(format!("Teleported to ({},{}) on {:?}",x,z,tile.tile_type));
+                                game_data.feed.push(format!("Teleported to ({},{})",x,z));
                                 if game_data.feed.len() == 8{
                                     game_data.feed.remove(7);
                                 }
+                                events_guard.remove(0);
                                 return;
                             }
                         }

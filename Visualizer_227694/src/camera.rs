@@ -170,8 +170,8 @@ fn camera_follow_robot(
                                         }
                                     }
                                     *camera_transform = game_data.camera_data.camera_transform;
-                                }else if game_data.camera_data.camera_mode == 3 && game_data.camera_data.camera_mode != 0 {
-                                    if game_data.camera_data.camera_mode_bu == 1{
+                                }else if game_data.camera_data.camera_mode == 3{
+                                    if game_data.camera_data.camera_mode_bu != 2{
                                         game_data.camera_data.camera_transform_bu.translation = Transform::from_xyz(destination.0, camera_transform.translation.y + destination_elevation / 10.0, destination.1 - 5.0).translation;
                                     }else if game_data.camera_data.camera_mode_bu == 2 {
                                         match game_data.camera_data.camera_direction {
