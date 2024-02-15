@@ -1,4 +1,5 @@
 mod ai_226840;
+mod ai_226930;
 
 use robotics_lib::runner::Runner;
 use robotics_lib::runner::Runnable;
@@ -23,6 +24,7 @@ use robotics_lib::interface::robot_map;
 use colored::Colorize;
 use std::io;
 use crate::ai_226840::MirtoRobot;
+use crate::ai_226930::LunaticRobot;
 
 
 use rocket::launch;
@@ -72,6 +74,46 @@ impl Runnable for MirtoRobot {
     fn handle_event(&mut self, event: Event) {
         self.audio_tool.play_audio_based_on_event(&event);
         self.weather_prediction_tool.process_event(&event);
+
+        let mut update_events = events.lock().unwrap();
+        update_events.push(event.clone());
+    }
+    fn get_energy(&self) -> &Energy {
+        &self.robot.energy
+    }
+    fn get_energy_mut(&mut self) -> &mut Energy {
+        &mut self.robot.energy
+    }
+    fn get_coordinate(&self) -> &Coordinate {
+        &self.robot.coordinate
+    }
+    fn get_coordinate_mut(&mut self) -> &mut Coordinate{
+        &mut self.robot.coordinate
+    }
+    fn get_backpack(&self) -> &BackPack {
+        &self.robot.backpack
+    }
+    fn get_backpack_mut(&mut self) -> &mut BackPack {
+        &mut self.robot.backpack
+    }
+}
+impl Runnable for LunaticRobot {
+    fn process_tick(&mut self, world: &mut World) {
+        self.routine(world);
+
+        let mut update_points = points.lock().unwrap();
+        let mut update_robot_view = robot_view.lock().unwrap();
+        let mut update_positions = positions.lock().unwrap();
+        let mut update_energy = energy.lock().unwrap();
+        let mut update_backpack_content = backpack_content.lock().unwrap();
+
+        *update_positions = (self.robot.coordinate.get_row(), self.robot.coordinate.get_col());
+        *update_points = get_score(world);
+        *update_robot_view = robot_map(world).unwrap();
+        *update_energy = self.robot.energy.get_energy_level();
+        *update_backpack_content = self.get_backpack().get_contents().clone();
+    }
+    fn handle_event(&mut self, event: Event) {
 
         let mut update_events = events.lock().unwrap();
         update_events.push(event.clone());
@@ -223,15 +265,16 @@ const world_size: usize = 64;
 #[launch]
 fn rocket()->_{
     //compila il file typescript
-    let status = Command::new("tsc")
+    /*let status = Command::new("tsc")
         .arg("./static/visualizer.ts") // Percorso del tuo file TypeScript
         .arg("--lib")
         .arg("ES2015,DOM")
         .status()
-        .expect("failed to execute TypeScript compiler");
+        .expect("failed to execute TypeScript compiler");*/
 
     let mut choice;
     let mirto_robot = MirtoRobot::new(Robot::new(), true);
+    let lunatic_robot = LunaticRobot::new();
     let mut whoneedsgv_wg = WorldGenerator::new(world_size);
     let mut rustinpeace_wg = MyWorldGen::new_param(world_size, 2, 2, 2, true, false, 3, false, None);
     let mut whoneedsgv_runner;
@@ -249,14 +292,16 @@ fn rocket()->_{
             rocket::build().manage(RunnerTag(Mutex::new(whoneedsgv_runner))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
         }
         2 => {
-            panic!("robot doesn't exists for now");
+            whoneedsgv_runner = Runner::new(Box::new(lunatic_robot), &mut whoneedsgv_wg).unwrap();
+            rocket::build().manage(RunnerTag(Mutex::new(whoneedsgv_runner))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
         }
         3 => {
             rustinpeace_runner = Runner::new(Box::new(mirto_robot), &mut rustinpeace_wg).unwrap();
             rocket::build().manage(RunnerTag(Mutex::new(rustinpeace_runner))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
         }
         4 => {
-            panic!("robot doesn't exists for now");
+            rustinpeace_runner = Runner::new(Box::new(lunatic_robot), &mut rustinpeace_wg).unwrap();
+            rocket::build().manage(RunnerTag(Mutex::new(rustinpeace_runner))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
         }
         _ => { panic!("wrong choice"); }
     }

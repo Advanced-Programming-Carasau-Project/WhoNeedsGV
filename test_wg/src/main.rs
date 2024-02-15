@@ -6,6 +6,7 @@ use rocket::serde::Serialize;
 use robotics_lib::world::tile::Tile;
 use who_needs_gv_world_generator::WorldGenerator;
 use robotics_lib::world::world_generator::Generator;
+use rip_worldgenerator::MyWorldGen;
 #[derive(Serialize)]
 struct World{
     size :usize,
@@ -14,9 +15,9 @@ struct World{
 
 #[get("/get_data")]
 fn get_data() -> Json<World> {
-    let size: usize = 40; //max: 1024 potenze di 2 per non avere problemi con la canvas
+    let size: usize = 128; //max: 1024 potenze di 2 per non avere problemi con la canvas
 
-    let mut world_generator = WorldGenerator::new(size);
+    let mut world_generator = MyWorldGen::new_param(size,2,5,0,true,false, 5, false, None);
 
 
     //world_generator.e_seed = 1688614679299147791;
@@ -29,7 +30,7 @@ fn get_data() -> Json<World> {
     let generato = world_generator.gen();
 
     let mondo = World{
-        size: world_generator.get_size(),
+        size: size,
         tiles: generato.0,
     };
 
