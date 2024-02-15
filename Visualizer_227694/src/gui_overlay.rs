@@ -161,20 +161,6 @@ fn create_gui(mut commands: Commands,
             left: Val::Px(130.0),
             ..default()
         }),PointsUpdateComponent));
-    /*commands.spawn((
-        TextBundle::from_section(
-            "----BackPack----\n Water:0\n Rock:0\n Tree:0\n Bush:0\n JollyBlock:0   \n Garbage:0\n Coin:0\n Fish:0\n----BackPack----",
-            TextStyle {
-                font_size: 20.0,
-                color: Color::rgb(0.0, 0.0, 0.0),
-                ..default()
-            },
-        ).with_style(Style {
-            position_type: PositionType::Absolute,
-            top: Val::Px(5.0),
-            right: Val::Px(5.0),
-            ..default()
-        }),BackPackComponent));*/
     commands.spawn(
         (ImageBundle {
             image: image_assets.back_pack.clone().into(),
@@ -192,7 +178,7 @@ fn create_gui(mut commands: Commands,
         TextBundle::from_section(
             "\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n",
             TextStyle {
-                font_size: 22.0,
+                font_size: 23.0,
                 color: Color::rgb(0.0, 0.0, 0.0),
                 ..default()
             },
@@ -206,7 +192,7 @@ fn create_gui(mut commands: Commands,
         TextBundle::from_section(
             "",
             TextStyle {
-                font_size: 20.0,
+                font_size: 23.0,
                 color: Color::rgb(0.0, 0.0, 0.0),
                 ..default()
             },
@@ -232,38 +218,24 @@ fn create_gui(mut commands: Commands,
         }),FeedComponent));
     commands.spawn(
         (ImageBundle {
-            image: image_assets.water.clone().into(),
+            image: image_assets.coin.clone().into(),
             style: Style {
                 position_type: PositionType::Absolute,
-                top: Val::Px(25.0),
-                right: Val::Px(80.0),
+                top: Val::Px(37.0),
+                right: Val::Px(92.0),
                 width: Val::Px(22.0),
                 height: Val::Px(22.0),
                 ..default()
             },
             ..default()
         },BackPackImageComponent));
-    commands.spawn(
-        (ImageBundle {
-            image: image_assets.rock.clone().into(),
-            style: Style {
-                position_type: PositionType::Absolute,
-                top: Val::Px(46.0),
-                right: Val::Px(80.0),
-                width: Val::Px(22.0),
-                height: Val::Px(22.0),
-                ..default()
-            },
-            ..default()
-        },BackPackImageComponent));
-
     commands.spawn(
         (ImageBundle {
             image: image_assets.tree.clone().into(),
             style: Style {
                 position_type: PositionType::Absolute,
-                top: Val::Px(67.0),
-                right: Val::Px(80.0),
+                top: Val::Px(66.0),
+                right: Val::Px(90.0),
                 width: Val::Px(22.0),
                 height: Val::Px(22.0),
                 ..default()
@@ -276,8 +248,22 @@ fn create_gui(mut commands: Commands,
             image: image_assets.bush.clone().into(),
             style: Style {
                 position_type: PositionType::Absolute,
-                top: Val::Px(86.0),
-                right: Val::Px(80.0),
+                top: Val::Px(95.0),
+                right: Val::Px(100.0),
+                width: Val::Px(22.0),
+                height: Val::Px(22.0),
+                ..default()
+            },
+            ..default()
+        },BackPackImageComponent));
+
+    commands.spawn(
+        (ImageBundle {
+            image: image_assets.rock.clone().into(),
+            style: Style {
+                position_type: PositionType::Absolute,
+                top: Val::Px(122.0),
+                right: Val::Px(98.0),
                 width: Val::Px(22.0),
                 height: Val::Px(22.0),
                 ..default()
@@ -295,8 +281,8 @@ fn create_gui(mut commands: Commands,
             image: jolly_block_image.into(),
             style: Style {
                 position_type: PositionType::Absolute,
-                top: Val::Px(107.0),
-                right: Val::Px(80.0),
+                top: Val::Px(209.0),
+                right: Val::Px(133.0),
                 width: Val::Px(22.0),
                 height: Val::Px(22.0),
                 ..default()
@@ -308,8 +294,8 @@ fn create_gui(mut commands: Commands,
             image: image_assets.garbage.clone().into(),
             style: Style {
                 position_type: PositionType::Absolute,
-                top: Val::Px(128.0),
-                right: Val::Px(80.0),
+                top: Val::Px(152.0),
+                right: Val::Px(125.0),
                 width: Val::Px(22.0),
                 height: Val::Px(22.0),
                 ..default()
@@ -318,11 +304,28 @@ fn create_gui(mut commands: Commands,
         },BackPackImageComponent));
     commands.spawn(
        (ImageBundle {
-            image: image_assets.coin.clone().into(),
+            image: image_assets.fish.clone().into(),
             style: Style {
                 position_type: PositionType::Absolute,
-                top: Val::Px(149.0),
-                right: Val::Px(80.0),
+                top: Val::Px(180.0),
+                right: Val::Px(87.0),
+                width: Val::Px(22.0),
+                height: Val::Px(22.0),
+                ..default()
+            },
+            ..default()
+        },BackPackImageComponent));
+    let mut scarecrow_image = image_assets.scarecrow.clone();
+    if !game_data.ai{
+        scarecrow_image = image_assets.chicken.clone();
+    }
+    commands.spawn(
+        (ImageBundle {
+            image: scarecrow_image.into(),
+            style: Style {
+                position_type: PositionType::Absolute,
+                top: Val::Px(235.0),
+                right: Val::Px(137.0),
                 width: Val::Px(22.0),
                 height: Val::Px(22.0),
                 ..default()
@@ -331,11 +334,11 @@ fn create_gui(mut commands: Commands,
         },BackPackImageComponent));
     commands.spawn(
         (ImageBundle {
-            image: image_assets.fish.clone().into(),
+            image: image_assets.water.clone().into(),
             style: Style {
                 position_type: PositionType::Absolute,
-                top: Val::Px(170.0),
-                right: Val::Px(80.0),
+                top: Val::Px(265.0),
+                right: Val::Px(102.0),
                 width: Val::Px(22.0),
                 height: Val::Px(22.0),
                 ..default()
@@ -441,17 +444,17 @@ fn update_feed(mut feed_query: Query<&mut Text,With<FeedComponent>>,
         while i < game_data.feed.len() as i32{
             if i >= 0 {
                 feed_string.push_str("\n");
-                let tmp = format!("{:?}",game_data.feed[i as usize]);
+                let tmp = format!("{}",game_data.feed[i as usize]);
                 feed_string.push_str(&tmp);
             }
             i += 1;
         }
-        feed_text.sections[0].value = format!("{}", feed_string);
+        feed_text.sections[0].value = format!("{}",feed_string);
     }
 }
 fn update_backpack(mut back_pack_query: Query<&mut Text,With<BackPackComponent>>,
                    game_data: Res<GameData>,
-) { //TODO rifare con immagine al posto di schifo per il back_pack
+) {
     let mut back_pack_text = back_pack_query.single_mut();
     if game_data.robot_data.back_pack_visibility == 0{
         back_pack_text.sections[0].value = format!("");
@@ -465,8 +468,7 @@ fn update_backpack(mut back_pack_query: Query<&mut Text,With<BackPackComponent>>
         let garbage = game_data.robot_data.back_pack.get(&Content::Garbage(0).to_default()).unwrap();
         let coin = game_data.robot_data.back_pack.get(&Content::Coin(0).to_default()).unwrap();
         let scarecrow = game_data.robot_data.back_pack.get(&Content::Scarecrow.to_default()).unwrap();
-        //back_pack_text.sections[0].value = format!("-----BackPack-----\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n          :{}\n-----BackPack-----", water, rock, tree, bush, jolly_block, garbage, coin, fish);
-        back_pack_text.sections[0].value = format!("\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n", water, rock, tree, bush, jolly_block, garbage, coin, fish,scarecrow);
+        back_pack_text.sections[0].value = format!("\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n", water, rock, tree, bush, jolly_block, garbage, coin,fish,scarecrow);
     }
 }
 fn update_backpack_images(mut back_pack_images_query: Query<&mut Visibility,With<BackPackImageComponent>>,
@@ -492,14 +494,15 @@ fn update_backpack_update(mut back_pack_update_query: Query<&mut Text,With<BackP
     }else{
         let mut str = String::from("");
         let mut v = vec![];
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Water(0)).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Rock(0)).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Tree(0)).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Bush(0)).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::JollyBlock(0)).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Garbage(0)).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Coin(0)).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Fish(0)).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Water(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Rock(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Tree(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Bush(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::JollyBlock(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Garbage(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Coin(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Fish(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Scarecrow.to_default()).unwrap());
 
         let mut update = false;
 
@@ -514,14 +517,15 @@ fn update_backpack_update(mut back_pack_update_query: Query<&mut Text,With<BackP
                 str.push_str("\n");
             }
         }
-        game_data.robot_data.back_pack_update.insert(Content::Water(0), 0);
-        game_data.robot_data.back_pack_update.insert(Content::Tree(0), 0);
-        game_data.robot_data.back_pack_update.insert(Content::Rock(0), 0);
-        game_data.robot_data.back_pack_update.insert(Content::Fish(0), 0);
-        game_data.robot_data.back_pack_update.insert(Content::JollyBlock(0), 0);
-        game_data.robot_data.back_pack_update.insert(Content::Bush(0), 0);
-        game_data.robot_data.back_pack_update.insert(Content::Garbage(0), 0);
-        game_data.robot_data.back_pack_update.insert(Content::Coin(0), 0);
+        game_data.robot_data.back_pack_update.insert(Content::Water(0).to_default(), 0);
+        game_data.robot_data.back_pack_update.insert(Content::Tree(0).to_default(), 0);
+        game_data.robot_data.back_pack_update.insert(Content::Rock(0).to_default(), 0);
+        game_data.robot_data.back_pack_update.insert(Content::Fish(0).to_default(), 0);
+        game_data.robot_data.back_pack_update.insert(Content::JollyBlock(0).to_default(), 0);
+        game_data.robot_data.back_pack_update.insert(Content::Bush(0).to_default(), 0);
+        game_data.robot_data.back_pack_update.insert(Content::Garbage(0).to_default(), 0);
+        game_data.robot_data.back_pack_update.insert(Content::Coin(0).to_default(), 0);
+        game_data.robot_data.back_pack_update.insert(Content::Scarecrow.to_default(), 0);
 
         if update {
             back_pack_update_text.sections[0].value = str;
@@ -531,9 +535,3 @@ fn update_backpack_update(mut back_pack_update_query: Query<&mut Text,With<BackP
         }
     }
 }
-
-/*
-fn show_info(query: Query<Info,With<GUI>> ,keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
-    //TODO (quando I sta venendo premuto faccio vedere le info oscurando il resto)
-}
-*/

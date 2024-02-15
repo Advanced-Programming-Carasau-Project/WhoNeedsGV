@@ -58,7 +58,7 @@ fn map_show_hide(keyboard_input: Res<Input<KeyCode>>,
             game_data.camera_data.camera_mode = 3;
             game_data.camera_data.camera_direction = crate::Direction::Up;
             game_data.camera_data.camera_transform = Transform::from_xyz(0.0,0.0,0.0).looking_at(Vec3::ZERO,Vec3::Z);
-            game_data.camera_data.camera_transform.translation = Transform::from_xyz(game_data.world_size as f32/2.0,game_data.world_size as f32 * 1.19,game_data.world_size as f32/2.0).translation;
+            game_data.camera_data.camera_transform.translation = Transform::from_xyz(game_data.world_size as f32/2.0,game_data.world_size as f32 * 1.3,game_data.world_size as f32/2.0).translation;
             game_data.camera_data.camera_velocity = Vec3::ZERO;
         }else {
             game_data.camera_data.camera_mode = game_data.camera_data.camera_mode_bu;

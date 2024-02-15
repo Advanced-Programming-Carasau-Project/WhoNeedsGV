@@ -15,13 +15,9 @@ mod ai_226930_main;
 mod ai_226930_coin_collection;
 mod ai_226930_scare_crow_killing;
 mod ai_226930_print;
-
 use std::fmt::Debug;
-
 use bevy::prelude::*;
-
 use robotics_lib::world::tile::Tile;
-
 
 use crate::assets_loader::AssetsLoaderPlugin;
 use crate::camera::CameraPlugin;
