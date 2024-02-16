@@ -74,22 +74,22 @@ impl CameraData{
 }
 #[derive(Resource,Debug)]
 pub(crate) struct GameData{ // a resource used to store all data concerning the game status
-    pub(crate) autoplay:bool,
+    pub(crate) autoplay:bool, // if true the game-tick is automatically called after all the actions of the previous one have been showed
     pub(crate) next:usize,
-    pub(crate) world_size:usize,
-    pub(crate) world:Vec<Vec<Option<Tile>>>,
+    pub(crate) world_size:usize, // the size of the world
+    pub(crate) world:Vec<Vec<Option<Tile>>>, // state of the displayed world
     pub(crate) update_world:bool,
-    pub(crate) robot_data:RobotData,
-    pub(crate) camera_data:CameraData,
+    pub(crate) robot_data:RobotData, //data concerning robot status
+    pub(crate) camera_data:CameraData, //data concerning robot status
     pub(crate) current_tile_elevation:f32,
-    pub(crate) timer:Timer,
+    pub(crate) timer:Timer, // a Timer used to determine when to perform the next robot action
     pub(crate) next_action:bool,
-    pub(crate) frames:usize,
-    pub(crate) feed:Vec<String>,
+    pub(crate) frames:usize, // used only for performance checks
+    pub(crate) feed:Vec<String>, // a record of the last performed actions from the robot
     pub(crate) feed_visibility:bool,
-    pub(crate) hided_content:(f32,f32),
+    pub(crate) hided_content:(f32,f32), // used to hide the content under the robot
     pub(crate) content_visibility:bool,
-    pub(crate) ai:bool,
+    pub(crate) ai:bool, // True -> MirtoRobot - False -> LuaticRobot
 }
 #[derive(SystemSet,Debug,Hash,Eq, PartialEq,Clone)]
 pub enum MySet{ // in this way I ensure that Systems executed every frame are executed in parallel only in a non-conflictual way

@@ -1,7 +1,5 @@
-
 use bevy::ecs::bundle::DynamicBundle;
 use bevy::prelude::*;
-
 use crate::visualizer_227694::game_data::{GameData,MySet};
 use crate::visualizer_227694::assets_loader::SceneAssets;
 use robotics_lib::world::tile::Content::*;
@@ -29,7 +27,7 @@ impl Plugin for WorldPlugin{
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, create_ground_and_light)
             .add_systems(Update, discover_and_update_tile.in_set(MySet::Fourth))
-            .add_systems(Update, discover_tile_under_robot.in_set(MySet::Third))
+            .add_systems(Update, discover_tiles_around_robot.in_set(MySet::Third))
             .add_systems(Update,update_content.in_set(MySet::Fifth))
             .add_systems(Update, hide_content_under_robot.in_set(MySet::Sixth))
             .add_systems(Update, next_event_action.in_set(MySet::Eighth));
@@ -58,12 +56,9 @@ fn create_ground_and_light(
     });
 
 }
-pub(crate) fn create_tile_model(){
-
-}
-fn discover_tile_under_robot(mut commands: Commands,
-                            scene_assets: Res<SceneAssets>,
-                            mut game_data: ResMut<GameData>,
+fn discover_tiles_around_robot(mut commands: Commands,
+                               scene_assets: Res<SceneAssets>,
+                               mut game_data: ResMut<GameData>,
 ){
     if !game_data.next_action{
         return;

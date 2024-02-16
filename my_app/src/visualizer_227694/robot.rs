@@ -1,13 +1,12 @@
 use bevy::prelude::*;
 use robotics_lib::event::events::Event::*;
-
 use crate::visualizer_227694::assets_loader::SceneAssets;
 use crate::visualizer_227694::game_data::{GameData, MySet};
 use crate::visualizer_227694::Direction::*;
 use crate::{events, points};
 
 #[derive(Component,Debug)]
-pub struct RobotComponent;
+pub struct RobotComponent; // label-component
 #[derive(Bundle)]
 struct RobotBundle{
     model:SceneBundle,
@@ -26,7 +25,7 @@ impl Plugin for RobotPlugin{
     }
 }
 fn spawn_robot(mut commands: Commands,scene_assets: Res<SceneAssets>,
-                game_data: Res<GameData>
+               game_data: Res<GameData>
 ){
     let mut transform = Transform::from_translation(Vec3::ZERO).looking_at(Vec3::Z,Vec3::ZERO);
     transform.translation = game_data.robot_data.robot_translation;

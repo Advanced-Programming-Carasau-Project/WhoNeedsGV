@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 use crate::visualizer_227694::camera::Camera3DComponent;
-
-
 use crate::visualizer_227694::game_data::{GameData, MySet};
 use crate::visualizer_227694::world::ContentComponent;
 
@@ -18,11 +16,14 @@ impl Plugin for InputPlugin{
     }
 }
 
+
+///Pressing *Space* the user can change from autoplay to not///
 fn go_stop(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
     if keyboard_input.just_pressed(KeyCode::Space){
         game_data.autoplay = !game_data.autoplay;
     }
 }
+///Pressing *Right* the robot will perform the next action///
 fn next(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
     if keyboard_input.just_pressed(KeyCode::Right){
         if game_data.next < 1{

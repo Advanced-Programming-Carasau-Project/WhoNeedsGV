@@ -1,21 +1,9 @@
-
-
-
-
 use bevy::prelude::*;
-
-
-
 use robotics_lib::runner::{Robot, Runnable, Runner};
-
-
 use crate::visualizer_227694::game_data::*;
-
-
 use crate::{robot_view, RunnerTag, world_size};
 use crate::LunaticRobot;
 use crate::MirtoRobot;
-
 
 pub struct ArtificialIntelligencePlugin;
 
@@ -28,7 +16,6 @@ impl Plugin for ArtificialIntelligencePlugin {
 
 fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: Commands){
     let mut generator = rip_worldgenerator::MyWorldGen::new_param(world_size, 2, 2, 2, true, false, 3, false, None);
-    //let mut generator = who_needs_gv_world_generator::WorldGenerator::new(game_data.world_size);
 
     let mut run = Runner::new(Box::new(LunaticRobot::new()), &mut generator).unwrap();
 
@@ -69,7 +56,7 @@ fn robot_runner(mut game_data: ResMut<GameData>, mut runner: ResMut<RunnerTag>){
     if game_data.next <= 0{
         return;
     }
-    { // SERVE A LIBERARE I MUTEX SENZA ESPLICITARE UNLOCK
+    { // next game tick
         let _ = runner.0.game_tick();
         game_data.next -= 1;
         game_data.update_world = true;

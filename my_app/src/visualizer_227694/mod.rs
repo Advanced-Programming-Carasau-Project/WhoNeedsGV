@@ -7,7 +7,7 @@ mod assets_loader;
 mod gui_overlay;
 mod movement;
 mod game_data;
-pub(crate) mod rudimental_a_i;
+mod rudimental_a_i;
 use std::fmt::Debug;
 use bevy::prelude::*;
 
@@ -23,7 +23,7 @@ use crate::visualizer_227694::user_inputs::InputPlugin;
 use crate::visualizer_227694::weather::WeatherPlugin;
 use crate::visualizer_227694::world::WorldPlugin;
 #[derive(Debug,Clone)]
-pub enum Direction{
+pub(crate) enum Direction{
     Right,
     Left,
     Up,

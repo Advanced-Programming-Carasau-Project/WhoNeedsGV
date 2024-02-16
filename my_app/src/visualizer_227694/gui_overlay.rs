@@ -3,7 +3,7 @@ use robotics_lib::world::tile::Content;
 use crate::visualizer_227694::assets_loader::ImageAssets;
 use crate::visualizer_227694::game_data::{GameData, MySet};
 
-
+/// a lot of label-Components used for Query ///
 #[derive(Component)]
 pub struct EnergyComponent;
 #[derive(Component)]
@@ -48,7 +48,7 @@ impl Plugin for GUIPlugin{
 fn create_gui(mut commands: Commands,
               game_data: Res<GameData>,
               image_assets: Res<ImageAssets>,
-){
+){  // this system spawns all the UI related images and texts
     commands.spawn(
         ImageBundle {
             image: image_assets.energy_border.clone().into(),

@@ -3,6 +3,7 @@ use crate::visualizer_227694::game_data::{GameData, MySet};
 use crate::visualizer_227694::Direction;
 use robotics_lib::event::events::Event::*;
 
+/// some constants used to set camera position relativly to the robot ///
 pub(crate) const CAMERA_0_VERTICAL_DISTANCE:f32 = 10.0;
 pub(crate)const CAMERA_1_HORIZONTAL_DISTANCE:f32 = 10.0;
 pub(crate)const CAMERA_1_VERTICAL_DISTANCE:f32 = 4.0;
@@ -13,7 +14,7 @@ pub(crate)const CAMERA_2_VERTICAL_DISTANCE:f32 = 4.0;
 pub(crate)const CAMERA_2_INCLINATION:f32 = 15.0;
 
 #[derive(Component)]
-pub struct Camera3DComponent;
+pub struct Camera3DComponent; // a label-component needed to find easily the camera entity
 
 pub struct CameraPlugin;
 
@@ -21,8 +22,7 @@ impl Plugin for CameraPlugin{
     fn build(&self, app: &mut App) {
         app.add_systems(Startup,spawn_camera)
             .add_systems(Update,change_camera)
-            .add_systems(Update,camera_follow_robot.in_set(MySet::Third)); //Importante che sia prima di Move Robot (e Move Robot prima di tutti gli altri)
-            //.add_systems(Update,camera_follow_mouse.in_set(MySet::Third)); TODO farlo meglio
+            .add_systems(Update,camera_follow_robot.in_set(MySet::Third));
     }
 }
 

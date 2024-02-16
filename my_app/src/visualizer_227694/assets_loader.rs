@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 #[derive(Resource,Debug,Default)]
-pub struct SceneAssets{
+pub struct SceneAssets{ // a resource used to load all the 3D models during th startup of the app
     pub robot:Handle<Scene>,
     pub grass:Handle<Scene>,
     pub sand:Handle<Scene>,
@@ -34,7 +34,7 @@ pub struct SceneAssets{
     pub scarecrow:Handle<Scene>,
 }
 #[derive(Resource,Debug,Default)]
-pub struct ImageAssets{
+pub struct ImageAssets{ // a resource used to load all the images during th startup of the app
     pub coin:Handle<Image>,
     pub tree:Handle<Image>,
     pub rock:Handle<Image>,
@@ -67,8 +67,8 @@ pub struct AssetsLoaderPlugin;
 
 impl Plugin for AssetsLoaderPlugin{
     fn build(&self, app: &mut App) {
-        app.init_resource::<SceneAssets>().add_systems(PreStartup,load_assets)
-            .init_resource::<ImageAssets>().add_systems(PreStartup,load_images);
+        app.init_resource::<SceneAssets>().add_systems(PreStartup,load_assets)// i initialize the resources and then
+            .init_resource::<ImageAssets>().add_systems(PreStartup,load_images);        // add the sistems used to load all the files
     }
 }
 pub fn load_assets(mut scene_assets: ResMut<SceneAssets>, asset_server: Res<AssetServer>){
@@ -92,7 +92,7 @@ pub fn load_assets(mut scene_assets: ResMut<SceneAssets>, asset_server: Res<Asse
         tree2:asset_server.load("3dModels/tree2.glb#Scene0"),
         tree3:asset_server.load("3dModels/tree3.glb#Scene0"),
         garbage:asset_server.load("3dModels/garbage.glb#Scene0"),
-        fire:asset_server.load("3dModels/fire.glb#Scene0"), //TODO animazioni? sarebbe figo
+        fire:asset_server.load("3dModels/fire.glb#Scene0"),
         coin:asset_server.load("3dModels/coin.glb#Scene0"),
         bin:asset_server.load("3dModels/bin.glb#Scene0"),
         crate_:asset_server.load("3dModels/crate.glb#Scene0"),

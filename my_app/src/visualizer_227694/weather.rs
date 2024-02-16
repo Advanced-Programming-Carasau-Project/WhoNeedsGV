@@ -13,12 +13,12 @@ impl Plugin for WeatherPlugin{
         app.add_systems(Update,update_weather.in_set(MySet::Seventh));
     }
 }
-fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
-                  mut clear_color: ResMut<ClearColor>,  // TODO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
-                  game_data: Res<GameData>,             // TOQO NON MI BASTA DEVO TROVARE UN MODO MIGLIORE PER VISUALIZZARE IL WEATHER
+fn update_weather(mut light: ResMut<AmbientLight>,
+                  mut clear_color: ResMut<ClearColor>,
+                  game_data: Res<GameData>,
                   mut clock_query: Query<&mut Text,With<ClockComponent>>,
                   mut image_query: Query<&mut UiImage,With<ClockImageComponent>>,
-                  mut dir_light_query: Query<&mut DirectionalLight>, //TODO cambiare in base al tempo (e orario)
+                  mut dir_light_query: Query<&mut DirectionalLight>,
                   image_assets: Res<ImageAssets>,
 ){
     if !game_data.next_action{
