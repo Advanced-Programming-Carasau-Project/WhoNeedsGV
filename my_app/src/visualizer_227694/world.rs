@@ -1,7 +1,7 @@
-use std::sync::TryLockResult;
+
 use bevy::ecs::bundle::DynamicBundle;
 use bevy::prelude::*;
-use robotics_lib::world::tile::*;
+
 use crate::visualizer_227694::game_data::{GameData,MySet};
 use crate::visualizer_227694::assets_loader::SceneAssets;
 use robotics_lib::world::tile::Content::*;
@@ -69,12 +69,12 @@ fn discover_tile_under_robot(mut commands: Commands,
         return;
     }
     match events.try_lock() {
-        Ok(mut events_guard) => {
+        Ok(events_guard) => {
             if events_guard.len() != 0 {
                 match &events_guard[0] {
                     Moved(tile,(x,z)) =>{
                         match &game_data.world[*x][*z] {
-                            Some(old_tile) =>{
+                            Some(_old_tile) =>{
                             }
                             Option::None => {
                                 game_data.world[*x][*z] = Some(tile.clone());
@@ -230,7 +230,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                         if *x > 0{
                             let tile = world_guard[*x - 1][*z].clone().unwrap();
                             match &game_data.world[*x - 1][*z] {
-                                Some(old_tile) =>{
+                                Some(_old_tile) =>{
                                 }
                                 Option::None => {
                                     game_data.world[*x - 1][*z] = Some(tile.clone());
@@ -386,7 +386,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                         if *z > 0{
                             let tile = world_guard[*x][*z - 1].clone().unwrap();
                             match &game_data.world[*x][*z - 1] {
-                                Some(old_tile) =>{
+                                Some(_old_tile) =>{
                                 }
                                 Option::None => {
                                     game_data.world[*x][*z - 1] = Some(tile.clone());
@@ -542,7 +542,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                         if *z < game_data.world_size - 1{
                             let tile = world_guard[*x][*z + 1].clone().unwrap();
                             match &game_data.world[*x][*z + 1] {
-                                Some(old_tile) =>{
+                                Some(_old_tile) =>{
                                 }
                                 Option::None => {
                                     game_data.world[*x][*z + 1] = Some(tile.clone());
@@ -698,7 +698,7 @@ fn discover_tile_under_robot(mut commands: Commands,
                         if *x < game_data.world_size - 1{
                             let tile = world_guard[*x + 1][*z].clone().unwrap();
                             match &game_data.world[*x + 1][*z] {
-                                Some(old_tile) =>{
+                                Some(_old_tile) =>{
                                 }
                                 Option::None => {
                                     game_data.world[*x + 1][*z] = Some(tile.clone());

@@ -3,24 +3,24 @@ mod scare_crow_killing;
 mod print;
 
 use std::collections::{HashMap, VecDeque};
-use std::thread;
-use std::time::Duration;
+
+
 use ohcrab_collection::collection::LibErrorExtended;
 use ohcrab_weather::weather_tool::WeatherPredictionTool;
 use op_map::op_pathfinding::OpActionOutput;
-use op_map::op_utils::print_rock;
+
 use oxagaudiotool::OxAgAudioTool;
-use rip_worldgenerator::MyWorldGen;
+
 use robotics_lib::energy::Energy;
 use robotics_lib::event::events::Event;
-use robotics_lib::interface::{debug, Direction, get_score, go, look_at_sky, put, robot_map, teleport};
-use robotics_lib::runner::{Robot, Runnable, Runner};
+use robotics_lib::interface::{Direction, get_score, go, look_at_sky, put, robot_map, teleport};
+use robotics_lib::runner::{Robot, Runnable};
 use robotics_lib::runner::backpack::BackPack;
 use robotics_lib::world::coordinates::Coordinate;
 use robotics_lib::world::environmental_conditions::DayTime::Night;
 use robotics_lib::world::environmental_conditions::WeatherType::Sunny;
 use robotics_lib::world::tile::{Content, TileType};
-use robotics_lib::world::tile::Content::Coin;
+
 use robotics_lib::world::World;
 use rust_and_furious_dynamo::dynamo::Dynamo;
 use rustici_planner::tool::{Action, Destination, Planner, PlannerError, PlannerResult};
@@ -65,11 +65,11 @@ impl LunaticRobot{
         self.handle_event(Event::EnergyRecharged(1000));
     }
     //makes the robot explore the world as long as he has energy
-    pub fn exploration(&mut self, content: Content, world: &mut World){
+    pub fn exploration(&mut self, _content: Content, world: &mut World){
         println!("spyglass exploration");
         let map = robot_map(world).unwrap();
         let map_size = map.len();
-        let mut distance;
+        let distance;
         if map_size < 64{
             distance = map_size/4;
         }else{
@@ -95,7 +95,7 @@ impl LunaticRobot{
         match result {
             Ok(p) => {
                 match p{
-                    PlannerResult::Path((mut actions,cost)) => {
+                    PlannerResult::Path((actions,_cost)) => {
                         //TODO check on cost, and break the action in multiple ticks
                         for i in 0..actions.len(){
                             self.replenish();
@@ -125,10 +125,10 @@ impl LunaticRobot{
         }
         //PROVVISORIO
     }
-    pub fn planner_error_handler(&mut self, error: PlannerError){
+    pub fn planner_error_handler(&mut self, _error: PlannerError){
         //todo!()
     }
-    pub fn is_content_available(&self, content: Content){
+    pub fn is_content_available(&self, _content: Content){
         //todo!()
     }
     pub fn explore(&mut self, world: &mut World){
@@ -146,7 +146,7 @@ impl LunaticRobot{
         let backpack_size = self.robot.backpack.get_size();
         let mut space = backpack_size;
         let contents = self.robot.backpack.get_contents();
-        for (content,quantity) in contents{
+        for (_content,quantity) in contents{
             space -= quantity;
         }
         if space < backpack_size/5{
@@ -166,7 +166,7 @@ impl LunaticRobot{
         match result {
             Ok(p) => {
                 match p{
-                    PlannerResult::Path((mut actions,cost)) => {
+                    PlannerResult::Path((mut actions,_cost)) => {
                         let last_move = actions.pop();
                         //TODO check on cost, and break the action in multiple ticks
                         for i in 0..actions.len(){
@@ -196,7 +196,7 @@ impl LunaticRobot{
         }
     }
     //handles the Result from the Collection tool for every method who calls the tool
-    pub fn collection_result_handler(&mut self, res: Result<usize, LibErrorExtended>){
+    pub fn collection_result_handler(&mut self, _res: Result<usize, LibErrorExtended>){
         //todo!()
     }
     //moves the robot to a tile close to other undiscovered tiles
@@ -211,7 +211,7 @@ impl LunaticRobot{
                 match result {
                     Ok(p) => {
                         match p{
-                            PlannerResult::Path((mut actions,cost)) => {
+                            PlannerResult::Path((actions,_cost)) => {
                                 //TODO check on cost, and break the action in multiple ticks
                                 for i in 0..actions.len(){
                                     self.replenish();
@@ -236,7 +236,7 @@ impl LunaticRobot{
     }
     pub fn find_closest_undiscovered_tile(&mut self, world: &mut World) -> Option<(usize, usize)>{
         //range where we are currently searching for the undiscovered tile
-        let mut range = 2usize;
+        let _range = 2usize;
 
         let robot_x = self.get_coordinate().get_row();
         let robot_y = self.get_coordinate().get_col();
@@ -300,7 +300,7 @@ impl LunaticRobot{
         }
         return None;
     }
-    pub fn op_map_handler(&mut self, return_value: Option<OpActionOutput>){
+    pub fn op_map_handler(&mut self, _return_value: Option<OpActionOutput>){
         //todo!()
     }
     //methods that dictates the actions the robot is going to make

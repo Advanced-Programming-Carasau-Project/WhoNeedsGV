@@ -12,7 +12,7 @@ use crate::visualizer_228097::meteo::MeteoPlugin;
 use crate::visualizer_228097::runner::run;
 use crate::visualizer_228097::stats::StatsPlugin;
 use crate::visualizer_228097::ui::MyUiPlugin;
-use crate::world_size;
+
 
 
 mod world;

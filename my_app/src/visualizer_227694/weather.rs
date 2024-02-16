@@ -28,7 +28,7 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
         Ok(mut events_guard) => {
             if events_guard.len() != 0 {
                 let mut new_weather = WeatherType::Sunny;
-                let mut time_of_the_day;
+                let time_of_the_day;
 
                 let mut clock = clock_query.single_mut();
 
@@ -64,7 +64,7 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
 
                 let mut image = image_query.single_mut();
                 let mut dir_light = dir_light_query.single_mut();
-                let mut diffused_light = light.as_mut();
+                let diffused_light = light.as_mut();
 
                 match new_weather {
                     WeatherType::Sunny => {

@@ -6,9 +6,9 @@ use crate::LunaticRobot;
 impl LunaticRobot{
     pub fn day(&mut self, world: &mut World){
         println!("COIN ROUTINE");
-        let mut result = CollectTool::collect_content(self, world, &Coin(1), 20, self.robot.energy.get_energy_level());
+        let result = CollectTool::collect_content(self, world, &Coin(1), 20, self.robot.energy.get_energy_level());
         match result{
-            Ok(quantity) => {
+            Ok(_quantity) => {
                 println!("coin trovate");
                 if self.get_remaining_backpack_space() < 5{
                     self.must_empty = true;

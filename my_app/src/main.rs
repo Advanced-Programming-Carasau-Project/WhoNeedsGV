@@ -5,24 +5,24 @@ mod visualizer_228097;
 
 use robotics_lib::runner::Runner;
 use robotics_lib::runner::Runnable;
-use robotics_lib::runner::backpack::BackPack;
+
 use robotics_lib::runner::{Robot};
 use lazy_static::lazy_static;
-use std::sync::{Mutex, MutexGuard};
-use std::thread;
-use rocket::{Request, Rocket, State};
-use core::time::Duration;
+use std::sync::{Mutex};
+
+use rocket::{State};
+
 use std::collections::HashMap;
-use std::fmt::Debug;
-use std::process::Command;
+
+
 use rip_worldgenerator::MyWorldGen;
-use robotics_lib::energy::Energy;
+
 use robotics_lib::event::events::Event;
-use robotics_lib::interface::{get_score};
-use robotics_lib::world::coordinates::Coordinate;
-use robotics_lib::world::tile::{Content, Tile, TileType};
-use robotics_lib::world::World;
-use robotics_lib::interface::robot_map;
+
+
+use robotics_lib::world::tile::{Content, Tile};
+
+
 use colored::Colorize;
 use std::io;
 use crate::ai_226840::MirtoRobot;
@@ -34,17 +34,17 @@ use rocket::get;
 use rocket::routes;
 use rocket::serde::json::Json;
 use rocket::serde::Serialize;
-use rocket::request::{FromRequest, Outcome};
-use rocket::request;
-use std::sync::Arc;
+
+
+
 use bevy::prelude::Resource;
 use robotics_lib::world::environmental_conditions::EnvironmentalConditions;
-use robotics_lib::world::world_generator::Generator;
-use serde::Serializer;
-use rocket::Build;
-use rocket::http::Status;
+
+
+
+
 use rocket::yansi::Paint;
-use who_needs_gv_world_generator::WorldGenerator;
+
 
 // Static variables for data exchange between bevy and non bevy code
 lazy_static! {
@@ -140,7 +140,7 @@ fn get_robot_data(runner_tag: &State<RunnerTagRocket>) -> Json<Robot_Data> {
     for e in read_events.iter(){
         ser_events.push(convert_event_to_serevent(e));
     }
-    for i in 0..read_events.len(){
+    for _i in 0..read_events.len(){
         read_events.pop();
     }
 
@@ -169,7 +169,7 @@ fn input_number() -> u32{
     io::stdin().read_line(&mut input).expect("Errore durante la lettura dell'input.");
 
     // Converto l'input in un numero intero unsigned a 32 bit
-    let number: u32 = match input.trim().parse() {
+    let _number: u32 = match input.trim().parse() {
         Ok(num) => {return num;} ,
         Err(_) => {
             println!("Input non valido, inserisci un numero intero.");
@@ -201,7 +201,7 @@ fn rocket()->_{
     //let mut whoneedsgv_wg = WorldGenerator::new(world_size);
     let mut rustinpeace_wg = MyWorldGen::new_param(world_size, 2, 2, 2, true, false, 3, false, None);
     //let mut whoneedsgv_runner;
-    let mut rustinpeace_runner;
+    let rustinpeace_runner;
     let mut robot_bool_bevy = false;
 
     println!("Choose a robot: ");

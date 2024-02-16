@@ -100,7 +100,7 @@ pub fn spawn_robot(
     mut er_ready: EventReader<Ready>,
 )
 {
-    let mut update_positions = positions.lock().unwrap();
+    let update_positions = positions.lock().unwrap();
 
     for _event in er_ready.read() {
         for (mut b, t) in query.iter_mut() {

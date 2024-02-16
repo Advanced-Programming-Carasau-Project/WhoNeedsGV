@@ -1,18 +1,18 @@
-use colored::Colorize;
-use robotics_lib::interface::{discover_tiles, get_score, go, put, robot_map, teleport};
+
+use robotics_lib::interface::{go, put, teleport};
 use robotics_lib::runner::Runnable;
-use robotics_lib::world::tile::{Content, TileType};
-use robotics_lib::world::tile::Content::{Bank, Bin, Bush, Coin, Crate, Fire, Fish, Garbage, Market, Rock, Tree, Water};
-use robotics_lib::world::tile::TileType::ShallowWater;
+use robotics_lib::world::tile::{Content};
+use robotics_lib::world::tile::Content::{Bank, Coin, Crate, Market, Tree};
+
 use robotics_lib::world::World;
-use rust_and_furious_dynamo::dynamo::Dynamo;
-use rustici_planner::tool::{Action, Destination, Planner, PlannerError, PlannerResult};
-use spyglass::spyglass::{Spyglass, SpyglassResult};
-use spyglass::spyglass::SpyglassResult::{Failed, Paused, Stopped};
-use std::ops::Range;
-use ohcrab_collection::collection::{CollectTool, LibErrorExtended};
-use robotics_lib::event::events::Event;
-use rustici_planner::tool::Destination::Content as OtherContent;
+
+use rustici_planner::tool::{Action, Destination, Planner, PlannerResult};
+
+
+
+use ohcrab_collection::collection::{CollectTool};
+
+
 use crate::{MirtoRobot};
 impl MirtoRobot{
     pub fn delivery_content_to(&mut self, world: &mut World, content: Content, dest_content: Content){
@@ -46,13 +46,13 @@ impl MirtoRobot{
                     _ => {}
                 }
             },
-            Err(e) => { }
+            Err(_e) => { }
         }
     }
 
     pub fn collect_and_delivery_content(&mut self, world: &mut World, content: Content, quantity: usize, dest_content: Content){
         self.recharge_all_energy();
-        let mut result = CollectTool::collect_content(self, world, &content, quantity, self.robot.energy.get_energy_level());
+        let result = CollectTool::collect_content(self, world, &content, quantity, self.robot.energy.get_energy_level());
         println!("result: {:?}", result);
         let mut new_content = Content::None;
         match content {

@@ -1,13 +1,13 @@
-use bevy::prelude::{Commands, Res, ResMut, Resource};
+use bevy::prelude::{Commands, Res};
 use rip_worldgenerator::MyWorldGen;
-use who_needs_gv_world_generator::WorldGenerator;
-use robotics_lib::energy::Energy;
-use robotics_lib::event::events::Event;
-use robotics_lib::interface::{get_score, robot_map};
+
+
+
+
 use robotics_lib::runner::{Robot, Runnable, Runner};
-use robotics_lib::runner::backpack::BackPack;
-use robotics_lib::world::coordinates::Coordinate;
-use robotics_lib::world::World;
+
+
+
 use crate::ai_226840::MirtoRobot;
 use crate::ai_226930::LunaticRobot;
 //use crate::visualizer_228097::components::WORLD_SIZE;

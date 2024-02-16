@@ -1,17 +1,17 @@
-use colored::Colorize;
-use ohcrab_collection::collection::{CollectTool, LibErrorExtended};
-use queues::{Queue, queue};
-use robotics_lib::interface::{craft, Direction, get_score, go, put, robot_map, teleport};
-use robotics_lib::runner::Runnable;
+
+use ohcrab_collection::collection::{CollectTool};
+
+use robotics_lib::interface::{craft, go, put, teleport};
+
 use robotics_lib::utils::LibError;
-use robotics_lib::world::tile::{Content, TileType};
-use robotics_lib::world::tile::TileType::{DeepWater, Lava, ShallowWater, Teleport, Wall};
+use robotics_lib::world::tile::{Content};
+
 use robotics_lib::world::World;
-use rust_and_furious_dynamo::dynamo::Dynamo;
+
 use rustici_planner::tool::{Action, Destination, Planner, PlannerResult};
 use crate::{MirtoRobot};
-use queues::IsQueue;
-use robotics_lib::event::events::Event;
+
+
 use robotics_lib::world::tile::Content::Bush;
 
 impl MirtoRobot{
@@ -61,7 +61,7 @@ impl MirtoRobot{
                         LibError::NotCraftable => {
                             cont_flag = false;
                         }
-                        LibError::NotEnoughSpace(s) => {
+                        LibError::NotEnoughSpace(_s) => {
                             cont_flag = false;
                         }
                         _ => {  }
@@ -72,7 +72,7 @@ impl MirtoRobot{
     }
     pub fn search_bushes_for_mirto(&mut self,  world: &mut World){
         let search_content = Content::Bush(1);
-        let mut result = CollectTool::collect_content(self, world, &search_content, 20, self.robot.energy.get_energy_level());
+        let _result = CollectTool::collect_content(self, world, &search_content, 20, self.robot.energy.get_energy_level());
     }
 
     pub fn make_next_thing_for_mirto_goal(&mut self, world: &mut World){

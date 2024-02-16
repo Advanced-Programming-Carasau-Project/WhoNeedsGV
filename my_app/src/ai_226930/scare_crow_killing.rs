@@ -1,13 +1,13 @@
 use std::collections::VecDeque;
 use op_map::op_pathfinding::{get_best_action_to_element, OpActionInput, OpActionOutput, ShoppingList};
-use robotics_lib::interface::{destroy, Direction, go, put, robot_map, teleport};
+use robotics_lib::interface::{destroy, Direction, go, put, robot_map};
 use robotics_lib::interface::Direction::{Down, Left, Right, Up};
 use robotics_lib::runner::Runnable;
-use robotics_lib::world::tile::Content::{Scarecrow, Tree};
+use robotics_lib::world::tile::Content::{Scarecrow};
 use robotics_lib::world::tile::TileType;
 use robotics_lib::world::tile::TileType::Lava;
 use robotics_lib::world::World;
-use rustici_planner::tool::{Action, Destination, Planner, PlannerResult};
+
 use crate::{LunaticRobot};
 use crate::ai_226930::valid_coords;
 
@@ -71,7 +71,7 @@ impl LunaticRobot{
     pub fn search_lava(&mut self, world: &mut World) -> Option<(usize, usize, Direction)>{
         println!("looking for lava");
         //range where we are currently searching for the undiscovered tile
-        let mut range = 2usize;
+        let _range = 2usize;
 
         let robot_x = self.get_coordinate().get_row();
         let robot_y = self.get_coordinate().get_col();

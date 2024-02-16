@@ -1,17 +1,17 @@
-use std::sync::Mutex;
-use std::thread;
-use std::time::Duration;
-use robotics_lib::event::events::Event;
+
+
+
+
 use bevy::prelude::*;
-use colored::Colorize;
-use robotics_lib::energy::Energy;
-use robotics_lib::interface::{get_score, robot_map};
+
+
+
 use robotics_lib::runner::{Robot, Runnable, Runner};
-use robotics_lib::runner::backpack::BackPack;
-use robotics_lib::world::coordinates::Coordinate;
+
+
 use crate::visualizer_227694::game_data::*;
-use lazy_static::lazy_static;
-use robotics_lib::world::tile::{Content, Tile, TileType};
+
+
 use crate::{robot_view, RunnerTag, world_size};
 use crate::LunaticRobot;
 use crate::MirtoRobot;

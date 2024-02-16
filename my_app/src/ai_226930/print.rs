@@ -1,10 +1,10 @@
-use std::num::ParseIntError;
+
 use colored::Colorize;
-use robotics_lib::runner::Runnable;
+
 use robotics_lib::world::tile::{Content, Tile, TileType};
 use robotics_lib::world::tile::Content::Scarecrow;
-use robotics_lib::world::World;
-use crate::LunaticRobot;
+
+
 
 pub fn print_world(map: &Vec<Vec<Option<Tile>>>, size: usize, robot_coords: (usize, usize)){
     for i in 0..size {

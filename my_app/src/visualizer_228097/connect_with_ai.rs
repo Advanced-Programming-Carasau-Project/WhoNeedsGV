@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-use std::sync::Mutex;
+
+
 use bevy::ecs::system::ResMut;
 use robotics_lib::event::events::Event;
-use robotics_lib::world::tile::{Content, Tile};
+
 use bevy::prelude::*;
 use crate::visualizer_228097::components::{GameInfo};
 use crate::visualizer_228097::events::*;
@@ -39,7 +39,7 @@ pub fn update(
             if len == 0 { let _ = runner.0.game_tick(); }
 
             let mut read_events = EVENTS.lock().unwrap();
-            let mut update_positions = POSITIONS.lock().unwrap();
+            let update_positions = POSITIONS.lock().unwrap();
             let mut update_energy = ENERGY.lock().unwrap();
             //let read_points = POINTS.lock().unwrap();
             //let read_robot_view = ROBOT_VIEW.lock().unwrap();
