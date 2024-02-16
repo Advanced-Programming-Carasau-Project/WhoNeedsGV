@@ -80,8 +80,8 @@ impl Plugin for ArtificialIntelligencePlugin {
 
 fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: Commands){
 
-    let mut generator = rip_worldgenerator::MyWorldGen::new_param(game_data.world_size,1,1,1,true,false, 5, false, None);
-    //let mut generator = who_needs_gv_world_generator::WorldGenerator::new(game_data.world_size);
+    //let mut generator = rip_worldgenerator::MyWorldGen::new_param(game_data.world_size,1,1,1,true,false, 5, false, None);
+    let mut generator = who_needs_gv_world_generator::WorldGenerator::new(game_data.world_size);
 
     let mut run = Runner::new(Box::new(LunaticRobot::new()), &mut generator).unwrap();
 
@@ -89,13 +89,9 @@ fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: 
     if game_data.ai{ //here I initialize the runner resource with right AI robot
         let robot = MirtoRobot::new(Robot::new(), false);
         run = Runner::new(Box::new(robot), &mut generator).unwrap();
-
     }else{
-        let robot = LunaticRobot::new(); //TODO qui creo il robot di MM
-
+        let robot = LunaticRobot::new();
         run = Runner::new(Box::new(robot), &mut generator).unwrap();
-
-
     }
     let spawn_point = (run.get_robot().get_coordinate().get_row(),run.get_robot().get_coordinate().get_col());
     let robot_energy = run.get_robot().get_energy().get_energy_level() as i32;

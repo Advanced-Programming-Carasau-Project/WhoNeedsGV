@@ -27,8 +27,6 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
     match events.try_lock() {
         Ok(mut events_guard) => {
             if events_guard.len() != 0 {
-                let mut new_brightness = 0.85;
-                let mut new_color_light = Color::rgb(0.8, 0.8, 0.8); // color of the light
                 let mut new_weather = WeatherType::Sunny;
                 let mut time_of_the_day;
 
@@ -66,76 +64,95 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
 
                 let mut image = image_query.single_mut();
                 let mut dir_light = dir_light_query.single_mut();
+                let mut diffused_light = light.as_mut();
 
                 match new_weather {
                     WeatherType::Sunny => {
                         if is_night{
-                            new_brightness = 0.50;
+                            dir_light.illuminance = TEST; //100.0
+                            dir_light.color = Color::rgb(232.0/255.0, 218.0/255.0, 19.0/255.0);
+                            diffused_light.brightness = 0.90;
+                            diffused_light.color = Color::rgb(1.0, 1.0, 0.8);
                             clear_color.0 = Color::rgb(0.1,0.3,0.45); // bg color
-                            new_color_light = Color::rgb(1.0, 1.0, 0.8);
                             image.texture = image_assets.night.clone();
                         }else {
-                            new_brightness = 1.00;
+                            dir_light.illuminance = TEST; //100000.0
+                            dir_light.color = Color::rgb(232.0/255.0, 218.0/255.0, 19.0/255.0); //directional light color
+                            diffused_light.brightness = 1.00;
+                            diffused_light.color = Color::rgb(1.0, 1.0, 0.8); //diffused light color
                             clear_color.0 = Color::rgb(0.1,0.3,0.45); // bg color
-                            new_color_light = Color::rgb(1.0, 1.0, 0.8);
                             image.texture = image_assets.sunny.clone();
                         }
                     }
                     WeatherType::Rainy => {
                         if is_night{
-                            new_brightness = 0.75;
-                            clear_color.0 = Color::rgb(0.2,0.4,0.55);
-                            new_color_light = Color::rgb(0.8, 0.8, 1.0);
+                            dir_light.illuminance = TEST; //1500.0
+                            dir_light.color = Color::rgb(19.0/255.0, 72.0/255.0, 232.0/255.0); //directional light color
+                            diffused_light.brightness = 0.80;
+                            diffused_light.color = Color::rgb(0.8, 0.8, 1.0);
+                            clear_color.0 = Color::rgb(0.25,0.25,0.55);
                             image.texture = image_assets.rainy_night.clone();
                         }else {
-                            new_brightness = 0.75;
+                            dir_light.illuminance = TEST; //25000.0
+                            dir_light.color = Color::rgb(19.0/255.0, 154.0/255.0, 232.0/255.0); //directional light color
+                            diffused_light.brightness = 0.95;
+                            diffused_light.color = Color::rgb(0.8, 0.8, 1.0);
                             clear_color.0 = Color::rgb(0.2,0.4,0.55);
-                            new_color_light = Color::rgb(0.8, 0.8, 1.0);
                             image.texture = image_assets.rainy.clone();
                         }
                     }
                     WeatherType::Foggy => {
                         if is_night{
-                            new_brightness = 0.85;
-                            clear_color.0 = Color::rgb(0.7,0.7,0.7);
-                            new_color_light = Color::rgb(1.0, 1.0, 1.0);
+                            dir_light.illuminance = TEST; //100.0
+                            dir_light.color = Color::rgb(196.0/255.0, 234.0/255.0, 255.0/255.0); //directional light color
+                            diffused_light.brightness = 0.70;
+                            diffused_light.color = Color::rgb(1.0, 1.0, 1.0);
+                            clear_color.0 = Color::rgb(0.2,0.2,0.2);
                             image.texture = image_assets.foggy_night.clone();
                         }else {
-                            new_brightness = 0.85;
+                            dir_light.illuminance = 40000.0; //40000.0
+                            dir_light.color = Color::rgb(196.0/255.0, 234.0/255.0, 255.0/255.0); //directional light color
+                            diffused_light.brightness = 0.85;
+                            diffused_light.color = Color::rgb(1.0, 1.0, 1.0);
                             clear_color.0 = Color::rgb(0.7,0.7,0.7);
-                            new_color_light = Color::rgb(1.0, 1.0, 1.0);
                             image.texture = image_assets.foggy.clone();
                         }
                     }
                     WeatherType::TropicalMonsoon => {
                         if is_night{
-                            new_brightness = 0.70;
-                            clear_color.0 = Color::rgb(0.4,0.4,0.5);
-                            new_color_light = Color::rgb(1.0, 0.8, 0.8);
+                            dir_light.illuminance = 50.0; //50.0
+                            dir_light.color = Color::rgb(254.0/255.0, 255.0/255.0, 212.0/255.0); //directional light color
+                            diffused_light.brightness = 0.05;
+                            diffused_light.color = Color::rgb(1.0, 0.8, 0.8);
+                            clear_color.0 = Color::rgb(0.1,0.1,0.1);
                             image.texture = image_assets.tropical_monson_night.clone();
                         }else {
-                            new_brightness = 0.70;
-                            clear_color.0 = Color::rgb(0.4,0.4,0.5);
-                            new_color_light = Color::rgb(1.0, 0.8, 0.8);
+                            dir_light.illuminance = 2200.0; //2200.0
+                            dir_light.color = Color::rgb(254.0/255.0, 255.0/255.0, 212.0/255.0); //directional light color
+                            diffused_light.brightness = 0.1;
+                            diffused_light.color = Color::rgb(1.0, 0.8, 0.8);
+                            clear_color.0 = Color::rgb(0.3,0.3,0.3);
                             image.texture = image_assets.tropical_monson.clone();
                         }
                     }
                     WeatherType::TrentinoSnow => {
                         if is_night{
-                            new_brightness = 0.70;
-                            new_color_light = Color::rgb(1.0, 1.0, 1.0);
-                            clear_color.0 = Color::rgb(0.8,0.8,0.8);
+                            dir_light.illuminance = 120.0; //120.0
+                            dir_light.color = Color::rgb(1.0, 1.0, 1.0); //directional light color
+                            diffused_light.brightness = 0.70;
+                            diffused_light.color = Color::rgb(1.0, 1.0, 1.0);
+                            clear_color.0 = Color::rgb(0.7,0.7,0.7);
                             image.texture = image_assets.trentino_snow_night.clone();
                         }else {
-                            new_brightness = 0.70;
-                            new_color_light = Color::rgb(1.0, 1.0, 1.0);
-                            clear_color.0 = Color::rgb(0.8,0.8,0.8);
+                            dir_light.illuminance = 3200.0; //3200.0
+                            dir_light.color = Color::rgb(1.0, 1.0, 1.0); //directional light color
+                            diffused_light.brightness = 0.70;
+                            diffused_light.color = Color::rgb(1.0, 1.0, 1.0);
+                            clear_color.0 = Color::rgb(0.9,0.9,0.9);
                             image.texture = image_assets.trentino_snow.clone();
                         }
                     }
                 }
-                light.as_mut().brightness = new_brightness;
-                light.as_mut().color = new_color_light;
             }
 
         }
@@ -147,3 +164,4 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
         }
     }
 }
+const TEST:f32 = 40000.0;
