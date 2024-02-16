@@ -69,82 +69,82 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
                 match new_weather {
                     WeatherType::Sunny => {
                         if is_night{
-                            dir_light.illuminance = TEST; //100.0
-                            dir_light.color = Color::rgb(232.0/255.0, 218.0/255.0, 19.0/255.0);
+                            dir_light.illuminance = 800.0;
+                            dir_light.color = Color::rgb(0.95, 0.95, 1.0);
                             diffused_light.brightness = 0.90;
-                            diffused_light.color = Color::rgb(1.0, 1.0, 0.8);
-                            clear_color.0 = Color::rgb(0.1,0.3,0.45); // bg color
+                            diffused_light.color = Color::rgb(0.95, 0.95, 1.0);
+                            clear_color.0 = Color::rgb(0.1,0.1,0.1); // bg color
                             image.texture = image_assets.night.clone();
                         }else {
-                            dir_light.illuminance = TEST; //100000.0
-                            dir_light.color = Color::rgb(232.0/255.0, 218.0/255.0, 19.0/255.0); //directional light color
-                            diffused_light.brightness = 1.00;
-                            diffused_light.color = Color::rgb(1.0, 1.0, 0.8); //diffused light color
+                            dir_light.illuminance = 100000.0; //direct sunlight intensity in lux
+                            dir_light.color = Color::rgb(232.0/255.0, 218.0/255.0, 88.0/255.0); //directional light color
+                            diffused_light.brightness = 1.50;
+                            diffused_light.color = Color::rgb(232.0/255.0, 218.0/255.0, 91.0/255.0); //diffused light color
                             clear_color.0 = Color::rgb(0.1,0.3,0.45); // bg color
                             image.texture = image_assets.sunny.clone();
                         }
                     }
                     WeatherType::Rainy => {
                         if is_night{
-                            dir_light.illuminance = TEST; //1500.0
-                            dir_light.color = Color::rgb(19.0/255.0, 72.0/255.0, 232.0/255.0); //directional light color
+                            dir_light.illuminance = 500.0;
+                            dir_light.color = Color::rgb(140.0/255.0, 145.0/255.0, 202.0/255.0); //directional light color
                             diffused_light.brightness = 0.80;
-                            diffused_light.color = Color::rgb(0.8, 0.8, 1.0);
+                            diffused_light.color = Color::rgb(148.0/255.0, 154.0/255.0, 232.0/255.0);
                             clear_color.0 = Color::rgb(0.25,0.25,0.55);
                             image.texture = image_assets.rainy_night.clone();
                         }else {
-                            dir_light.illuminance = TEST; //25000.0
-                            dir_light.color = Color::rgb(19.0/255.0, 154.0/255.0, 232.0/255.0); //directional light color
+                            dir_light.illuminance = 45000.0;
+                            dir_light.color = Color::rgb(178.0/255.0, 174.0/255.0, 232.0/255.0); //directional light color
                             diffused_light.brightness = 0.95;
-                            diffused_light.color = Color::rgb(0.8, 0.8, 1.0);
+                            diffused_light.color = Color::rgb(148.0/255.0, 154.0/255.0, 232.0/255.0);
                             clear_color.0 = Color::rgb(0.2,0.4,0.55);
                             image.texture = image_assets.rainy.clone();
                         }
                     }
                     WeatherType::Foggy => {
                         if is_night{
-                            dir_light.illuminance = TEST; //100.0
+                            dir_light.illuminance = 150.0;
                             dir_light.color = Color::rgb(196.0/255.0, 234.0/255.0, 255.0/255.0); //directional light color
-                            diffused_light.brightness = 0.70;
-                            diffused_light.color = Color::rgb(1.0, 1.0, 1.0);
+                            diffused_light.brightness = 0.65;
+                            diffused_light.color = Color::rgb(196.0/255.0, 234.0/255.0, 255.0/255.0);
                             clear_color.0 = Color::rgb(0.2,0.2,0.2);
                             image.texture = image_assets.foggy_night.clone();
                         }else {
-                            dir_light.illuminance = 40000.0; //40000.0
+                            dir_light.illuminance = 40000.0;
                             dir_light.color = Color::rgb(196.0/255.0, 234.0/255.0, 255.0/255.0); //directional light color
-                            diffused_light.brightness = 0.85;
-                            diffused_light.color = Color::rgb(1.0, 1.0, 1.0);
+                            diffused_light.brightness = 0.80;
+                            diffused_light.color = Color::rgb(0.8, 0.9, 1.0);
                             clear_color.0 = Color::rgb(0.7,0.7,0.7);
                             image.texture = image_assets.foggy.clone();
                         }
                     }
                     WeatherType::TropicalMonsoon => {
                         if is_night{
-                            dir_light.illuminance = 50.0; //50.0
+                            dir_light.illuminance = 1000.0;
                             dir_light.color = Color::rgb(254.0/255.0, 255.0/255.0, 212.0/255.0); //directional light color
                             diffused_light.brightness = 0.05;
-                            diffused_light.color = Color::rgb(1.0, 0.8, 0.8);
+                            diffused_light.color = Color::rgb(1.0, 1.0, 0.8);
                             clear_color.0 = Color::rgb(0.1,0.1,0.1);
                             image.texture = image_assets.tropical_monson_night.clone();
                         }else {
-                            dir_light.illuminance = 2200.0; //2200.0
+                            dir_light.illuminance = 9200.0;
                             dir_light.color = Color::rgb(254.0/255.0, 255.0/255.0, 212.0/255.0); //directional light color
                             diffused_light.brightness = 0.1;
-                            diffused_light.color = Color::rgb(1.0, 0.8, 0.8);
+                            diffused_light.color = Color::rgb(1.0, 1.0, 0.8);
                             clear_color.0 = Color::rgb(0.3,0.3,0.3);
                             image.texture = image_assets.tropical_monson.clone();
                         }
                     }
                     WeatherType::TrentinoSnow => {
                         if is_night{
-                            dir_light.illuminance = 120.0; //120.0
+                            dir_light.illuminance = 180.0;
                             dir_light.color = Color::rgb(1.0, 1.0, 1.0); //directional light color
                             diffused_light.brightness = 0.70;
                             diffused_light.color = Color::rgb(1.0, 1.0, 1.0);
                             clear_color.0 = Color::rgb(0.7,0.7,0.7);
                             image.texture = image_assets.trentino_snow_night.clone();
                         }else {
-                            dir_light.illuminance = 3200.0; //3200.0
+                            dir_light.illuminance = 3200.0;
                             dir_light.color = Color::rgb(1.0, 1.0, 1.0); //directional light color
                             diffused_light.brightness = 0.70;
                             diffused_light.color = Color::rgb(1.0, 1.0, 1.0);
@@ -164,4 +164,3 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
         }
     }
 }
-const TEST:f32 = 40000.0;

@@ -50,6 +50,9 @@ fn map_show_hide(keyboard_input: Res<Input<KeyCode>>,
 ){ ///Pressing M the user can visualize the entire world known///
     if keyboard_input.just_pressed(KeyCode::M) {
         if game_data.camera_data.camera_mode != 3{
+            if game_data.camera_data.camera_mode == 1 || game_data.camera_data.camera_mode == 2 {
+                return;
+            }
             game_data.camera_data.camera_mode_bu = game_data.camera_data.camera_mode;
             game_data.camera_data.camera_direction_bu = game_data.camera_data.camera_direction.clone();
             game_data.camera_data.camera_transform_bu = game_data.camera_data.camera_transform;
@@ -61,10 +64,33 @@ fn map_show_hide(keyboard_input: Res<Input<KeyCode>>,
             game_data.camera_data.camera_transform.translation = Transform::from_xyz(game_data.world_size as f32/2.0,game_data.world_size as f32 * 1.3,game_data.world_size as f32/2.0).translation;
             game_data.camera_data.camera_velocity = Vec3::ZERO;
         }else {
-            game_data.camera_data.camera_mode = game_data.camera_data.camera_mode_bu;
-            game_data.camera_data.camera_direction = game_data.camera_data.camera_direction_bu.clone();
-            game_data.camera_data.camera_transform = game_data.camera_data.camera_transform_bu;
-            game_data.camera_data.camera_velocity = game_data.camera_data.camera_velocity_bu;
+            if game_data.camera_data.camera_mode_bu == 1 { //CAMERA 1 (fixed third person)
+                game_data.camera_data.camera_transform = Transform::from_xyz(game_data.robot_data.robot_translation.x, game_data.robot_data.robot_translation.y + crate::visualizer_227694::camera::CAMERA_1_VERTICAL_DISTANCE, game_data.robot_data.robot_translation.z - crate::visualizer_227694::camera::CAMERA_1_HORIZONTAL_DISTANCE).looking_at(Vec3::new(game_data.robot_data.robot_translation.x, game_data.robot_data.robot_translation.y + 4.0, game_data.robot_data.robot_translation.z), Vec3::Y);
+                game_data.camera_data.camera_transform.rotate_x(f32::to_radians(crate::visualizer_227694::camera::CAMERA_1_INCLINATION));
+                game_data.camera_data.camera_mode = 1;
+            }else if game_data.camera_data.camera_mode_bu == 2{ //CAMERA 2 (robot third person)
+                game_data.camera_data.camera_mode = 2;
+                game_data.camera_data.camera_transform = Transform::from_xyz(game_data.robot_data.robot_translation.x, game_data.robot_data.robot_translation.y + crate::visualizer_227694::camera::CAMERA_2_VERTICAL_DISTANCE, game_data.robot_data.robot_translation.z - crate::visualizer_227694::camera::CAMERA_2_HORIZONTAL_DISTANCE).looking_at(Vec3::new(game_data.robot_data.robot_translation.x, game_data.robot_data.robot_translation.y + 4.0, game_data.robot_data.robot_translation.z), Vec3::Y);
+                game_data.camera_data.camera_transform.rotate_x(f32::to_radians(crate::visualizer_227694::camera::CAMERA_2_INCLINATION));
+                match game_data.camera_data.camera_direction {
+                    crate::visualizer_227694::Direction::Right => {
+                        game_data.camera_data.camera_transform.translation = Transform::from_xyz(game_data.robot_data.robot_translation.x + crate::visualizer_227694::camera::CAMERA_2_HORIZONTAL_DISTANCE, game_data.camera_data.camera_transform.translation.y, game_data.robot_data.robot_translation.z).translation;
+                        game_data.camera_data.camera_transform.rotate_y(f32::to_radians(-90.0));
+                    }
+                    crate::visualizer_227694::Direction::Left => {
+                        game_data.camera_data.camera_transform.translation = Transform::from_xyz(game_data.robot_data.robot_translation.x - crate::visualizer_227694::camera::CAMERA_2_HORIZONTAL_DISTANCE, game_data.camera_data.camera_transform.translation.y, game_data.robot_data.robot_translation.z).translation;
+                        game_data.camera_data.camera_transform.rotate_y(f32::to_radians(90.0));
+                    }
+                    crate::visualizer_227694::Direction::Up => {}
+                    crate::visualizer_227694::Direction::Down => {
+                        game_data.camera_data.camera_transform.translation = Transform::from_xyz(game_data.robot_data.robot_translation.x, game_data.camera_data.camera_transform.translation.y, game_data.robot_data.robot_translation.z + crate::visualizer_227694::camera::CAMERA_2_HORIZONTAL_DISTANCE).translation;
+                        game_data.camera_data.camera_transform.rotate_y(f32::to_radians(180.0));
+                    }
+                }
+            }else if game_data.camera_data.camera_mode_bu == 0{//CAMERA 0 (Top camera)
+                game_data.camera_data.camera_transform =  Transform::from_xyz(game_data.robot_data.robot_translation.x, game_data.robot_data.robot_translation.y + crate::visualizer_227694::camera::CAMERA_0_VERTICAL_DISTANCE, game_data.robot_data.robot_translation.z).looking_at(Vec3::new(game_data.robot_data.robot_translation.x, 0.0, game_data.robot_data.robot_translation.z), Vec3::Z);
+                game_data.camera_data.camera_mode = 0;
+            }
         }
         let mut camera_transform = query.single_mut();
         camera_transform.translation = game_data.camera_data.camera_transform.translation;

@@ -163,6 +163,19 @@ fn create_gui(mut commands: Commands,
         }),PointsUpdateComponent));
     commands.spawn(
         (ImageBundle {
+            image: image_assets.back_pack_background.clone().into(),
+            style: Style {
+                position_type: PositionType::Absolute,
+                top: Val::Px(1.0),
+                right: Val::Px(1.0),
+                width: Val::Px(160.0),
+                height: Val::Px(290.0),
+                ..default()
+            },
+            ..default()
+        },BackPackImageComponent));
+    commands.spawn(
+        (ImageBundle {
             image: image_assets.back_pack.clone().into(),
             style: Style {
                 position_type: PositionType::Absolute,
@@ -179,7 +192,7 @@ fn create_gui(mut commands: Commands,
             "0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n",
             TextStyle {
                 font_size: 27.9,
-                color: Color::rgb(1.0, 1.0, 1.0),
+                color: Color::rgb(0.0, 0.0, 0.0),
                 ..default()
             },
         ).with_style(Style {
@@ -193,7 +206,7 @@ fn create_gui(mut commands: Commands,
             "",
             TextStyle {
                 font_size: 13.9,
-                color: Color::rgb(1.0, 1.0, 1.0),
+                color: Color::rgb(0.0, 0.0, 0.0),
                 ..default()
             },
         ).with_style(Style {
@@ -529,9 +542,9 @@ fn update_backpack_update(mut back_pack_update_query: Query<&mut Text,With<BackP
 
         if update {
             back_pack_update_text.sections[0].value = str;
-            back_pack_update_text.sections[0].style.color = Color::rgba(1.0, 1.0, 1.0,1.0);
+            back_pack_update_text.sections[0].style.color = Color::rgba(0.0, 0.0, 0.0,1.0);
         }else{
-            back_pack_update_text.sections[0].style.color = Color::rgba(1.0, 1.0, 1.0, back_pack_update_text.sections[0].style.color.a() - (0.8 * time.delta_seconds()));
+            back_pack_update_text.sections[0].style.color = Color::rgba(0.0, 0.0, 0.0, back_pack_update_text.sections[0].style.color.a() - (0.8 * time.delta_seconds()));
         }
     }
 }

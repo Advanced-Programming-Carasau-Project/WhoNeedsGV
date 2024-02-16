@@ -12,7 +12,7 @@ use crate::ai_226840::MirtoRobot;
 use crate::ai_226930::LunaticRobot;
 //use crate::visualizer_228097::components::WORLD_SIZE;
 use crate::{positions as POSITIONS};
-use crate::visualizer_227694::rudimental_a_i::RunnerTag;
+use crate::RunnerTag;
 use crate::visualizer_228097::components::GameInfo;
 use crate::world_size as WORLD_SIZE;
 

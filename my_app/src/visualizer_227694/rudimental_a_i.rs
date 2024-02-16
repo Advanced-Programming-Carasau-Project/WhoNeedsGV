@@ -12,13 +12,10 @@ use robotics_lib::world::coordinates::Coordinate;
 use crate::visualizer_227694::game_data::*;
 use lazy_static::lazy_static;
 use robotics_lib::world::tile::{Content, Tile, TileType};
-use crate::{robot_view, world_size};
+use crate::{robot_view, RunnerTag, world_size};
 use crate::LunaticRobot;
 use crate::MirtoRobot;
-#[derive(Resource)]
-pub struct RunnerTag(pub(crate) Runner);
-unsafe impl Sync for RunnerTag {}
-unsafe impl Send for RunnerTag {}
+
 
 pub struct ArtificialIntelligencePlugin;
 

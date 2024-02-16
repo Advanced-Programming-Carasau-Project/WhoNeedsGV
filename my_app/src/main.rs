@@ -37,6 +37,7 @@ use rocket::serde::Serialize;
 use rocket::request::{FromRequest, Outcome};
 use rocket::request;
 use std::sync::Arc;
+use bevy::prelude::Resource;
 use robotics_lib::world::environmental_conditions::EnvironmentalConditions;
 use robotics_lib::world::world_generator::Generator;
 use serde::Serializer;
@@ -178,6 +179,12 @@ fn input_number() -> u32{
 }
 
 const world_size: usize = 64;
+
+
+#[derive(Resource)]
+pub(crate) struct RunnerTag(pub(crate) Runner);
+unsafe impl Sync for RunnerTag {}
+unsafe impl Send for RunnerTag {}
 
 #[launch]
 fn rocket()->_{

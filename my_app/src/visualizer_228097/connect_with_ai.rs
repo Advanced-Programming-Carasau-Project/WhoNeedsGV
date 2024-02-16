@@ -7,7 +7,7 @@ use bevy::prelude::*;
 use crate::visualizer_228097::components::{GameInfo};
 use crate::visualizer_228097::events::*;
 use crate::visualizer_228097::stats::components::N_EVENT_IN_LOG;
-use crate::visualizer_227694::rudimental_a_i::RunnerTag;
+use crate::RunnerTag;
 use crate::events as EVENTS;
 use crate::positions as POSITIONS;
 use crate::energy as ENERGY;

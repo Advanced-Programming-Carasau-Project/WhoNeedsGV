@@ -3,14 +3,14 @@ use crate::visualizer_227694::game_data::{GameData, MySet};
 use crate::visualizer_227694::Direction;
 use robotics_lib::event::events::Event::*;
 
-const CAMERA_0_VERTICAL_DISTANCE:f32 = 10.0;
-const CAMERA_1_HORIZONTAL_DISTANCE:f32 = 10.0;
-const CAMERA_1_VERTICAL_DISTANCE:f32 = 4.0;
-const CAMERA_1_INCLINATION:f32 = 15.0;
+pub(crate) const CAMERA_0_VERTICAL_DISTANCE:f32 = 10.0;
+pub(crate)const CAMERA_1_HORIZONTAL_DISTANCE:f32 = 10.0;
+pub(crate)const CAMERA_1_VERTICAL_DISTANCE:f32 = 4.0;
+pub(crate)const CAMERA_1_INCLINATION:f32 = 15.0;
 
-const CAMERA_2_HORIZONTAL_DISTANCE:f32 = 10.0;
-const CAMERA_2_VERTICAL_DISTANCE:f32 = 4.0;
-const CAMERA_2_INCLINATION:f32 = 15.0;
+pub(crate)const CAMERA_2_HORIZONTAL_DISTANCE:f32 = 10.0;
+pub(crate)const CAMERA_2_VERTICAL_DISTANCE:f32 = 4.0;
+pub(crate)const CAMERA_2_INCLINATION:f32 = 15.0;
 
 #[derive(Component)]
 pub struct Camera3DComponent;
@@ -101,16 +101,16 @@ fn change_camera(
     if keyboard_input.pressed(KeyCode::S) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 3 || game_data.camera_data.camera_mode == 4){
         camera_transform.translation.z -= 12.0 * time.delta_seconds();
     }
-    if keyboard_input.pressed(KeyCode::Q) && game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4 {
+    if keyboard_input.pressed(KeyCode::Q) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4 ){
         camera_transform.rotate_y(1.0 * time.delta_seconds());
     }
-    if keyboard_input.pressed(KeyCode::E) && game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4{
+    if keyboard_input.pressed(KeyCode::E) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4){
         camera_transform.rotate_y(-1.0 * time.delta_seconds());
     }
-    if keyboard_input.pressed(KeyCode::ShiftLeft) && game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4 {
+    if keyboard_input.pressed(KeyCode::ShiftLeft) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4) {
         camera_transform.rotate_x(1.0 * time.delta_seconds());
     }
-    if keyboard_input.pressed(KeyCode::ControlLeft) && game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4{
+    if keyboard_input.pressed(KeyCode::ControlLeft) && (game_data.camera_data.camera_mode == 0 || game_data.camera_data.camera_mode == 4){
         camera_transform.rotate_x(-1.0 * time.delta_seconds());
     }
     game_data.camera_data.camera_transform = *camera_transform;
