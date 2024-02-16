@@ -135,7 +135,7 @@ fn create_gui(mut commands: Commands,
         });
     commands.spawn((
         TextBundle::from_section(
-            format!("Points: 0/{}",game_data.robot_data.max_points),
+            format!("Points: 0"),
             TextStyle {
                 font_size: 30.0,
                 color: Color::rgb(0.0, 0.0, 0.0),
@@ -176,30 +176,30 @@ fn create_gui(mut commands: Commands,
         },BackPackImageComponent));
     commands.spawn((
         TextBundle::from_section(
-            "\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n",
+            "0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n 0\n",
             TextStyle {
-                font_size: 23.0,
-                color: Color::rgb(0.0, 0.0, 0.0),
+                font_size: 27.9,
+                color: Color::rgb(1.0, 1.0, 1.0),
                 ..default()
             },
         ).with_style(Style {
             position_type: PositionType::Absolute,
-            top: Val::Px(17.0),
-            right: Val::Px(25.0),
+            top: Val::Px(35.0),
+            right: Val::Px(18.0),
             ..default()
         }),BackPackComponent));
     commands.spawn((
         TextBundle::from_section(
             "",
             TextStyle {
-                font_size: 23.0,
-                color: Color::rgb(0.0, 0.0, 0.0),
+                font_size: 13.9,
+                color: Color::rgb(1.0, 1.0, 1.0),
                 ..default()
             },
         ).with_style(Style {
             position_type: PositionType::Absolute,
-            top: Val::Px(5.0),
-            right: Val::Px(5.0),
+            top: Val::Px(40.0),
+            right: Val::Px(3.0),
             ..default()
         }),BackPackUpdateComponent));
     commands.spawn((
@@ -468,7 +468,7 @@ fn update_backpack(mut back_pack_query: Query<&mut Text,With<BackPackComponent>>
         let garbage = game_data.robot_data.back_pack.get(&Content::Garbage(0).to_default()).unwrap();
         let coin = game_data.robot_data.back_pack.get(&Content::Coin(0).to_default()).unwrap();
         let scarecrow = game_data.robot_data.back_pack.get(&Content::Scarecrow.to_default()).unwrap();
-        back_pack_text.sections[0].value = format!("\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n {}\n", water, rock, tree, bush, jolly_block, garbage, coin,fish,scarecrow);
+        back_pack_text.sections[0].value = format!("{:0>2}\n{:0>2}\n{:0>2}\n{:0>2}\n{:0>2}\n{:0>2}\n{:0>2}\n{:0>2}\n{:0>2}\n",coin,tree,bush,rock,garbage,fish,jolly_block,scarecrow,water);
     }
 }
 fn update_backpack_images(mut back_pack_images_query: Query<&mut Visibility,With<BackPackImageComponent>>,
@@ -494,27 +494,27 @@ fn update_backpack_update(mut back_pack_update_query: Query<&mut Text,With<BackP
     }else{
         let mut str = String::from("");
         let mut v = vec![];
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Water(0).to_default()).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Rock(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Coin(0).to_default()).unwrap());
         v.push(game_data.robot_data.back_pack_update.get(&Content::Tree(0).to_default()).unwrap());
         v.push(game_data.robot_data.back_pack_update.get(&Content::Bush(0).to_default()).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::JollyBlock(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Rock(0).to_default()).unwrap());
         v.push(game_data.robot_data.back_pack_update.get(&Content::Garbage(0).to_default()).unwrap());
-        v.push(game_data.robot_data.back_pack_update.get(&Content::Coin(0).to_default()).unwrap());
         v.push(game_data.robot_data.back_pack_update.get(&Content::Fish(0).to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::JollyBlock(0).to_default()).unwrap());
         v.push(game_data.robot_data.back_pack_update.get(&Content::Scarecrow.to_default()).unwrap());
+        v.push(game_data.robot_data.back_pack_update.get(&Content::Water(0).to_default()).unwrap());
 
         let mut update = false;
 
         for i in v {
             if *i > 0{
-                str.push_str(format!("\n+{}", i).as_str());
+                str.push_str(format!("+{}\n\n", i).as_str());
                 update = true;
             }else if *i < 0 {
-                str.push_str(format!("\n{}",i).as_str());
+                str.push_str(format!("{}\n\n",i).as_str());
                 update = true;
             }else {
-                str.push_str("\n");
+                str.push_str("\n\n");
             }
         }
         game_data.robot_data.back_pack_update.insert(Content::Water(0).to_default(), 0);
@@ -529,9 +529,9 @@ fn update_backpack_update(mut back_pack_update_query: Query<&mut Text,With<BackP
 
         if update {
             back_pack_update_text.sections[0].value = str;
-            back_pack_update_text.sections[0].style.color = Color::rgba(0.0, 0.0, 0.0,1.0);
+            back_pack_update_text.sections[0].style.color = Color::rgba(1.0, 1.0, 1.0,1.0);
         }else{
-            back_pack_update_text.sections[0].style.color = Color::rgba(0.0, 0.0, 0.0, back_pack_update_text.sections[0].style.color.a() - (0.8 * time.delta_seconds()));
+            back_pack_update_text.sections[0].style.color = Color::rgba(1.0, 1.0, 1.0, back_pack_update_text.sections[0].style.color.a() - (0.8 * time.delta_seconds()));
         }
     }
 }

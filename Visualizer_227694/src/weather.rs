@@ -65,6 +65,7 @@ fn update_weather(mut light: ResMut<AmbientLight>,      // TOLO NON MI BASTA DEV
                 clock.sections[0].value = time_of_the_day;
 
                 let mut image = image_query.single_mut();
+                let mut dir_light = dir_light_query.single_mut();
 
                 match new_weather {
                     WeatherType::Sunny => {
