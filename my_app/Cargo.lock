@@ -4738,6 +4738,7 @@ name = "visualizer"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_ui",
  "colored",
  "lazy_static",
  "ohcrab_collection",

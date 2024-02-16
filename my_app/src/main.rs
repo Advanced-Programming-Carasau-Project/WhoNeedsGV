@@ -1,6 +1,7 @@
 mod ai_226840;
 mod ai_226930;
 mod visualizer_227694;
+mod visualizer_228097;
 
 use robotics_lib::runner::Runner;
 use robotics_lib::runner::Runnable;
@@ -226,7 +227,7 @@ fn rocket()->_{
     println!("Choose a visualizer: ");
     println!("1 - Rocket");
     println!("2 - Bevy Giulio");
-    println!("2 - Bevy Lorenzo");
+    println!("3 - Bevy Lorenzo");
 
     let mut input_invalido = true;
 
@@ -237,11 +238,11 @@ fn rocket()->_{
                 input_invalido = false;
             }
             2 => {
-                visualizer_227694::VisualizerGLC::run(robot_bool_bevy,world_size);
+                visualizer_227694::VisualizerGLC::run(robot_bool_bevy, world_size);
                 input_invalido = false;
             }
             3 => {
-                //TODO aggiungere visualizer lorenzo
+                visualizer_228097::avvia_app(robot_bool_bevy);
                 input_invalido = false;
             }
             _ => {
@@ -249,7 +250,7 @@ fn rocket()->_{
             }
         }
     }
-    rocket::build().manage(RunnerTagRocket(Mutex::new(rustinpeace_runner.expect("SIAMO SCEMI")))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
+    rocket::build().manage(RunnerTagRocket(Mutex::new(rustinpeace_runner.expect("SIAMO PAZZI")))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
     //rocket::build().mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
 
 }

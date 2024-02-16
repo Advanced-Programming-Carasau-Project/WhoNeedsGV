@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 rand = "0.8.5"
 bevy = "0.12.1"
+bevy_ui = "0.12.1"
 queues = "1.0.2"
 rocket = { version = "0.5.0-rc.4", features = ["json"] }
 serde = { version = "1", features = ["derive"] }

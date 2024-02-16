@@ -7,7 +7,7 @@ mod assets_loader;
 mod gui_overlay;
 mod movement;
 mod game_data;
-mod rudimental_a_i;
+pub(crate) mod rudimental_a_i;
 use std::fmt::Debug;
 use bevy::prelude::*;
 use robotics_lib::world::tile::Tile;

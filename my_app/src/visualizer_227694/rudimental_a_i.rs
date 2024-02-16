@@ -16,7 +16,7 @@ use crate::{robot_view, world_size};
 use crate::LunaticRobot;
 use crate::MirtoRobot;
 #[derive(Resource)]
-pub struct RunnerTag(Runner);
+pub struct RunnerTag(pub(crate) Runner);
 unsafe impl Sync for RunnerTag {}
 unsafe impl Send for RunnerTag {}
 
