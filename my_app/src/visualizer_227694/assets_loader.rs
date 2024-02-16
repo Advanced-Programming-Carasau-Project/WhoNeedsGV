@@ -32,6 +32,7 @@ pub struct SceneAssets{ // a resource used to load all the 3D models during th s
     pub jolly_block:Handle<Scene>,
     pub mirto:Handle<Scene>,
     pub scarecrow:Handle<Scene>,
+    pub chicken:Handle<Scene>,
 }
 #[derive(Resource,Debug,Default)]
 pub struct ImageAssets{ // a resource used to load all the images during th startup of the app
@@ -104,6 +105,7 @@ pub fn load_assets(mut scene_assets: ResMut<SceneAssets>, asset_server: Res<Asse
         jolly_block:asset_server.load("3dModels/jolly_block.glb#Scene0"),
         mirto:asset_server.load("3dModels/mirto_jb_goldo.glb#Scene0"),
         scarecrow:asset_server.load("3dModels/scarecrow.glb#Scene0"),
+        chicken:asset_server.load("3dModels/chicken.glb#Scene0"),
     }
 }
 pub fn load_images(mut image_assets: ResMut<ImageAssets>, asset_server: Res<AssetServer>){

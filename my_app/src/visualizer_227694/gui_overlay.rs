@@ -288,7 +288,6 @@ fn create_gui(mut commands: Commands,
     if game_data.ai{
         jolly_block_image = image_assets.mirto.clone();
     }
-
     commands.spawn(
         (ImageBundle {
             image: jolly_block_image.into(),

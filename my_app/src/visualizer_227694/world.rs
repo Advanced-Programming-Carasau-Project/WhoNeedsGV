@@ -179,8 +179,14 @@ fn discover_tiles_around_robot(mut commands: Commands,
                                         }
                                     }
                                     Scarecrow => {
-                                        content_scene = scene_assets.scarecrow.clone();
-                                        content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        if game_data.ai{
+                                            content_scene = scene_assets.scarecrow.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }else {
+                                            content_scene = scene_assets.chicken.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                            content_transform.translation.y += 0.27;
+                                        }
                                     }
                                     None => {
                                         content_scene = Default::default();
@@ -335,8 +341,14 @@ fn discover_tiles_around_robot(mut commands: Commands,
                                             }
                                         }
                                         Scarecrow => {
-                                            content_scene = scene_assets.scarecrow.clone();
-                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            if game_data.ai{
+                                                content_scene = scene_assets.scarecrow.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            }else {
+                                                content_scene = scene_assets.chicken.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                                content_transform.translation.y += 0.27;
+                                            }
                                         }
                                         None => {
                                             content_scene = Default::default();
@@ -491,8 +503,14 @@ fn discover_tiles_around_robot(mut commands: Commands,
                                             }
                                         }
                                         Scarecrow => {
-                                            content_scene = scene_assets.scarecrow.clone();
-                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            if game_data.ai{
+                                                content_scene = scene_assets.scarecrow.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            }else {
+                                                content_scene = scene_assets.chicken.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                                content_transform.translation.y += 0.27;
+                                            }
                                         }
                                         None => {
                                             content_scene = Default::default();
@@ -647,8 +665,14 @@ fn discover_tiles_around_robot(mut commands: Commands,
                                             }
                                         }
                                         Scarecrow => {
-                                            content_scene = scene_assets.scarecrow.clone();
-                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            if game_data.ai{
+                                                content_scene = scene_assets.scarecrow.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            }else {
+                                                content_scene = scene_assets.chicken.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                                content_transform.translation.y += 0.27;
+                                            }
                                         }
                                         None => {
                                             content_scene = Default::default();
@@ -803,8 +827,14 @@ fn discover_tiles_around_robot(mut commands: Commands,
                                             }
                                         }
                                         Scarecrow => {
-                                            content_scene = scene_assets.scarecrow.clone();
-                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            if game_data.ai{
+                                                content_scene = scene_assets.scarecrow.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            }else {
+                                                content_scene = scene_assets.chicken.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                                content_transform.translation.y += 0.27;
+                                            }
                                         }
                                         None => {
                                             content_scene = Default::default();
@@ -1041,8 +1071,14 @@ fn discover_and_update_tile(mut commands: Commands,
                                             }
                                         }
                                         Scarecrow => {
-                                            content_scene = scene_assets.scarecrow.clone();
-                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            if game_data.ai{
+                                                content_scene = scene_assets.scarecrow.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                            }else {
+                                                content_scene = scene_assets.chicken.clone();
+                                                content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                                content_transform.translation.y += 0.27;
+                                            }
                                         }
                                         None => {
                                             content_scene = Default::default();
@@ -1191,8 +1227,14 @@ fn update_content(mut content_query: Query<(&mut Transform,&mut Handle<Scene>),W
                                         }
                                     }
                                     Scarecrow => {
-                                        *content_scene = scene_assets.scarecrow.clone();
-                                        content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        if game_data.ai{
+                                            *content_scene = scene_assets.scarecrow.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(0.3,0.3,0.3)).scale;
+                                        }else {
+                                            *content_scene = scene_assets.chicken.clone();
+                                            content_transform.scale = Transform::from_scale(Vec3::new(1.0,1.0,1.0)).scale;
+                                            content_transform.translation.y += 0.27;
+                                        }
                                     }
                                     None => {
                                         *content_scene = Default::default();
