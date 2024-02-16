@@ -204,6 +204,51 @@ fn rocket()->_{
     let rustinpeace_runner;
     let mut robot_bool_bevy = false;
 
+    println!("Choose a mode: ");
+    println!("1 - Start robot demonstration");
+    println!("2 - visualize a world");
+    println!("3 - tool"); //TODO
+
+    let mut input_invalido = true;
+
+    while input_invalido {
+        choice = input_number();
+        match choice {
+            1 => { break; }
+            2 => {
+                println!("Choose a world: ");
+                println!("1 - WhoNeedsGv");
+                println!("2 - RustInPeace");
+
+                let mut input_invalido = true;
+
+                while input_invalido {
+                    choice = input_number();
+                    match choice {
+                        1 => {
+                            visualizer_227694::VisualizerGLC::visualize_world(100,false);
+
+                        }
+                        2 => {
+                            visualizer_227694::VisualizerGLC::visualize_world(100,true);
+
+                        }
+
+                        _ => {
+                            println!("invalid input");
+                        }
+                    }
+                }
+            }
+            3 => {
+                //TODO
+            }
+            _ => {
+                println!("invalid input");
+            }
+        }
+    }
+
     println!("Choose a robot: ");
     println!("1 - MirtoRobot");
     println!("2 - LunaticRobot");
