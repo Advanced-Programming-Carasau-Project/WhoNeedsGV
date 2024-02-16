@@ -13,7 +13,7 @@ use oxagaudiotool::OxAgAudioTool;
 use rip_worldgenerator::MyWorldGen;
 use robotics_lib::energy::Energy;
 use robotics_lib::event::events::Event;
-use robotics_lib::interface::{debug, Direction, go, look_at_sky, put, robot_map, teleport};
+use robotics_lib::interface::{debug, Direction, get_score, go, look_at_sky, put, robot_map, teleport};
 use robotics_lib::runner::{Robot, Runnable, Runner};
 use robotics_lib::runner::backpack::BackPack;
 use robotics_lib::world::coordinates::Coordinate;
@@ -25,6 +25,7 @@ use robotics_lib::world::World;
 use rust_and_furious_dynamo::dynamo::Dynamo;
 use rustici_planner::tool::{Action, Destination, Planner, PlannerError, PlannerResult};
 use spyglass::spyglass::{Spyglass, SpyglassResult};
+use crate::{backpack_content, energy, events, points, positions, robot_view};
 
 
 //checks if a certain tuple of coordinates is inside the map
@@ -326,6 +327,46 @@ impl LunaticRobot{
             println!("in night");
             self.night(world);
         }
+    }
+}
+impl Runnable for LunaticRobot {
+    fn process_tick(&mut self, world: &mut World) {
+        self.routine(world);
+
+        let mut update_points = points.lock().unwrap();
+        let mut update_robot_view = robot_view.lock().unwrap();
+        let mut update_positions = positions.lock().unwrap();
+        let mut update_energy = energy.lock().unwrap();
+        let mut update_backpack_content = backpack_content.lock().unwrap();
+
+        *update_positions = (self.robot.coordinate.get_row(), self.robot.coordinate.get_col());
+        *update_points = get_score(world);
+        *update_robot_view = robot_map(world).unwrap();
+        *update_energy = self.robot.energy.get_energy_level();
+        *update_backpack_content = self.get_backpack().get_contents().clone();
+    }
+    fn handle_event(&mut self, event: Event) {
+
+        let mut update_events = events.lock().unwrap();
+        update_events.push(event.clone());
+    }
+    fn get_energy(&self) -> &Energy {
+        &self.robot.energy
+    }
+    fn get_energy_mut(&mut self) -> &mut Energy {
+        &mut self.robot.energy
+    }
+    fn get_coordinate(&self) -> &Coordinate {
+        &self.robot.coordinate
+    }
+    fn get_coordinate_mut(&mut self) -> &mut Coordinate{
+        &mut self.robot.coordinate
+    }
+    fn get_backpack(&self) -> &BackPack {
+        &self.robot.backpack
+    }
+    fn get_backpack_mut(&mut self) -> &mut BackPack {
+        &mut self.robot.backpack
     }
 }
 
