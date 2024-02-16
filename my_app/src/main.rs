@@ -1,5 +1,6 @@
 mod ai_226840;
 mod ai_226930;
+mod visualizer_227694;
 
 use robotics_lib::runner::Runner;
 use robotics_lib::runner::Runnable;
@@ -53,95 +54,10 @@ lazy_static! {
     pub static ref backpack_content: Mutex<HashMap<Content, usize>> = Mutex::new(HashMap::new());
     pub static ref events: Mutex<Vec<Event>> = Mutex::new(vec![]);
 }
+pub struct RunnerTagRocket(Mutex<Runner>);
 
-impl Runnable for MirtoRobot {
-    fn process_tick(&mut self, world: &mut World) {
-        self.make_next_thing(world);
-        self.print_robot_debug(world);
-
-        let mut update_points = points.lock().unwrap();
-        let mut update_robot_view = robot_view.lock().unwrap();
-        let mut update_positions = positions.lock().unwrap();
-        let mut update_energy = energy.lock().unwrap();
-        let mut update_backpack_content = backpack_content.lock().unwrap();
-
-        *update_positions = (self.robot.coordinate.get_row(), self.robot.coordinate.get_col());
-        *update_points = get_score(world);
-        *update_robot_view = robot_map(world).unwrap();
-        *update_energy = self.robot.energy.get_energy_level();
-        *update_backpack_content = self.get_backpack().get_contents().clone();
-    }
-    fn handle_event(&mut self, event: Event) {
-        self.audio_tool.play_audio_based_on_event(&event);
-        self.weather_prediction_tool.process_event(&event);
-
-        let mut update_events = events.lock().unwrap();
-        update_events.push(event.clone());
-    }
-    fn get_energy(&self) -> &Energy {
-        &self.robot.energy
-    }
-    fn get_energy_mut(&mut self) -> &mut Energy {
-        &mut self.robot.energy
-    }
-    fn get_coordinate(&self) -> &Coordinate {
-        &self.robot.coordinate
-    }
-    fn get_coordinate_mut(&mut self) -> &mut Coordinate{
-        &mut self.robot.coordinate
-    }
-    fn get_backpack(&self) -> &BackPack {
-        &self.robot.backpack
-    }
-    fn get_backpack_mut(&mut self) -> &mut BackPack {
-        &mut self.robot.backpack
-    }
-}
-impl Runnable for LunaticRobot {
-    fn process_tick(&mut self, world: &mut World) {
-        self.routine(world);
-
-        let mut update_points = points.lock().unwrap();
-        let mut update_robot_view = robot_view.lock().unwrap();
-        let mut update_positions = positions.lock().unwrap();
-        let mut update_energy = energy.lock().unwrap();
-        let mut update_backpack_content = backpack_content.lock().unwrap();
-
-        *update_positions = (self.robot.coordinate.get_row(), self.robot.coordinate.get_col());
-        *update_points = get_score(world);
-        *update_robot_view = robot_map(world).unwrap();
-        *update_energy = self.robot.energy.get_energy_level();
-        *update_backpack_content = self.get_backpack().get_contents().clone();
-    }
-    fn handle_event(&mut self, event: Event) {
-
-        let mut update_events = events.lock().unwrap();
-        update_events.push(event.clone());
-    }
-    fn get_energy(&self) -> &Energy {
-        &self.robot.energy
-    }
-    fn get_energy_mut(&mut self) -> &mut Energy {
-        &mut self.robot.energy
-    }
-    fn get_coordinate(&self) -> &Coordinate {
-        &self.robot.coordinate
-    }
-    fn get_coordinate_mut(&mut self) -> &mut Coordinate{
-        &mut self.robot.coordinate
-    }
-    fn get_backpack(&self) -> &BackPack {
-        &self.robot.backpack
-    }
-    fn get_backpack_mut(&mut self) -> &mut BackPack {
-        &mut self.robot.backpack
-    }
-}
-
-pub struct RunnerTag(Mutex<Runner>);
-
-unsafe impl Sync for RunnerTag {}
-unsafe impl Send for RunnerTag {}
+unsafe impl Sync for RunnerTagRocket {}
+unsafe impl Send for RunnerTagRocket {}
 
 #[derive(Serialize)]
 pub enum SerEvent {
@@ -204,7 +120,7 @@ fn convert_content_to_string(content: &Content) -> String{
 }
 
 #[get("/get_robot_data")]
-fn get_robot_data(runner_tag: &State<RunnerTag>) -> Json<Robot_Data> {
+fn get_robot_data(runner_tag: &State<RunnerTagRocket>) -> Json<Robot_Data> {
     let mut runner = runner_tag.0.lock().unwrap();
 
     println!("[.............................. ] processing game tick");
@@ -273,36 +189,67 @@ fn rocket()->_{
         .expect("failed to execute TypeScript compiler");*/
 
     let mut choice;
-    let mirto_robot = MirtoRobot::new(Robot::new(), true);
-    let lunatic_robot = LunaticRobot::new();
-    let mut whoneedsgv_wg = WorldGenerator::new(world_size);
+    let mut robot:Box<dyn Runnable> = Box::new(LunaticRobot::new());
+    //let mut whoneedsgv_wg = WorldGenerator::new(world_size);
     let mut rustinpeace_wg = MyWorldGen::new_param(world_size, 2, 2, 2, true, false, 3, false, None);
-    let mut whoneedsgv_runner;
+    //let mut whoneedsgv_runner;
     let mut rustinpeace_runner;
+    let mut robot_bool_bevy = false;
 
-    println!("Scegli una modalità: ");
-    println!("1 - WhoNeedsGV WG + MirtoRobot");
-    println!("2 - WhoNeedsGV WG + LunaticRobot");
-    println!("3 - Rustinpeace WG + MirtoRobot");
-    println!("4 - Rustinpeace WG + LunaticRobot");
-    choice = input_number();
-    match choice {
-        1 => {
-            whoneedsgv_runner = Runner::new(Box::new(mirto_robot), &mut whoneedsgv_wg).unwrap();
-            rocket::build().manage(RunnerTag(Mutex::new(whoneedsgv_runner))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
+    println!("Choose a robot: ");
+    println!("1 - MirtoRobot");
+    println!("2 - LunaticRobot");
+
+    let mut input_invalido = true;
+
+    while input_invalido {
+        choice = input_number();
+        match choice {
+            1 => {
+                robot_bool_bevy = true;
+                robot = Box::new(MirtoRobot::new(Robot::new(), true));
+                input_invalido = false;
+            }
+            2 => {
+                robot_bool_bevy = false;
+                robot = Box::new(LunaticRobot::new());
+                input_invalido = false;
+            }
+            _ => {
+                println!("invalid input");
+            }
         }
-        2 => {
-            whoneedsgv_runner = Runner::new(Box::new(lunatic_robot), &mut whoneedsgv_wg).unwrap();
-            rocket::build().manage(RunnerTag(Mutex::new(whoneedsgv_runner))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
-        }
-        3 => {
-            rustinpeace_runner = Runner::new(Box::new(mirto_robot), &mut rustinpeace_wg).unwrap();
-            rocket::build().manage(RunnerTag(Mutex::new(rustinpeace_runner))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
-        }
-        4 => {
-            rustinpeace_runner = Runner::new(Box::new(lunatic_robot), &mut rustinpeace_wg).unwrap();
-            rocket::build().manage(RunnerTag(Mutex::new(rustinpeace_runner))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
-        }
-        _ => { panic!("wrong choice"); }
     }
+
+    rustinpeace_runner = Runner::new(robot, &mut rustinpeace_wg);
+
+    println!("Choose a visualizer: ");
+    println!("1 - Rocket");
+    println!("2 - Bevy Giulio");
+    println!("2 - Bevy Lorenzo");
+
+    let mut input_invalido = true;
+
+    while input_invalido {
+        choice = input_number();
+        match choice {
+            1 => {
+                input_invalido = false;
+            }
+            2 => {
+                visualizer_227694::VisualizerGLC::run(robot_bool_bevy,world_size);
+                input_invalido = false;
+            }
+            3 => {
+                //TODO aggiungere visualizer lorenzo
+                input_invalido = false;
+            }
+            _ => {
+                println!("invalid input");
+            }
+        }
+    }
+    rocket::build().manage(RunnerTagRocket(Mutex::new(rustinpeace_runner.expect("SIAMO SCEMI")))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
+    //rocket::build().mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
+
 }

@@ -45,6 +45,7 @@ use robotics_lib::event::events::Event::EnergyRecharged;
 use robotics_lib::world::tile::Content::{Bush, Coin, Fire, JollyBlock, Tree, Water};
 use spyglass::spyglass::{Spyglass, SpyglassResult};
 use spyglass::spyglass::SpyglassResult::{Failed, Paused, Stopped};
+use crate::{backpack_content, energy, events, points, positions};
 
 pub struct MirtoRobot {
     pub robot: Robot,
@@ -563,5 +564,49 @@ impl MirtoRobot {
         else {
             self.make_next_thing_for_mirto_goal(world);
         }
+    }
+}
+
+impl Runnable for MirtoRobot {
+    fn process_tick(&mut self, world: &mut World) {
+        self.make_next_thing(world);
+        self.print_robot_debug(world);
+
+        let mut update_points = points.lock().unwrap();
+        let mut update_robot_view = crate::robot_view.lock().unwrap();
+        let mut update_positions = positions.lock().unwrap();
+        let mut update_energy = energy.lock().unwrap();
+        let mut update_backpack_content = backpack_content.lock().unwrap();
+
+        *update_positions = (self.robot.coordinate.get_row(), self.robot.coordinate.get_col());
+        *update_points = get_score(world);
+        *update_robot_view = robot_map(world).unwrap();
+        *update_energy = self.robot.energy.get_energy_level();
+        *update_backpack_content = self.get_backpack().get_contents().clone();
+    }
+    fn handle_event(&mut self, event: Event) {
+        self.audio_tool.play_audio_based_on_event(&event);
+        self.weather_prediction_tool.process_event(&event);
+
+        let mut update_events = events.lock().unwrap();
+        update_events.push(event.clone());
+    }
+    fn get_energy(&self) -> &Energy {
+        &self.robot.energy
+    }
+    fn get_energy_mut(&mut self) -> &mut Energy {
+        &mut self.robot.energy
+    }
+    fn get_coordinate(&self) -> &Coordinate {
+        &self.robot.coordinate
+    }
+    fn get_coordinate_mut(&mut self) -> &mut Coordinate{
+        &mut self.robot.coordinate
+    }
+    fn get_backpack(&self) -> &BackPack {
+        &self.robot.backpack
+    }
+    fn get_backpack_mut(&mut self) -> &mut BackPack {
+        &mut self.robot.backpack
     }
 }
