@@ -1,31 +1,48 @@
-pub mod mirto_goal;
-pub mod woodworker_goal;
+mod mirto_goal;
+mod woodworker_goal;
 
 use rand::thread_rng;
 use std::collections::HashMap;
-use robotics_lib::interface::{Direction, put};
+use robotics_lib::interface::{craft, Direction, get_score, put, teleport, Tools};
 use robotics_lib::runner::Runnable;
 use robotics_lib::world::tile::{Content, TileType};
 use robotics_lib::world::World;
 use robotics_lib::interface::where_am_i;
+use robotics_lib::interface::robot_view;
 use robotics_lib::interface::robot_map;
 use robotics_lib::interface::go;
+use robotics_lib::world::tile::Tile;
+use robotics_lib::utils::LibError;
 use robotics_lib::runner::{Robot};
 use robotics_lib::event::events::Event;
+use robotics_lib::energy::Energy;
+use robotics_lib::world::coordinates::Coordinate;
+use robotics_lib::runner::backpack::BackPack;
+use robotics_lib::world::world_generator::Generator;
+use robotics_lib::world::environmental_conditions::EnvironmentalConditions;
 use robotics_lib::world::environmental_conditions::WeatherType;
+use robotics_lib::runner::Runner;
 use rand::Rng;
+use rip_worldgenerator::MyWorldGen;
 use rust_and_furious_dynamo::dynamo::Dynamo;
-use rustici_planner::tool::{Action, Destination, PlannerResult};
+use rustici_planner::tool::{Action, Destination, PlannerError, PlannerResult};
 use rustici_planner::tool::Planner;
+use std::{process, thread};
+use std::time::Duration;
+use ohcrab_collection::collection::{CollectTool, LibErrorExtended};
+use op_map::op_pathfinding::{get_best_action_to_element, ShoppingList};
+use op_map::op_pathfinding::OpActionInput::Put;
 use robotics_lib::world::tile::TileType::{DeepWater, Lava, ShallowWater, Teleport, Wall};
 use queues::queue;
 use queues::Queue;
 use queues::IsQueue;
 use colored::Colorize;
+use oxagaudiotool::error::error::OxAgAudioToolError;
 use oxagaudiotool::OxAgAudioTool;
 use oxagaudiotool::sound_config::OxAgSoundConfig;
 use ohcrab_weather::weather_tool::WeatherPredictionTool;
-use robotics_lib::world::tile::Content::{Bush, Coin, JollyBlock, Tree};
+use robotics_lib::event::events::Event::EnergyRecharged;
+use robotics_lib::world::tile::Content::{Bush, Coin, Fire, JollyBlock, Tree, Water};
 use spyglass::spyglass::{Spyglass, SpyglassResult};
 use spyglass::spyglass::SpyglassResult::{Failed, Paused, Stopped};
 
@@ -43,7 +60,7 @@ impl MirtoRobot {
     pub fn new(robot: Robot, is_the_goal_woodworking: bool) -> Self{
         MirtoRobot {
             robot,
-            audio_tool: OxAgAudioTool::new(HashMap::new(), HashMap::new(), HashMap::new()).unwrap(), //TODO invocare i metodi sotto
+            audio_tool: OxAgAudioTool::new(Self::map_audio_with_event(), Self::map_audio_with_tile(), Self::map_audio_with_weather()).unwrap(),
             weather_prediction_tool:  WeatherPredictionTool::new(),
             tickets_to_wait: 8,
             tickets: 0,
@@ -58,7 +75,7 @@ impl MirtoRobot {
         let j_robot = self.robot.coordinate.get_col();
         let size = map.len();
 
-        //println!("woodworking: {} - energy: {} - score: {} - backpack_content: {:?}\n", self.is_the_goal_woodworking, self.get_energy().get_energy_level(), get_score(world), self.robot.backpack.get_contents());
+        println!("woodworking: {} - energy: {} - score: {} - backpack_content: {:?}\n", self.is_the_goal_woodworking, self.get_energy().get_energy_level(), get_score(world), self.robot.backpack.get_contents());
         for i in 0..size{
             for j in 0..size{
                 if i == i_robot && j == j_robot{
@@ -116,7 +133,7 @@ impl MirtoRobot {
         }
     }
 
-    pub fn map_audio_with_event() -> HashMap<Event, OxAgSoundConfig> {
+    fn map_audio_with_event() -> HashMap<Event, OxAgSoundConfig>{
         let mut mapping = HashMap::new();
 
         mapping.insert(Event::Ready, OxAgSoundConfig::new("./sounds/ready.mp3"));
@@ -137,7 +154,7 @@ impl MirtoRobot {
         mapping
     }
 
-    pub fn map_audio_with_weather() -> HashMap<WeatherType, OxAgSoundConfig>{
+    fn map_audio_with_weather() -> HashMap<WeatherType, OxAgSoundConfig>{
         let mut mapping = HashMap::new();
 
         mapping.insert(WeatherType::Sunny, OxAgSoundConfig::new_looped("./sounds/weathertype_sunny.mp3"));
@@ -149,7 +166,7 @@ impl MirtoRobot {
         mapping
     }
 
-    pub fn map_audio_with_tile() -> HashMap<TileType, OxAgSoundConfig>{
+    fn map_audio_with_tile() -> HashMap<TileType, OxAgSoundConfig>{
         let mut mapping = HashMap::new();
 
         mapping.insert(TileType::Teleport(true), OxAgSoundConfig::new("./sounds/tile_teleport.mp3"));
@@ -164,8 +181,8 @@ impl MirtoRobot {
     }
 
     pub fn recharge_all_energy(&mut self){
+        self.handle_event(Event::EnergyRecharged(1000-self.get_energy().get_energy_level()));
         *self.get_energy_mut() = Dynamo::update_energy();
-        self.handle_event(Event::EnergyRecharged(1000));
     }
 
     pub fn do_u_have_this_content(&self, content: Content) -> bool{
@@ -211,7 +228,7 @@ impl MirtoRobot {
                         visited[i][j] = true;
                     }
                     Some(t) => {
-                        if !Self::is_a_walkable_tyle(t.tile_type.clone()) || t.tile_type == Teleport(true){
+                        if !Self::is_a_walkable_tile(t.tile_type.clone()) || t.tile_type == Teleport(true){
                             visited[i][j] = true;
                         }
                     }
@@ -219,45 +236,45 @@ impl MirtoRobot {
             }
         }
 
-        let _ = queue.add((i_robot, j_robot));
+        queue.add((i_robot, j_robot));
 
         while queue.size() != 0 {
             let (i, j) = queue.remove().unwrap();
-            if Self::is_point_inside_map(i as i32 -1 , j as i32, size as i32) && !visited[i-1][j] {
+            if Self::is_point_inside_map((i as i32 -1) , j as i32, size as i32) && !visited[i-1][j] {
                 visited[i-1][j] = true;
                 if let Some(tile) = &map[i-1][j]{
-                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) && tile.tile_type != TileType::ShallowWater {
                         return Some((Direction::Up, i, j));
                     }
                 }
-                let _ = queue.add((i-1, j));
+                queue.add((i-1, j));
             }
-            if Self::is_point_inside_map(i as i32 + 1 , j as i32, size as i32) && !visited[i+1][j] {
+            if Self::is_point_inside_map((i as i32 + 1) , j as i32, size as i32) && !visited[i+1][j] {
                 visited[i+1][j] = true;
                 if let Some(tile) = &map[i+1][j]{
-                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) && tile.tile_type != TileType::ShallowWater {
                         return Some((Direction::Down, i, j));
                     }
                 }
-                let _ = queue.add((i+1, j));
+                queue.add((i+1, j));
             }
-            if Self::is_point_inside_map(i as i32, j as i32 -1 , size as i32) && !visited[i][j-1] {
+            if Self::is_point_inside_map(i as i32, (j as i32 -1) , size as i32) && !visited[i][j-1] {
                 visited[i][j-1] = true;
                 if let Some(tile) = &map[i][j-1]{
-                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) && tile.tile_type != TileType::ShallowWater {
                         return Some((Direction::Left, i, j));
                     }
                 }
-                let _ = queue.add((i, j-1));
+                queue.add((i, j-1));
             }
-            if Self::is_point_inside_map(i as i32, j as i32 +1 , size as i32) && !visited[i][j+1] {
+            if Self::is_point_inside_map(i as i32, (j as i32 +1) , size as i32) && !visited[i][j+1] {
                 visited[i][j+1] = true;
                 if let Some(tile) = &map[i][j+1]{
-                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) {
+                    if std::mem::discriminant(&tile.content) == std::mem::discriminant(&content) && tile.tile_type != TileType::ShallowWater {
                         return Some((Direction::Right, i, j));
                     }
                 }
-                let _ = queue.add((i, j+1));
+                queue.add((i, j+1));
             }
         }
 
@@ -267,14 +284,14 @@ impl MirtoRobot {
     pub fn get_backpack_objects_number(&mut self) -> usize{
         let mut size = 0;
         let back_pack_contents = self.robot.backpack.get_contents();
-        for (_content, quantity) in back_pack_contents{
+        for (content, quantity) in back_pack_contents{
             size = size + quantity;
         }
         size
     }
 
-    pub fn is_a_valid_tyle_for_content(t: &TileType, content: &Content) -> bool{
-        if !Self::is_a_walkable_tyle(t.clone()){
+    pub fn is_a_valid_tile_for_content(t: &TileType, content: &Content) -> bool{
+        if !Self::is_a_walkable_tile(t.clone()){
             false
         }
         else {
@@ -322,7 +339,7 @@ impl MirtoRobot {
         match &around[1][0]{
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
+                if t.content == Content::None && Self::is_a_valid_tile_for_content(&t.tile_type, content){
                     vec.push(Direction::Left);
                 }
             }
@@ -330,7 +347,7 @@ impl MirtoRobot {
         match &around[0][1] {
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
+                if t.content == Content::None && Self::is_a_valid_tile_for_content(&t.tile_type, content){
                     vec.push(Direction::Up);
                 }
             }
@@ -338,7 +355,7 @@ impl MirtoRobot {
         match &around[1][2] {
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
+                if t.content == Content::None && Self::is_a_valid_tile_for_content(&t.tile_type, content){
                     vec.push(Direction::Right);
                 }
             }
@@ -346,7 +363,7 @@ impl MirtoRobot {
         match &around[2][1] {
             None => {},
             Some(t) => {
-                if t.content == Content::None && Self::is_a_valid_tyle_for_content(&t.tile_type, content){
+                if t.content == Content::None && Self::is_a_valid_tile_for_content(&t.tile_type, content){
                     vec.push(Direction::Down);
                 }
             }
@@ -376,7 +393,7 @@ impl MirtoRobot {
         }
     }
 
-    pub fn is_a_walkable_tyle(t: TileType) -> bool{
+    pub fn is_a_walkable_tile(t: TileType) -> bool{
         if t == Wall || t == DeepWater || t == Lava{
             return false;
         }
@@ -393,34 +410,34 @@ impl MirtoRobot {
 
         if self.get_backpack_objects_number() > 0 && Self::is_point_inside_map(i_robot as i32 - 1, j_robot as i32, map.len() as i32)  && !visited[i_robot - 1][j_robot] {
             visited[i_robot - 1][j_robot] = true;
-            let _ = go(self, world, Direction::Up);
+            go(self, world, Direction::Up);
             self.empty_your_backpack_with_a_walk(world, visited);
             if self.get_backpack_objects_number() > 0 {
-                let _ = go(self, world, Direction::Down);
+                go(self, world, Direction::Down);
             }
         }
         if self.get_backpack_objects_number() > 0 && Self::is_point_inside_map(i_robot as i32 + 1, j_robot as i32, map.len() as i32)  && !visited[i_robot + 1][j_robot] {
             visited[i_robot + 1][j_robot] = true;
-            let _ = go(self, world, Direction::Down);
+            go(self, world, Direction::Down);
             self.empty_your_backpack_with_a_walk(world, visited);
             if self.get_backpack_objects_number() > 0 {
-                let _ = go(self, world, Direction::Up);
+                go(self, world, Direction::Up);
             }
         }
         if self.get_backpack_objects_number() > 0 && Self::is_point_inside_map(i_robot as i32, j_robot as i32 - 1 , map.len() as i32)  && !visited[i_robot][j_robot-1]{
             visited[i_robot][j_robot - 1] = true;
-            let _ = go(self, world, Direction::Left);
+            go(self, world, Direction::Left);
             self.empty_your_backpack_with_a_walk(world, visited);
             if self.get_backpack_objects_number() > 0 {
-                let _ = go(self, world, Direction::Right);
+                go(self, world, Direction::Right);
             }
         }
         if self.get_backpack_objects_number() > 0 && Self::is_point_inside_map(i_robot as i32, j_robot as i32 + 1 , map.len() as i32)  && !visited[i_robot][j_robot+1] {
             visited[i_robot][j_robot + 1] = true;
-            let _ = go(self, world, Direction::Right);
+            go(self, world, Direction::Right);
             self.empty_your_backpack_with_a_walk(world, visited);
             if self.get_backpack_objects_number() > 0 {
-                let _ = go(self, world, Direction::Left);
+                go(self, world, Direction::Left);
             }
         }
     }
@@ -437,7 +454,7 @@ impl MirtoRobot {
                         visited[i][j] = true;
                     },
                     Some(t) => {
-                        if !Self::is_a_walkable_tyle(t.tile_type.clone()){
+                        if !Self::is_a_walkable_tile(t.tile_type.clone()){
                             visited[i][j] = true;
                         }
                     }
@@ -474,7 +491,7 @@ impl MirtoRobot {
                                 SpyglassResult::Complete => { break; }
                                 Stopped(_) => { break; }
                                 Paused => {}
-                                Failed(_f) => { break; }
+                                Failed(f) => { break; }
                             }
                         }
                     }
@@ -487,7 +504,7 @@ impl MirtoRobot {
             self.recharge_all_energy();
             let map_size = robot_map(world).unwrap().len();
             let destination = Destination::explore(self.robot.energy.get_energy_level(), map_size);
-            let _result = Planner::planner(self, destination, world).err();
+            let result = Planner::planner(self, destination, world).err();
         }
     }
 
@@ -496,7 +513,7 @@ impl MirtoRobot {
         if self.tickets == self.tickets_to_wait{
             self.tickets_to_wait = thread_rng().gen_range(7..=12);
             self.tickets = 0;
-            let is_the_new_goal_woodworking;
+            let mut is_the_new_goal_woodworking;
             match self.weather_prediction_tool.predict(self.tickets_to_wait){
                 Ok(w ) => {
                     println!("new predicted_weather: {:?}", w);
@@ -529,18 +546,18 @@ impl MirtoRobot {
                         WeatherType::TrentinoSnow => { is_the_new_goal_woodworking = false; }
                     }
                 },
-                Err(_e) => { is_the_new_goal_woodworking = false; },
+                Err(e) => { is_the_new_goal_woodworking = false; },
             }
             if is_the_new_goal_woodworking != self.is_the_goal_woodworking{
-                //println!("changing robot mode...");
+                println!("changing robot mode...");
                 self.is_the_goal_woodworking = is_the_new_goal_woodworking;
-                //println!("emptying the backpack...");
+                println!("emptying the backpack...");
                 self.empty_your_backpack(world);
             }
         }
 
         self.recharge_all_energy();
-        if self.is_the_goal_woodworking || true{ //THIS IS SETTED TO TRUE JUST FOR DEBUG PURPOSE, BECAUSE MY ROBOT HAS TWO MODE AND I WANT IT TO WORK WITH THIS MODE (WOODWORKING)
+        if self.is_the_goal_woodworking{
             self.make_next_thing_for_woodworker_goal(world);
         }
         else {
@@ -548,21 +565,3 @@ impl MirtoRobot {
         }
     }
 }
-
-
-/*
-fn main() {
-        const world_size: usize = 128;
-
-        let robot = MirtoRobot::new(Robot::new(), true);
-
-        let mut generator = MyWorldGen::new_param(world_size,2,5,0,true,false, 5);
-
-        let mut run = Runner::new(Box::new(robot), &mut generator).unwrap(); //creo un runner (l'oggetto che gestisce i tick del mondo). Questa struc creerà il mondo grazie al world generator
-
-        loop{
-            run.game_tick(); //faccio avanzare un tick del mondo (un tick corrisponde all'unità elementare di tempo nel "gioco")
-            thread::sleep(Duration::from_millis(5000));
-        }
-}
- */

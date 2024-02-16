@@ -9,7 +9,6 @@ use crate::energy::EnergyPlugin;
 use crate::events::*;
 use crate::meteo::MeteoPlugin;
 use crate::runner::run;
-use crate::states::AppState;
 use crate::stats::StatsPlugin;
 use crate::ui::MyUiPlugin;
 
@@ -18,12 +17,12 @@ mod world;
 mod robot;
 mod connect_with_ai;
 pub mod ai_226840;
+pub mod ai_226930;
 mod energy;
 mod backpack;
 mod meteo;
 pub mod components;
 mod stats;
-mod states;
 pub mod ui;
 pub mod systems;
 mod events;
@@ -40,7 +39,6 @@ fn main() {
 
         .init_resource::<GameInfo>()
 
-        .add_state::<AppState>()
         .add_event::<Ready>()
         .add_event::<Terminated>()
         .add_event::<TimeChanged>()

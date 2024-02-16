@@ -1,7 +1,7 @@
 use robotics_lib::world::tile::{Content, TileType};
 use bevy::prelude::Color;
 
-pub fn get_path_content(content: &Content) -> String{
+pub fn get_path_content(content: Content) -> String{
     match content {
         Content::Rock(_) => { return "sprites/contents/rock.png".to_string(); }
         Content::Tree(_) => { return "sprites/contents/tree.png".to_string(); }
@@ -22,7 +22,7 @@ pub fn get_path_content(content: &Content) -> String{
     }
 }
 
-pub fn give_color(tile: &TileType) -> Color {
+pub fn give_color(tile: TileType) -> Color {
     match tile {
         TileType::DeepWater => { Color::BLUE }
         TileType::ShallowWater => { Color::CYAN }
@@ -38,7 +38,7 @@ pub fn give_color(tile: &TileType) -> Color {
     }
 }
 
-pub fn _give_color_content(content: &Content) -> Color {
+pub fn _give_color_content(content: Content) -> Color {
     match content {
         Content::Rock(_) => { Color::MAROON }
         Content::Tree(_) => { Color::GREEN }

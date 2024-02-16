@@ -1,12 +1,11 @@
 use robotics_lib::world::environmental_conditions::{DayTime, EnvironmentalConditions, WeatherType};
-use bevy::prelude::{EventReader, Query, Res, ResMut, With};
+use bevy::prelude::{EventReader, Query, Res, With};
 use bevy_ui::UiImage;
 use bevy::asset::AssetServer;
-use crate::components::GameInfo;
 use crate::events::TimeChanged;
 use crate::meteo::components::Meteo;
 
-pub fn get_meteo_path(env_conditions: &EnvironmentalConditions) -> String {
+pub fn get_meteo_path(env_conditions: EnvironmentalConditions) -> String {
     match env_conditions.get_weather_condition() {
         WeatherType::Sunny => {
             match env_conditions.get_time_of_day() {
@@ -30,7 +29,7 @@ pub fn update_meteo(
 {
     for event in er_time_changed.read() {
         if let Ok(mut i) = query.get_single_mut() {
-            i.texture = asset_server.load(get_meteo_path(&event.new_environmental_conditions)).into();
+            i.texture = asset_server.load(get_meteo_path(event.new_environmental_conditions.clone())).into();
             //println!("------------->Meteo: {:?}", event.new_environmental_conditions.get_weather_condition());
         }
     }

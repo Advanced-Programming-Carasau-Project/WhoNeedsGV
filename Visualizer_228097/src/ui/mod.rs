@@ -10,14 +10,13 @@ mod components;
 use bevy::prelude::*;
 
 use layout::*;
-use crate::states::AppState::GeneratingUi;
 
 pub struct MyUiPlugin;
 
 impl Plugin for MyUiPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnEnter(GeneratingUi), generate_ui)
+            .add_systems(Startup, generate_ui)
         ;
     }
 }

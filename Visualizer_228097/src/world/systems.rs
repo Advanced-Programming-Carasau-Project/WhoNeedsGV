@@ -15,7 +15,7 @@ pub fn update_tile(
         for (e, mut b, t) in query.iter_mut() {
             if t.r == event.position.0 && t.c == event.position.1 {   //Aggiorno la tile
                 //println!("Trovata tile {:?} in posizione [{}][{}]", b, t.r, t.c);
-                b.0 = systems::give_color(&event.new_tile.tile_type);
+                b.0 = systems::give_color(event.new_tile.tile_type.clone());
                 let child_entity = commands
                     .spawn(ImageBundle {
                         style: Style {
@@ -25,7 +25,7 @@ pub fn update_tile(
                             justify_self: JustifySelf::Center,
                             ..default()
                         },
-                        image: asset_server.load(get_path_content(&event.new_tile.content)).into(),
+                        image: asset_server.load(get_path_content(event.new_tile.content.clone())).into(),
                         ..default()
                     })
                     .id();

@@ -1,29 +1,12 @@
-
-use robotics_lib::runner::Runner;
-use robotics_lib::runner::Runnable;
-use robotics_lib::runner::backpack::BackPack;
-use robotics_lib::runner::Robot;
-use bevy::ecs::system::Resource;
+use std::collections::HashMap;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
-use std::thread;
-use std::time::Duration;
-use bevy::ecs::system::Commands;
-use rip_worldgenerator::MyWorldGen;
-use crate::ai_226840::*;
 use bevy::ecs::system::ResMut;
-use robotics_lib::energy::Energy;
 use robotics_lib::event::events::Event;
-use robotics_lib::interface::get_score;
-use robotics_lib::world::coordinates::Coordinate;
-use robotics_lib::world::tile::Tile;
-use robotics_lib::world::World;
-use robotics_lib::interface::robot_map;
+use robotics_lib::world::tile::{Content, Tile};
 use bevy::prelude::*;
-use crate::components::{GameInfo, WORLD_SIZE};
-use crate::energy::components::EnergyHub;
+use crate::components::{GameInfo};
 use crate::events::*;
-use crate::states::AppState;
 use crate::stats::components::N_EVENT_IN_LOG;
 use crate::runner::RunnerTag;
 
@@ -33,13 +16,15 @@ lazy_static! {
     pub static ref EVENTS: Mutex<Vec<Event>> = Mutex::new(vec![]);
     pub static ref POINTS: Mutex<f32> = Mutex::new(0.00);
     pub static ref ROBOT_VIEW: Mutex<Vec<Vec<Option<Tile>>>> = Mutex::new(vec![]);
+    pub static ref ENERGY: Mutex<usize> = Mutex::new(0);
+    pub static ref POSITIONS: Mutex<(usize, usize)> = Mutex::new((0, 0));
+    pub static ref BACKPACK_CONTENT: Mutex<HashMap<Content, usize>> = Mutex::new(HashMap::new());
 }
 
 
 
 
 pub fn update(
-    mut remaining_energy: ResMut<EnergyHub>,
     mut game_info: ResMut<GameInfo>,
     mut runner: ResMut<RunnerTag>,
 
@@ -66,6 +51,8 @@ pub fn update(
             if len == 0 { let _ = runner.0.game_tick(); }
 
             let mut read_events = EVENTS.lock().unwrap();
+            let mut update_positions = POSITIONS.lock().unwrap();
+            let mut update_energy = ENERGY.lock().unwrap();
             //let read_points = POINTS.lock().unwrap();
             //let read_robot_view = ROBOT_VIEW.lock().unwrap();
 
@@ -80,8 +67,6 @@ pub fn update(
             while continue_while {
                 continue_while = false;
 
-
-
                 let e = &read_events[0].clone();
 
                 match e {
@@ -91,9 +76,9 @@ pub fn update(
                         ew_ready.send( Ready { } );
 
                         let mut str_builder = String::from("Robot is spawned in [");
-                        str_builder.push_str(game_info.robot_position.0.to_string().as_str());
+                        str_builder.push_str(update_positions.0.to_string().as_str());
                         str_builder.push_str("][");
-                        str_builder.push_str(game_info.robot_position.1.to_string().as_str());
+                        str_builder.push_str(update_positions.1.to_string().as_str());
                         str_builder.push_str("]\n");
                         last_event = str_builder;
                     }
@@ -127,16 +112,16 @@ pub fn update(
                         last_event = str_builder;
                     }
                     Event::EnergyRecharged(n) => {
-                        if remaining_energy.energy + n > 1000 {
-                            tmp_for_energy += 1000 - remaining_energy.energy;
-                            remaining_energy.energy = 1000;
+                        if *update_energy + n > 1000 {
+                            tmp_for_energy += 1000 - *update_energy;
+                            *update_energy = 1000;
                         }
                         else {
                             tmp_for_energy += n;
-                            remaining_energy.energy += n;
+                            *update_energy += n;
                         }
 
-                        ew_energy_update.send( EnergyUpdated { total_energy: remaining_energy.energy } );
+                        ew_energy_update.send( EnergyUpdated { total_energy: *update_energy } );
 
                         //println!("Recuperato {} energia, totale energia: {}", n, remaining_energy.energy);
                         continue_while = true;
@@ -144,21 +129,21 @@ pub fn update(
                         let mut str_builder = String::from("Energy recharged (+");
                         str_builder.push_str(tmp_for_energy.to_string().as_str());
                         str_builder.push_str(") -> Remaining energy: ");
-                        str_builder.push_str(remaining_energy.energy.to_string().as_str());
+                        str_builder.push_str(update_energy.to_string().as_str());
                         str_builder.push_str("\n");
                         last_event = str_builder;
                     }
                     Event::EnergyConsumed(n) => {
-                        if remaining_energy.energy >= *n {
+                        if *update_energy >= *n {
                             tmp_for_energy += n;
-                            remaining_energy.energy -= n;
+                            *update_energy -= n;
                         }
                         else {
                             tmp_for_energy += tmp_for_energy;   //giusto :)
-                            remaining_energy.energy = 0;
+                            *update_energy = 0;
                         }
 
-                        ew_energy_update.send( EnergyUpdated { total_energy: remaining_energy.energy } );
+                        ew_energy_update.send( EnergyUpdated { total_energy: *update_energy } );
 
                         //println!("Consumata {} energia, totale energia: {}", n, remaining_energy.energy);
                         continue_while = true;
@@ -166,7 +151,7 @@ pub fn update(
                         let mut str_builder = String::from("Energy consumed (-");
                         str_builder.push_str(tmp_for_energy.to_string().as_str());
                         str_builder.push_str(") -> Remaining energy: ");
-                        str_builder.push_str(remaining_energy.energy.to_string().as_str());
+                        str_builder.push_str(update_energy.to_string().as_str());
                         str_builder.push_str("\n");
                         last_event = str_builder;
                     }
@@ -182,9 +167,10 @@ pub fn update(
                         }
                         else {
                             str_builder.push_str("Moved from [");
-                            str_builder.push_str(game_info.robot_position.0.to_string().as_str());
+
+                            str_builder.push_str(update_positions.0.to_string().as_str());
                             str_builder.push_str("][");
-                            str_builder.push_str(game_info.robot_position.1.to_string().as_str());
+                            str_builder.push_str(update_positions.1.to_string().as_str());
                             str_builder.push_str("] to the tile [");
                             str_builder.push_str(position.0.to_string().as_str());
                             str_builder.push_str("][");
@@ -215,11 +201,6 @@ pub fn update(
                     }
                     Event::AddedToBackpack(c, q) => {
                         //println!("Aggiunto allo zaino -> {:?}", e);
-                        /*
-                        item_backpack.item = Some(c.clone());
-                        item_backpack.n = q.clone();
-                        item_backpack.add = true;
-                        */
 
                         ew_update_backpack.send( UpdateBackpack { content: c.clone(), n: q.clone(), add: true } );
 

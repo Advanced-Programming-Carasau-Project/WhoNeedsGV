@@ -1,8 +1,7 @@
 use bevy::prelude::*;
-use crate::components::{GameInfo, WORLD_SIZE};
-use crate::connect_with_ai::ROBOT_VIEW;
+use crate::components::{WORLD_SIZE};
+use crate::connect_with_ai::{POSITIONS, ROBOT_VIEW};
 use crate::events::{Moved, Ready};
-use crate::states::AppState;
 use crate::systems::{get_path_content, give_color};
 use crate::world::components::TileHub;
 
@@ -25,24 +24,24 @@ pub fn move_robot(
     mut commands: Commands,
     mut query: Query<(Entity, &mut BackgroundColor, &TileHub), With<TileHub>>,
     asset_server: Res<AssetServer>,
-    mut game_info: ResMut<GameInfo>,
-    mut app_state_next_state: ResMut<NextState<AppState>>,
     mut er_moved: EventReader<Moved>,
 )
 {
     for event in er_moved.read() {
-        //println!("......................Dentro new_move_robot_3.........................");
+        //println!("......................Dentro move_robot.........................");
         //println!("Il robot si trova in posizione [{}][{}]", game_info.robot_position.0, game_info.robot_position.1);
         //println!("E deve andare nel punto [{}][{}]", where_to_move.r, where_to_move.c);
 
-        let mut new_position:(usize, usize) = game_info.robot_position;
+        let mut update_positions = POSITIONS.lock().unwrap();
+
+        let mut new_position:(usize, usize) = update_positions.clone();
         let read_robot_view = ROBOT_VIEW.lock().unwrap();
 
-        if event.next_position.0 != game_info.robot_position.0 || event.next_position.1 != game_info.robot_position.1 {
+        if event.next_position.0 != update_positions.0 || event.next_position.1 != update_positions.1 {
             for (e, mut b, t) in query.iter_mut() {
                 if  read_robot_view[t.r][t.c].is_some() {
-                    if game_info.robot_position.0 == t.r && game_info.robot_position.1 == t.c { //Lascio la cella attuale
-                        b.0 = give_color(&read_robot_view[t.r][t.c].clone().unwrap().tile_type);
+                    if update_positions.0 == t.r && update_positions.1 == t.c { //Lascio la cella attuale
+                        b.0 = give_color(read_robot_view[t.r][t.c].clone().unwrap().tile_type);
                         //println!("Assegno a [{}][{}] un nuovo colore", t.r, t.c);
                     }
                     else {
@@ -60,7 +59,7 @@ pub fn move_robot(
                         match tmp {
                             None => { }
                             Some(tile) => {
-                                b.0 = give_color(&tile.tile_type);
+                                b.0 = give_color(tile.tile_type.clone());
                                 //println!("Scoperta la tile [{}][{}]", t.r, t.c);
                                 let child_entity = commands
                                     .spawn(ImageBundle {
@@ -72,7 +71,7 @@ pub fn move_robot(
                                             ..default()
                                         },
                                         //background_color: BackgroundColor(give_color_content(&t.tile_content)),
-                                        image: asset_server.load(get_path_content(&tile.content)).into(),
+                                        image: asset_server.load(get_path_content(tile.content.clone())).into(),
                                         ..default()
                                     })
                                     .id();
@@ -84,12 +83,8 @@ pub fn move_robot(
                     }
                 }
             }
-            game_info.robot_position = new_position;
-            //println!("Scopro l'intorno di [{}][{}]", world.robot_position.0, world.robot_position.1);
-            //mostra_intorno(&mut commands, &mut query, &mut world, &asset_server);
-            //println!("Fatto");
-            //println!("..........................Fine new_move_robot_3.............................");
-            app_state_next_state.set(AppState::ReadingEvents);
+            *update_positions = new_position;
+            //println!("..........................Fine move_robot.............................");
         }
     }
 
@@ -98,43 +93,17 @@ pub fn move_robot(
 }
 
 pub fn spawn_robot(
-    mut query: Query<(Entity, &mut BackgroundColor, &TileHub), With<TileHub>>,
-    game_info: ResMut<GameInfo>,
+    mut query: Query<(&mut BackgroundColor, &TileHub), With<TileHub>>,
     mut er_ready: EventReader<Ready>,
 )
 {
-    for event in er_ready.read() {
-        let read_robot_view = ROBOT_VIEW.lock().unwrap();
+    let mut update_positions = POSITIONS.lock().unwrap();
 
-        for (e, mut b, t) in query.iter_mut() {
-            if t.r == game_info.robot_position.0 && t.c == game_info.robot_position.1 {
+    for _event in er_ready.read() {
+        for (mut b, t) in query.iter_mut() {
+            if t.r == update_positions.0 && t.c == update_positions.1 {
                 b.0 = Color::GOLD;
             }
-
-            /*
-            if (t.r == game_info.robot_position.0 && t.c == game_info.robot_position.1) || (new_is_intorno(t.r, t.c, game_info.robot_position)){
-                if  read_robot_view[t.r][t.c].is_some() {
-                    if t.r == game_info.robot_position.0 && t.c == game_info.robot_position.1 { b.0 = Color::GOLD; }
-                    else { b.0 = give_color(&read_robot_view[t.r][t.c].clone().unwrap().tile_type); }
-
-                    let child_entity = commands
-                        .spawn(ImageBundle {
-                            style: Style {
-                                width: Val::Percent(90.0),
-                                height: Val::Percent(90.0),
-                                align_self: AlignSelf::Center,
-                                justify_self: JustifySelf::Center,
-                                ..default()
-                            },
-                            //background_color: BackgroundColor(give_color_content(&t.tile_content)),
-                            image: asset_server.load(get_path_content(&read_robot_view[t.r][t.c].clone().unwrap().content)).into(),
-                            ..default()
-                        })
-                        .id();
-                    commands.entity(e).replace_children(&[child_entity]);
-                }
-            }
-            */
         }
     }
 

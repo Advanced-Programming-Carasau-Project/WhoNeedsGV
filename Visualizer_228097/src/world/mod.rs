@@ -3,7 +3,6 @@ use bevy::prelude::*;
 mod systems;
 pub mod components;
 
-use crate::world::components::*;
 use crate::world::systems::*;
 
 pub struct WorldPlugin;

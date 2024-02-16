@@ -3,7 +3,6 @@ use bevy::prelude::*;
 use bevy::prelude::{Camera2dBundle, Commands, NodeBundle, Res, ResMut, Style, Val};
 use crate::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use crate::components::GameInfo;
-use crate::states::AppState;
 use crate::ui::grid::grid;
 use crate::ui::backpack_menu::spawn_backpack;
 use crate::ui::game_stats_menu::spawn_game_stats;
@@ -13,7 +12,6 @@ use crate::ui::log::spawn_log;
 pub fn generate_ui(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut app_state_next_state: ResMut<NextState<AppState>>,
     game_info: ResMut<GameInfo>
 )
 {
@@ -49,9 +47,7 @@ pub fn generate_ui(
         });
     });
 
-    println!("------------------Generata UI----------------------");
-    app_state_next_state.set(AppState::ReadingEvents);
-
+    //println!("------------------Generata UI----------------------");
 }
 
 
