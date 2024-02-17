@@ -2,6 +2,7 @@ mod ai_226840;
 mod ai_226930;
 mod visualizer_227694;
 mod visualizer_228097;
+mod test_tool;
 
 use robotics_lib::runner::Runner;
 use robotics_lib::runner::Runnable;
@@ -40,7 +41,7 @@ use rocket::serde::Serialize;
 use bevy::prelude::Resource;
 use robotics_lib::world::environmental_conditions::EnvironmentalConditions;
 
-
+use crate::test_tool::run_test_tool;
 
 
 use rocket::yansi::Paint;
@@ -201,8 +202,9 @@ fn rocket()->_{
     //let mut whoneedsgv_wg = WorldGenerator::new(world_size);
     let mut rustinpeace_wg = MyWorldGen::new_param(world_size, 2, 2, 2, true, false, 3, false, None);
     //let mut whoneedsgv_runner;
-    let rustinpeace_runner;
+    let mut rustinpeace_runner = Runner::new(Box::new(LunaticRobot::new()), &mut rustinpeace_wg);;
     let mut robot_bool_bevy = false;
+    let mut test_tool = false;
 
     println!("Choose a mode: ");
     println!("1 - Start robot demonstration");
@@ -241,31 +243,8 @@ fn rocket()->_{
                 }
             }
             3 => {
-                //TODO
-            }
-            _ => {
-                println!("invalid input");
-            }
-        }
-    }
-
-    println!("Choose a robot: ");
-    println!("1 - MirtoRobot");
-    println!("2 - LunaticRobot");
-
-    let mut input_invalido = true;
-
-    while input_invalido {
-        choice = input_number();
-        match choice {
-            1 => {
-                robot_bool_bevy = true;
-                robot = Box::new(MirtoRobot::new(Robot::new(), true));
-                input_invalido = false;
-            }
-            2 => {
-                robot_bool_bevy = false;
-                robot = Box::new(LunaticRobot::new());
+                run_test_tool();
+                test_tool = true;
                 input_invalido = false;
             }
             _ => {
@@ -274,31 +253,58 @@ fn rocket()->_{
         }
     }
 
-    rustinpeace_runner = Runner::new(robot, &mut rustinpeace_wg);
+    if !test_tool{
+        println!("Choose a robot: ");
+        println!("1 - MirtoRobot");
+        println!("2 - LunaticRobot");
 
-    println!("Choose a visualizer: ");
-    println!("1 - Rocket");
-    println!("2 - Bevy Giulio");
-    println!("3 - Bevy Lorenzo");
+        let mut input_invalido = true;
 
-    let mut input_invalido = true;
+        while input_invalido {
+            choice = input_number();
+            match choice {
+                1 => {
+                    robot_bool_bevy = true;
+                    robot = Box::new(MirtoRobot::new(Robot::new(), true));
+                    input_invalido = false;
+                }
+                2 => {
+                    robot_bool_bevy = false;
+                    robot = Box::new(LunaticRobot::new());
+                    input_invalido = false;
+                }
+                _ => {
+                    println!("invalid input");
+                }
+            }
+        }
 
-    while input_invalido {
-        choice = input_number();
-        match choice {
-            1 => {
-                input_invalido = false;
-            }
-            2 => {
-                visualizer_227694::VisualizerGLC::run(robot_bool_bevy, world_size);
-                input_invalido = false;
-            }
-            3 => {
-                visualizer_228097::avvia_app(robot_bool_bevy);
-                input_invalido = false;
-            }
-            _ => {
-                println!("invalid input");
+        rustinpeace_runner = Runner::new(robot, &mut rustinpeace_wg);
+
+        println!("Choose a visualizer: ");
+        println!("1 - Rocket");
+        println!("2 - Bevy Giulio");
+        println!("3 - Bevy Lorenzo");
+
+        let mut input_invalido = true;
+
+        while input_invalido {
+            choice = input_number();
+            match choice {
+                1 => {
+                    input_invalido = false;
+                }
+                2 => {
+                    visualizer_227694::VisualizerGLC::run(robot_bool_bevy, world_size);
+                    input_invalido = false;
+                }
+                3 => {
+                    visualizer_228097::avvia_app(robot_bool_bevy);
+                    input_invalido = false;
+                }
+                _ => {
+                    println!("invalid input");
+                }
             }
         }
     }

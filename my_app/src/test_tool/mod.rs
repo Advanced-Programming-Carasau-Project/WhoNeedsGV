@@ -22,7 +22,7 @@ use robotics_lib::runner::Runner;
 use who_needs_gv_street_explorer::StreetExplorer;
 
 use rand::Rng;
-use crate::maze_world_gen::Maze;
+use crate::test_tool::maze_world_gen::Maze;
 struct Tool_Robot_Test(Robot);
 impl Runnable for Tool_Robot_Test{
     fn process_tick(&mut self, world: &mut World) { //nel tick invoco il tools che ho definito
@@ -128,7 +128,7 @@ fn gen(&mut self) -> robotics_lib::world::world_generator::World {
 const mapSize: usize = 51;
 
 
-fn main() {
+pub fn run_test_tool() {
     let robot = Tool_Robot_Test(Robot::new()); //definisco il robot
     let mut generator = WorldGenerator{size: mapSize}; //definisco il world generator
     let mut run = Runner::new(Box::new(robot), &mut generator).unwrap(); //creo un runner (l'oggetto che gestisce i tick del mondo). Questa struc creerà il mondo grazie al world generator
