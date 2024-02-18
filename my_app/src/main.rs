@@ -264,7 +264,7 @@ fn rocket()->_{
             match choice {
                 1 => {
                     robot_bool_bevy = true;
-                    robot = Box::new(MirtoRobot::new(Robot::new(), true));
+                    robot = Box::new(MirtoRobot::new(true));
                     invalid_input = false;
                 }
                 2 => {

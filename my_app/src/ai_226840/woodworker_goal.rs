@@ -15,7 +15,7 @@ use ohcrab_collection::collection::{CollectTool};
 
 use crate::{MirtoRobot};
 impl MirtoRobot{
-    pub fn delivery_content_to(&mut self, world: &mut World, content: Content, dest_content: Content){
+    pub(crate) fn delivery_content_to(&mut self, world: &mut World, content: Content, dest_content: Content){
         let n_content = *self.get_backpack().get_contents().get(&content).unwrap();
         let destination = Destination::go_to_content(dest_content.clone());
         let result = Planner::planner(self, destination, world);
@@ -50,7 +50,7 @@ impl MirtoRobot{
         }
     }
 
-    pub fn collect_and_delivery_content(&mut self, world: &mut World, content: Content, quantity: usize, dest_content: Content){
+    pub(crate) fn collect_and_delivery_content(&mut self, world: &mut World, content: Content, quantity: usize, dest_content: Content){
         self.recharge_all_energy();
         let result = CollectTool::collect_content(self, world, &content, quantity, self.robot.energy.get_energy_level());
         println!("result: {:?}", result);
@@ -70,7 +70,7 @@ impl MirtoRobot{
         }
     }
 
-    pub fn make_next_thing_for_woodworker_goal(&mut self, world: &mut World){
+    pub(crate) fn make_next_thing_for_woodworker_goal(&mut self, world: &mut World){
         println!("emptying the backpack...");
         self.empty_your_backpack(world);
         println!("number of things inside the backpack: {}", self.get_backpack_objects_number());

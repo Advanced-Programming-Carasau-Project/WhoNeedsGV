@@ -15,7 +15,7 @@ use crate::{MirtoRobot};
 use robotics_lib::world::tile::Content::Bush;
 
 impl MirtoRobot{
-    pub fn place_mirto(&mut self, world: &mut World){
+    pub(crate) fn place_mirto(&mut self, world: &mut World){
         while self.do_u_have_this_content(Content::JollyBlock(0)) {
             let (d, i, j) = self.finds_the_nearest_content_not_on_fluids(world, Content::None).unwrap();
             if !(i == self.robot.coordinate.get_row() && j == self.robot.coordinate.get_col()) {
@@ -45,7 +45,7 @@ impl MirtoRobot{
         }
     }
 
-    pub fn craft_mirto(&mut self){
+    pub(crate) fn craft_mirto(&mut self){
         let mut result;
         let mut cont_flag = true;
         while cont_flag{
@@ -70,12 +70,12 @@ impl MirtoRobot{
             }
         }
     }
-    pub fn search_bushes_for_mirto(&mut self,  world: &mut World){
+    pub(crate) fn search_bushes_for_mirto(&mut self,  world: &mut World){
         let search_content = Content::Bush(1);
         let _result = CollectTool::collect_content(self, world, &search_content, 20, self.robot.energy.get_energy_level());
     }
 
-    pub fn make_next_thing_for_mirto_goal(&mut self, world: &mut World){
+    pub(crate) fn make_next_thing_for_mirto_goal(&mut self, world: &mut World){
         let exists_empty_cell = self.finds_the_nearest_content_not_on_fluids(world, Content::None).is_some();
         if self.do_u_have_this_content(Content::JollyBlock(0)) && exists_empty_cell{
             println!("placing mirto around...");
