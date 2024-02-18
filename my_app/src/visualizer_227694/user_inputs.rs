@@ -19,12 +19,18 @@ impl Plugin for InputPlugin{
 
 ///Pressing *Space* the user can change from autoplay to not///
 fn go_stop(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
+    if game_data.terminated {
+        return;
+    }
     if keyboard_input.just_pressed(KeyCode::Space){
         game_data.autoplay = !game_data.autoplay;
     }
 }
 ///Pressing *Right* the robot will perform the next action///
 fn next(keyboard_input: Res<Input<KeyCode>>, mut game_data: ResMut<GameData>){
+    if game_data.terminated {
+        return;
+    }
     if keyboard_input.just_pressed(KeyCode::Right){
         if game_data.next < 1{
             game_data.next += 1;

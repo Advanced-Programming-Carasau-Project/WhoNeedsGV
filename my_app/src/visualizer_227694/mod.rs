@@ -71,6 +71,7 @@ impl VisualizerGLC{
                 hided_content: (0.0, 0.0),
                 content_visibility: true,
                 ai,
+                terminated: false,
             })
             .add_plugins(DefaultPlugins)
             //plugins developed by Giulio Lo Cigno
@@ -118,6 +119,7 @@ impl VisualizerGLC{
                 hided_content: (0.0, 0.0),
                 content_visibility: true,
                 ai:false,
+                terminated: false,
             })
             .add_plugins(DefaultPlugins)
             //plugins developed by Giulio Lo Cigno

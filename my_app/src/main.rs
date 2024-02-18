@@ -6,45 +6,27 @@ mod test_tool;
 
 use robotics_lib::runner::Runner;
 use robotics_lib::runner::Runnable;
-
 use robotics_lib::runner::{Robot};
 use lazy_static::lazy_static;
 use std::sync::{Mutex};
-
 use rocket::{State};
-
 use std::collections::HashMap;
-
-
 use rip_worldgenerator::MyWorldGen;
-
 use robotics_lib::event::events::Event;
-
-
 use robotics_lib::world::tile::{Content, Tile};
-
-
 use colored::Colorize;
 use std::io;
 use std::process::exit;
 use crate::ai_226840::MirtoRobot;
 use crate::ai_226930::LunaticRobot;
-
-
 use rocket::launch;
 use rocket::get;
 use rocket::routes;
 use rocket::serde::json::Json;
 use rocket::serde::Serialize;
-
-
-
 use bevy::prelude::Resource;
 use robotics_lib::world::environmental_conditions::EnvironmentalConditions;
-
 use crate::test_tool::run_test_tool;
-
-
 use rocket::yansi::Paint;
 
 
