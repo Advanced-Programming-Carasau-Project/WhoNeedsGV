@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use robotics_lib::world::tile::Content;
 use crate::visualizer_227694::assets_loader::ImageAssets;
 use crate::visualizer_227694::game_data::{GameData, MySet};
+use winit::window::Icon;
+use bevy::winit::WinitWindows;
 
 /// a lot of label-Components used for Query ///
 #[derive(Component)]
@@ -48,7 +50,24 @@ impl Plugin for GUIPlugin{
 fn create_gui(mut commands: Commands,
               game_data: Res<GameData>,
               image_assets: Res<ImageAssets>,
+              windows: NonSend<WinitWindows>,
 ){  // this system spawns all the UI related images and texts
+
+    let (icon_rgba, icon_width, icon_height) = {
+        let image = image::open("assets/textures/icon.png")
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+    let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height).unwrap();
+
+    for window in windows.windows.values() {
+        window.set_window_icon(Some(icon.clone()));
+    }
+
+
     commands.spawn(
         ImageBundle {
             image: image_assets.energy_border.clone().into(),

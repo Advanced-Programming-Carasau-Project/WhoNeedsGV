@@ -25,3 +25,5 @@ who_needs_gv_world_generator = {version = "0.2.4", registry = "kellnr"}
 who_needs_gv_street_explorer  = {version = "0.1.0", registry = "kellnr"}
 colored = "2.1.0"
 lazy_static = "1.4.0"
+image = "0.24.8"
+winit = "0.28"
