@@ -3224,6 +3224,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ordered-float"
+version = "4.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a76df7075c7d4d01fdcb46c912dd17fba5b60c78ea480b475f2b6ab6f666584e"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "overload"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3692,9 +3701,9 @@ dependencies = [
 
 [[package]]
 name = "rip_worldgenerator"
-version = "0.5.54"
+version = "0.5.57"
 source = "sparse+https://advancedprogramming.disi.unitn.it/api/v1/crates/"
-checksum = "256945552b2ae1a2e891ad9f800839cb65533b3e7d82f6ffd79ae25ed9ea2dc3"
+checksum = "6c36e459979f8c17440c3390819d82d6a515576547c21c230d09d2518c155d28"
 dependencies = [
  "disjoint-sets",
  "dsu-tree",
@@ -3845,10 +3854,11 @@ checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
 name = "rustici_planner"
-version = "0.1.5"
+version = "0.1.6"
 source = "sparse+https://advancedprogramming.disi.unitn.it/api/v1/crates/"
-checksum = "515138e0cf8d9eda3f0229ac1a25f65a99bcf4a48c5b7d9b3cfac0ec3a7b129a"
+checksum = "bd9745a0bed91dd59a18d68567ad03de642d2895454bf4be7f85ab78399e8f36"
 dependencies = [
+ "ordered-float",
  "priority-queue",
  "robotics_lib",
  "strum",
@@ -4079,9 +4089,9 @@ dependencies = [
 
 [[package]]
 name = "spyglass"
-version = "0.1.1"
+version = "0.1.2"
 source = "sparse+https://advancedprogramming.disi.unitn.it/api/v1/crates/"
-checksum = "7749ee9940dd27d2cf0795e3b6d523716f873002c397d6242b7b44ecf254b9e8"
+checksum = "3d958c8f4b11cf4bf12a65a96e4868fb06b9b895d4eed6a2331d36db3432b035"
 dependencies = [
  "robotics_lib",
 ]
@@ -4999,9 +5009,9 @@ dependencies = [
 
 [[package]]
 name = "who_needs_gv_world_generator"
-version = "0.2.3"
+version = "0.2.4"
 source = "sparse+https://advancedprogramming.disi.unitn.it/api/v1/crates/"
-checksum = "f3499f44a72326719aee2df3e84cb705f1e7530d3165c71e43e43e736d2937dc"
+checksum = "eef59b4f2e6aa2ecb00425c32d05a4498cd672069649ede5cd5dcf536d4f4f31"
 dependencies = [
  "libnoise",
  "queues",

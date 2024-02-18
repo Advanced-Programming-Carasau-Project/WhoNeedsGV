@@ -38,6 +38,9 @@ fn spawn_robot(mut commands: Commands,scene_assets: Res<SceneAssets>,
     }, RobotComponent));
 }
 fn fine_robot(mut game_data: ResMut<GameData>,
+              mut clear_color: ResMut<ClearColor>,
+              mut query: Query<Entity,Without<Camera>>,
+              mut commands: Commands,
 ){
     if !game_data.next_action{
         return;
@@ -47,8 +50,53 @@ fn fine_robot(mut game_data: ResMut<GameData>,
             if events_guard.len() != 0{
                 match &events_guard[0] {
                     Terminated => {
-                        //TODO schermo nero con scritta tipo "the robot terminated his task" e un bottone che cliccato fa terminare l'app (forse potrei anche mettere un bottone per riavviare)
-                        game_data.feed.push(format!("{}",events_guard[0]));
+                        for entity in query.iter_mut(){
+                            commands.entity(entity).despawn_recursive();
+                        }
+                        commands.spawn(
+                            TextBundle::from_section(
+                                "Robot terminated!",
+                                TextStyle {
+                                    font_size: 55.0,
+                                    color: Color::rgb(1.0, 1.0, 1.0),
+                                    ..default()
+                                },
+                            ).with_style(Style {
+                                display: Display::Flex,
+                                position_type: PositionType::Absolute,
+                                align_items: AlignItems::Center,
+                                justify_items: JustifyItems::Center,
+                                align_self: AlignSelf::Center,
+                                justify_self: JustifySelf::Center,
+                                align_content: AlignContent::Center,
+                                justify_content: JustifyContent::Center,
+                                ..default()
+                            })
+                        );
+                        commands.spawn(
+                            TextBundle::from_section(
+                                format!("\nObtaining {} points over {}. \nUsing {} game ticks in total",game_data.robot_data.points, game_data.robot_data.max_points, game_data.game_ticks),
+                                TextStyle {
+                                    font_size: 40.0,
+                                    color: Color::rgb(1.0, 1.0, 1.0),
+                                    ..default()
+                                },
+                            ).with_style(Style {
+                                display: Display::Flex,
+                                position_type: PositionType::Absolute,
+                                align_items: AlignItems::Center,
+                                justify_items: JustifyItems::Center,
+                                align_self: AlignSelf::Center,
+                                justify_self: JustifySelf::Center,
+                                align_content: AlignContent::Center,
+                                justify_content: JustifyContent::Center,
+                                ..default()
+                            })
+                        );
+                        clear_color.0 = Color::rgb(0.0,0.0,0.0); // bg color
+                        game_data.autoplay = false;
+                        game_data.next = 0;
+                        //TODO gestire gamedata per non avere casini
                         events_guard.remove(0);
                     }
                     _ => { return; }

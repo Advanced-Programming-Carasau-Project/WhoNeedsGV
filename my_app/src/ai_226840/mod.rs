@@ -483,13 +483,13 @@ impl MirtoRobot {
                 spyglass.set_energy_budget(Some(self.get_energy().get_energy_level()));
 
                 match spyglass.new_discover(self, world) {
-                    SpyglassResult::Complete => { break; }
+                    SpyglassResult::Complete(_) => { break; }
                     Stopped(_) => { break; }
                     SpyglassResult::Paused => {
                         loop {
                             self.recharge_all_energy();
                             match spyglass.resume_discover(self, world) {
-                                SpyglassResult::Complete => { break; }
+                                SpyglassResult::Complete(_) => { break; }
                                 Stopped(_) => { break; }
                                 Paused => {}
                                 Failed(_f) => { break; }

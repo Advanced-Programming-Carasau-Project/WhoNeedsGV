@@ -33,6 +33,8 @@ fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: 
     let mut runner = RunnerTag(run);
     let _ = runner.0.game_tick();
 
+    game_data.game_ticks += 1;
+
     let mondo = robot_view.lock().unwrap();
 
     match &mondo[spawn_point.0][spawn_point.1]{
@@ -58,6 +60,7 @@ fn robot_runner(mut game_data: ResMut<GameData>, mut runner: ResMut<RunnerTag>){
     }
     { // next game tick
         let _ = runner.0.game_tick();
+        game_data.game_ticks += 1;
         game_data.next -= 1;
         game_data.update_world = true;
     }

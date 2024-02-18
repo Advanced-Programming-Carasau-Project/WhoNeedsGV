@@ -118,7 +118,7 @@ impl LunaticRobot{
     pub fn spy_glass_error_handler(&mut self, result: &SpyglassResult){
         //PROVVISORIO
         match result{
-            SpyglassResult::Complete => {println!("SPYGLASS: Complete")}
+            SpyglassResult::Complete(_) => {println!("SPYGLASS: Complete")}
             SpyglassResult::Stopped(_) => {println!("SPYGLASS: Stopped")}
             SpyglassResult::Paused => {println!("SPYGLASS: Paused")}
             SpyglassResult::Failed(x) => {println!("SPYGLASS: Failed with {:?}",x)}

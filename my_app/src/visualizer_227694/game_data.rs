@@ -82,6 +82,7 @@ pub(crate) struct GameData{ // a resource used to store all data concerning the 
     pub(crate) robot_data:RobotData, //data concerning robot status
     pub(crate) camera_data:CameraData, //data concerning robot status
     pub(crate) current_tile_elevation:f32,
+    pub(crate) game_ticks:usize, // counter of total passed game ticks
     pub(crate) timer:Timer, // a Timer used to determine when to perform the next robot action
     pub(crate) next_action:bool,
     pub(crate) frames:usize, // used only for performance checks

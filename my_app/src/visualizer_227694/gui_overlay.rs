@@ -373,7 +373,7 @@ fn create_gui(mut commands: Commands,
         }),ClockComponent));
     commands.spawn(
         (ImageBundle {
-            image: image_assets.fish.clone().into(),
+            image: image_assets.sunny.clone().into(),
             style: Style {
                 position_type: PositionType::Absolute,
                 top: Val::Px(50.0),

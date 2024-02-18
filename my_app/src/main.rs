@@ -26,6 +26,7 @@ use robotics_lib::world::tile::{Content, Tile};
 
 use colored::Colorize;
 use std::io;
+use std::process::exit;
 use crate::ai_226840::MirtoRobot;
 use crate::ai_226930::LunaticRobot;
 
@@ -209,11 +210,11 @@ fn rocket()->_{
     println!("Choose a mode: ");
     println!("1 - Start robot demonstration");
     println!("2 - visualize a world");
-    println!("3 - tool"); //TODO
+    println!("3 - tool");
 
-    let mut input_invalido = true;
+    let mut invalid_input = true;
 
-    while input_invalido {
+    while invalid_input {
         choice = input_number();
         match choice {
             1 => { break; }
@@ -222,20 +223,17 @@ fn rocket()->_{
                 println!("1 - WhoNeedsGv");
                 println!("2 - RustInPeace");
 
-                let mut input_invalido = true;
+                let mut invalid_input_2 = true;
 
-                while input_invalido {
+                while invalid_input_2 {
                     choice = input_number();
                     match choice {
                         1 => {
-                            visualizer_227694::VisualizerGLC::visualize_world(100,false);
-
+                            visualizer_227694::VisualizerGLC::visualize_world(100,false); //with the boolean i choose the world generator to use
                         }
                         2 => {
                             visualizer_227694::VisualizerGLC::visualize_world(100,true);
-
                         }
-
                         _ => {
                             println!("invalid input");
                         }
@@ -244,8 +242,9 @@ fn rocket()->_{
             }
             3 => {
                 run_test_tool();
+                exit(0);
                 test_tool = true;
-                input_invalido = false;
+                invalid_input = false;
             }
             _ => {
                 println!("invalid input");
@@ -258,20 +257,20 @@ fn rocket()->_{
         println!("1 - MirtoRobot");
         println!("2 - LunaticRobot");
 
-        let mut input_invalido = true;
+        invalid_input = true;
 
-        while input_invalido {
+        while invalid_input {
             choice = input_number();
             match choice {
                 1 => {
                     robot_bool_bevy = true;
                     robot = Box::new(MirtoRobot::new(Robot::new(), true));
-                    input_invalido = false;
+                    invalid_input = false;
                 }
                 2 => {
                     robot_bool_bevy = false;
                     robot = Box::new(LunaticRobot::new());
-                    input_invalido = false;
+                    invalid_input = false;
                 }
                 _ => {
                     println!("invalid input");
@@ -286,21 +285,21 @@ fn rocket()->_{
         println!("2 - Bevy Giulio");
         println!("3 - Bevy Lorenzo");
 
-        let mut input_invalido = true;
+        invalid_input = true;
 
-        while input_invalido {
+        while invalid_input {
             choice = input_number();
             match choice {
                 1 => {
-                    input_invalido = false;
+                    invalid_input = false;
                 }
                 2 => {
                     visualizer_227694::VisualizerGLC::run(robot_bool_bevy, world_size);
-                    input_invalido = false;
+                    invalid_input = false;
                 }
                 3 => {
                     visualizer_228097::avvia_app(robot_bool_bevy);
-                    input_invalido = false;
+                    invalid_input = false;
                 }
                 _ => {
                     println!("invalid input");
@@ -309,6 +308,4 @@ fn rocket()->_{
         }
     }
     rocket::build().manage(RunnerTagRocket(Mutex::new(rustinpeace_runner.expect("SIAMO PAZZI")))).mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
-    //rocket::build().mount("/", routes![get_robot_data]).mount("/", rocket::fs::FileServer::from("static"))
-
 }
