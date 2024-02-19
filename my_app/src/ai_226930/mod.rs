@@ -17,10 +17,14 @@ use robotics_lib::interface::{Direction, get_score, go, look_at_sky, put, robot_
 use robotics_lib::runner::{Robot, Runnable};
 use robotics_lib::runner::backpack::BackPack;
 use robotics_lib::world::coordinates::Coordinate;
-use robotics_lib::world::environmental_conditions::DayTime::Night;
+use robotics_lib::world::environmental_conditions::DayTime::{Afternoon, Night};
 use robotics_lib::world::environmental_conditions::WeatherType::Sunny;
 use robotics_lib::world::tile::{Content, TileType};
+<<<<<<< HEAD
 
+=======
+use robotics_lib::world::tile::Content::{Coin, Tree};
+>>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
 use robotics_lib::world::World;
 use rust_and_furious_dynamo::dynamo::Dynamo;
 use rustici_planner::tool::{Action, Destination, Planner, PlannerError, PlannerResult};
@@ -64,6 +68,72 @@ impl LunaticRobot{
         *self.get_energy_mut() = Dynamo::update_energy();
         self.handle_event(Event::EnergyRecharged(1000));
     }
+    /*
+    pub fn empty(&mut self, world: &mut World){
+        self.replenish();
+        //let contents = self.robot.backpack.get_contents();
+        while self.get_remaining_backpack_space() < 10{
+
+        }
+        self.must_empty = false;
+    }
+
+     */
+    pub fn work_done(&mut self, world: &mut World) -> (bool,bool){
+        let mut day_done = false;
+        let mut night_done = false;
+        //number of unexplored tiles
+        let mut none_num = 0;
+        let threshold = 0.20;
+        if let Some(known_map) = robot_map(world){
+            let size = known_map.len();
+            for i in 0..size{
+                for j in 0..size{
+                    if known_map[i][j].is_none(){
+                        none_num += 1;
+                    }
+                }
+            }
+            if (none_num as f64) / ((size*size) as f64) < threshold{
+                //checks if there are still coins or trees in the world if not it returns that the
+                //job of the robot for that time of the day is done
+                let destination_day = Destination::go_to_content(Content::Coin(0));
+                let result = Planner::planner(self, destination_day, world);
+                match result {
+                    Ok(_) => {}
+                    Err(e) => {
+                        match e{
+                            PlannerError::NoContent => {day_done = true;}
+                            _ => {}
+                        }
+                    }
+                }
+                if self.lava_coords == None{
+                    if self.search_lava(world) == None{
+                        night_done = true;
+                    }
+                }
+                else{
+                    let c = self.lava_coords.clone().unwrap();
+                    println!("lava cord now: {:?}", known_map[c.0][c.1].clone().unwrap());
+                }
+                let destination_night = Destination::go_to_content(Content::Rock(0));
+                let result = Planner::planner(self, destination_night, world);
+                match result {
+                    Ok(_) => {}
+                    Err(e) => {
+                        match e{
+                            PlannerError::NoContent => {night_done = true;}
+                            _ => {}
+                        }
+                    }
+                }
+            }
+            println!("percentuale di mondo non scoperta: {}", (none_num as f64) / ((size*size) as f64))
+        }
+        println!("day: {} and night: {}", day_done, night_done);
+        return (day_done,night_done);
+    }
     //makes the robot explore the world as long as he has energy
     pub fn exploration(&mut self, _content: Content, world: &mut World){
         //println!("spyglass exploration");
@@ -92,11 +162,27 @@ impl LunaticRobot{
     pub fn move_to_coords(&mut self, coords: (usize, usize), world: &mut World){
         let destination = Destination::go_to_coordinate(coords);
         let result = Planner::planner(self, destination, world);
+        self.path_executer(world, result, false, None);
+    }
+    //takes a planner_tool path and does every action of it, if it's needed to put a content at the
+    //end, saves the last move and instead of moving on that tile it calls the put interface
+    pub fn path_executer(&mut self, world: &mut World, result: Result<PlannerResult, PlannerError>, is_put: bool, cont: Option<Content>){
+        let mut last_move = None;
         match result {
             Ok(p) => {
                 match p{
+<<<<<<< HEAD
                     PlannerResult::Path((actions,_cost)) => {
+=======
+                    PlannerResult::Path((mut actions,cost)) => {
+                        if is_put{
+                            last_move = actions.pop();
+                        }
+>>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
                         //TODO check on cost, and break the action in multiple ticks
+                        if cost > self.get_energy().get_energy_level(){
+                            println!("cost for path greater than energy!");
+                        }
                         for i in 0..actions.len(){
                             self.replenish();
                             match &actions[i]{
@@ -106,6 +192,15 @@ impl LunaticRobot{
                                 Action::Teleport(tile) => {
                                     teleport(self, world, *tile);
                                 }
+                            }
+                        }
+                        if let Some(content) = cont{
+                            match last_move.unwrap(){
+                                Action::Move(d) => {
+                                    let quantity = self.get_content_quantity(&content);
+                                    put(self, world, content, quantity, d);
+                                }
+                                Action::Teleport(_) => {}
                             }
                         }
                     }
@@ -125,11 +220,16 @@ impl LunaticRobot{
         }
         //PROVVISORIO
     }
+<<<<<<< HEAD
     pub fn planner_error_handler(&mut self, _error: PlannerError){
         //todo!()
     }
     pub fn is_content_available(&self, _content: Content){
         //todo!()
+=======
+    pub fn planner_error_handler(&mut self, error: PlannerError){
+        println!("error in planner: {:?}", error);
+>>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
     }
     pub fn explore(&mut self, world: &mut World){
         //println!("Free exploring...");
@@ -158,9 +258,13 @@ impl LunaticRobot{
         let quantity = self.robot.backpack.get_contents().get(&content).unwrap();
         return *quantity;
     }
+    //makes the robot follow a path given by the planner tool
+
     // puts the decided content on the desired tile
     pub fn put_content(&mut self, content: Content, world: &mut World){
+        println!("putting content of type: {:?}", content);
         let any_usize = 50;
+<<<<<<< HEAD
         let destination = Destination::go_to_content(Content::Bank(0..any_usize));
         let result = Planner::planner(self, destination, world);
         match result {
@@ -193,11 +297,32 @@ impl LunaticRobot{
                 }
             }
             Err(e) => { self.planner_error_handler(e) }
+=======
+        //let destination = Destination::go_to_content(Content::Bank(0..any_usize));
+        //let result = Planner::planner(self, destination, world);
+        //self.path_executer(world, result, true, Some(content));
+        let destination;
+        let result;
+        if content == Coin(0){
+            //println!("destination for coin");
+            destination = Destination::go_to_content(Content::Bank(0..any_usize));
+>>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
         }
+        else{
+            //println!("destination for tree");
+            destination = Destination::go_to_content(Content::Crate(0..any_usize));
+        }
+        result = Planner::planner(self, destination, world);
+        self.path_executer(world, result, true, Some(content));
     }
     //handles the Result from the Collection tool for every method who calls the tool
+<<<<<<< HEAD
     pub fn collection_result_handler(&mut self, _res: Result<usize, LibErrorExtended>){
         //todo!()
+=======
+    pub fn collection_result_handler(&mut self, res: Result<usize, LibErrorExtended>){
+        println!("collection result: {:?}", res);
+>>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
     }
     //moves the robot to a tile close to other undiscovered tiles
     pub fn move_to_unexplored_land(&mut self, world: &mut World){
@@ -208,6 +333,7 @@ impl LunaticRobot{
             if let Some(tile_target) = target {
                 let destination = Destination::go_to_coordinate(tile_target);
                 let result = Planner::planner(self, destination, world);
+<<<<<<< HEAD
                 match result {
                     Ok(p) => {
                         match p{
@@ -230,14 +356,19 @@ impl LunaticRobot{
                     }
                     Err(e) => { self.planner_error_handler(e) }
                 }
+=======
+                self.path_executer(world, result, false, None);
+>>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
             }
         }
-        //todo!()
     }
     pub fn find_closest_undiscovered_tile(&mut self, world: &mut World) -> Option<(usize, usize)>{
+<<<<<<< HEAD
         //range where we are currently searching for the undiscovered tile
         let _range = 2usize;
 
+=======
+>>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
         let robot_x = self.get_coordinate().get_row();
         let robot_y = self.get_coordinate().get_col();
         //map as seen as the robot
@@ -300,12 +431,20 @@ impl LunaticRobot{
         }
         return None;
     }
+<<<<<<< HEAD
     pub fn op_map_handler(&mut self, _return_value: Option<OpActionOutput>){
         //todo!()
+=======
+    pub fn op_map_handler(&mut self, return_value: Option<OpActionOutput>){
+        println!("op_map return: {:?}", return_value);
+>>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
     }
     //methods that dictates the actions the robot is going to make
     pub fn routine(&mut self, world: &mut World){
+        //println!("robot coords: {:?}", (self.robot.coordinate.get_row(),self.robot.coordinate.get_col()));
+        //println!("lava status: {:?}", self.lava_coords);
         self.ticks += 1;
+<<<<<<< HEAD
         //the robot gets the max energy every tick
         self.replenish();
         self.exploration(Content::None, world);
@@ -326,6 +465,42 @@ impl LunaticRobot{
         }else{
             //println!("in night");
             self.night(world);
+=======
+        let (day_done, night_done) = self.work_done(world);
+        if day_done && night_done{
+            println!("SKIPPED TICK");
+            self.handle_event(Event::Terminated);
+        }
+        else{
+            //the robot gets the max energy every tick
+            self.replenish();
+            self.exploration(Content::None, world);
+            let environment = look_at_sky(world);
+            //println!("current weather: {:?}", environment.get_weather_condition());
+            //depending on the time of the day the robot will have different behaviour
+            if environment.get_time_of_day() == Afternoon{
+                // if it's sunny the robot won't collect coins, but he will simply have a walk (explore
+                // the world)
+                if environment.get_weather_condition() == Sunny && !day_done{
+                    println!("in sunny day routine");
+                    self.explore(world);
+                }else if !day_done{
+                    self.day(world);
+                }
+                else{
+                    println!("skipped day");
+                    //skip tick
+                    return;
+                }
+            }else if !night_done{
+                self.night(world);
+            }
+            else{
+                println!("skipped night");
+                //skip tick
+                return;
+            }
+>>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
         }
     }
 }
