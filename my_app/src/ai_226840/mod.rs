@@ -28,7 +28,7 @@ use rust_and_furious_dynamo::dynamo::Dynamo;
 use rustici_planner::tool::{Destination};
 use rustici_planner::tool::Planner;
 
-
+use rustici_planner::tool::PlannerResult;
 
 
 
@@ -55,18 +55,20 @@ pub struct MirtoRobot {
     pub tickets: usize,
     pub is_the_goal_woodworking: bool,
     pub used_spyglass: bool,
+    pub all_explored_in_wood_working_mode: bool,
 }
 
 impl MirtoRobot {
-    pub fn new(robot: Robot, is_the_goal_woodworking: bool) -> Self{
+    pub fn new(is_the_goal_woodworking: bool) -> Self{
         MirtoRobot {
-            robot,
+            robot: Robot::new(),
             audio_tool: OxAgAudioTool::new(Self::map_audio_with_event(), Self::map_audio_with_tile(), Self::map_audio_with_weather()).unwrap(),
             weather_prediction_tool:  WeatherPredictionTool::new(),
             tickets_to_wait: 8,
             tickets: 0,
             is_the_goal_woodworking,
             used_spyglass: false,
+            all_explored_in_wood_working_mode: false,
         }
     }
 
@@ -181,12 +183,12 @@ impl MirtoRobot {
         mapping
     }
 
-    pub fn recharge_all_energy(&mut self){
+    fn recharge_all_energy(&mut self){
         self.handle_event(Event::EnergyRecharged(1000-self.get_energy().get_energy_level()));
         *self.get_energy_mut() = Dynamo::update_energy();
     }
 
-    pub fn do_u_have_this_content(&self, content: Content) -> bool{
+    fn do_u_have_this_content(&self, content: Content) -> bool{
         let backpack = self.get_backpack().get_contents();
         for (c, q) in backpack{
             if *c == content && *q > 0{
@@ -196,7 +198,7 @@ impl MirtoRobot {
         return false;
     }
 
-    pub fn is_point_inside_map(i: i32, j: i32, size: i32) -> bool{
+    fn is_point_inside_map(i: i32, j: i32, size: i32) -> bool{
         if i >= 0 && i < size && j >= 0 && j < size{
             true
         }
@@ -205,7 +207,7 @@ impl MirtoRobot {
         }
     }
 
-    pub fn found_content(&mut self, world: &mut World, content: Content) -> bool{
+    fn found_content(&mut self, world: &mut World, content: Content) -> bool{
         let destination = Destination::go_to_content(content);
         let result = Planner::planner(self, destination, world);
         match result {
@@ -214,7 +216,7 @@ impl MirtoRobot {
         }
     }
 
-    pub fn finds_the_nearest_content_not_on_fluids(&self, world: &World, content: Content) -> Option<(Direction, usize, usize)>{
+    fn finds_the_nearest_content_not_on_fluids(&self, world: &World, content: Content) -> Option<(Direction, usize, usize)>{
         let map = robot_map(world).unwrap();
         let size = map.len();
         let i_robot = self.robot.coordinate.get_row();
@@ -282,7 +284,7 @@ impl MirtoRobot {
         None
     }
 
-    pub fn get_backpack_objects_number(&mut self) -> usize{
+    fn get_backpack_objects_number(&mut self) -> usize{
         let mut size = 0;
         let back_pack_contents = self.robot.backpack.get_contents();
         for (_content, quantity) in back_pack_contents{
@@ -291,7 +293,7 @@ impl MirtoRobot {
         size
     }
 
-    pub fn is_a_valid_tile_for_content(t: &TileType, content: &Content) -> bool{
+    fn is_a_valid_tile_for_content(t: &TileType, content: &Content) -> bool{
         if !Self::is_a_walkable_tile(t.clone()){
             false
         }
@@ -334,7 +336,7 @@ impl MirtoRobot {
         }
     }
 
-    pub fn empty_valid_content_around(&mut self, world: &mut World, content: &Content) -> Option<Vec<Direction>>{
+    fn empty_valid_content_around(&mut self, world: &mut World, content: &Content) -> Option<Vec<Direction>>{
         let around = where_am_i(self, world).0;
         let mut vec = vec![];
         match &around[1][0]{
@@ -377,7 +379,7 @@ impl MirtoRobot {
         }
     }
 
-    pub fn insert_objects_around(&mut self, world: &mut World){
+    fn insert_objects_around(&mut self, world: &mut World){
         let back_pack_contents = self.robot.backpack.get_contents().clone();
         for (content, quantity) in back_pack_contents{
             if quantity > 0 {
@@ -394,13 +396,13 @@ impl MirtoRobot {
         }
     }
 
-    pub fn is_a_walkable_tile(t: TileType) -> bool{
+    fn is_a_walkable_tile(t: TileType) -> bool{
         if t == Wall || t == DeepWater || t == Lava{
             return false;
         }
         return true;
     }
-    pub fn empty_your_backpack_with_a_walk(&mut self, world: &mut World, visited: &mut Vec<Vec<bool>>){
+    fn empty_your_backpack_with_a_walk(&mut self, world: &mut World, visited: &mut Vec<Vec<bool>>){
         self.recharge_all_energy();
 
         let map = robot_map(world).unwrap();
@@ -443,7 +445,7 @@ impl MirtoRobot {
         }
     }
 
-    pub fn empty_your_backpack(&mut self, world: &mut World){
+    fn empty_your_backpack(&mut self, world: &mut World){
         let map = robot_map(world).unwrap();
         let map_size = map.len();
         let mut visited = vec![vec![false; map_size] ; map_size];
@@ -465,7 +467,7 @@ impl MirtoRobot {
         self.empty_your_backpack_with_a_walk(world, &mut visited);
     }
 
-    pub fn explore_map(&mut self, world: &mut World){
+    fn explore_map(&mut self, world: &mut World){
         if !self.used_spyglass {
             let map_size = robot_map(world).unwrap().len();
             let mut spyglass = Spyglass::new(
@@ -505,7 +507,26 @@ impl MirtoRobot {
             self.recharge_all_energy();
             let map_size = robot_map(world).unwrap().len();
             let destination = Destination::explore(self.robot.energy.get_energy_level(), map_size);
-            let _result = Planner::planner(self, destination, world).err();
+            let result = Planner::planner(self, destination, world);
+            match result {
+                Ok(r) => {
+                    match r {
+                        PlannerResult::MapAllExplored => {
+                            if self.all_explored_in_wood_working_mode && !self.is_the_goal_woodworking{
+                                self.handle_event(Event::Terminated);
+                            }
+                            if self.is_the_goal_woodworking{
+                                self.all_explored_in_wood_working_mode = true;
+                            }
+                            else{
+                                self.all_explored_in_wood_working_mode = false;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                Err(e) => {}
+            }
         }
     }
 

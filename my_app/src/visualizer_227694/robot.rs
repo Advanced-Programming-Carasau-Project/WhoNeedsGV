@@ -39,7 +39,6 @@ fn spawn_robot(mut commands: Commands,scene_assets: Res<SceneAssets>,
 }
 fn fine_robot(mut game_data: ResMut<GameData>,
               mut clear_color: ResMut<ClearColor>,
-              mut query: Query<Entity,Without<Camera>>,
               mut commands: Commands,
 ){
     if !game_data.next_action{
@@ -50,9 +49,18 @@ fn fine_robot(mut game_data: ResMut<GameData>,
             if events_guard.len() != 0{
                 match &events_guard[0] {
                     Terminated => {
-                        for entity in query.iter_mut(){
-                            commands.entity(entity).despawn_recursive();
-                        }
+                        commands.spawn(NodeBundle {
+                            style: Style {
+                                width: Val::Percent(100.0),
+                                height: Val::Percent(100.0),
+                                position_type: PositionType::Relative,
+                                align_items: AlignItems::Center,
+                                flex_direction: FlexDirection::Column,
+                                ..default()
+                            },
+                            background_color: Color::BLACK.into(),
+                            ..default()
+                        });
                         commands.spawn(
                             TextBundle::from_section(
                                 "Robot terminated!",
@@ -75,7 +83,7 @@ fn fine_robot(mut game_data: ResMut<GameData>,
                         );
                         commands.spawn(
                             TextBundle::from_section(
-                                format!("\nObtaining {} points over {}. \nUsing {} game ticks in total",game_data.robot_data.points, game_data.robot_data.max_points, game_data.game_ticks),
+                                format!("\n\n\nObtaining {} points over {} \nUsing {} game ticks in total",game_data.robot_data.points, game_data.robot_data.max_points, game_data.game_ticks),
                                 TextStyle {
                                     font_size: 40.0,
                                     color: Color::rgb(1.0, 1.0, 1.0),
@@ -96,7 +104,7 @@ fn fine_robot(mut game_data: ResMut<GameData>,
                         clear_color.0 = Color::rgb(0.0,0.0,0.0); // bg color
                         game_data.autoplay = false;
                         game_data.next = 0;
-                        //TODO gestire gamedata per non avere casini
+                        game_data.terminated = true;
                         events_guard.remove(0);
                     }
                     _ => { return; }

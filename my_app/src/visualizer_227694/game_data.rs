@@ -91,6 +91,7 @@ pub(crate) struct GameData{ // a resource used to store all data concerning the 
     pub(crate) hided_content:(f32,f32), // used to hide the content under the robot
     pub(crate) content_visibility:bool,
     pub(crate) ai:bool, // True -> MirtoRobot - False -> LuaticRobot
+    pub(crate) terminated:bool,
 }
 #[derive(SystemSet,Debug,Hash,Eq, PartialEq,Clone)]
 pub enum MySet{ // in this way I ensure that Systems executed every frame are executed in parallel only in a non-conflictual way

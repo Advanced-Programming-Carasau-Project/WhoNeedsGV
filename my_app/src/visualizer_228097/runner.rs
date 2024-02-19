@@ -24,7 +24,7 @@ pub fn run(
     let robot: Box<dyn Runnable>;
 
     match game_info.ai {
-        true => { robot = Box::new(MirtoRobot::new(Robot::new(), false)) }
+        true => { robot = Box::new(MirtoRobot::new(false)) }
         false => { robot = Box::new(LunaticRobot::new()) }
     }
 

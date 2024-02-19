@@ -21,7 +21,7 @@ fn setup_artificial_intelligence(mut game_data: ResMut<GameData>, mut commands: 
 
 
     if game_data.ai{ //here I initialize the runner resource with right AI robot
-        let robot = MirtoRobot::new(Robot::new(), false);
+        let robot = MirtoRobot::new(false);
         run = Runner::new(Box::new(robot), &mut generator).unwrap();
     }else{
         let robot = LunaticRobot::new();
