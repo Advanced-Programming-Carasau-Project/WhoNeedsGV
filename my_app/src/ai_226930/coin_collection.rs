@@ -20,6 +20,11 @@ impl LunaticRobot{
                     LibErrorExtended::CommonError(_) => {}
                     LibErrorExtended::NoSolution => {
                         println!("no_solution for coin");
+                        if let Some(coin) = self.robot.backpack.get_contents().get(&Coin(0)){
+                            if coin.clone() > 0{
+                                self.put_content(Coin(0), world);
+                            }
+                        }
                         self.explore(world);
                     }
                     LibErrorExtended::RobotMapEmpty => {}
