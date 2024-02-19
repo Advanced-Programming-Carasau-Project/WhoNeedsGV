@@ -591,7 +591,7 @@ impl MirtoRobot {
 impl Runnable for MirtoRobot {
     fn process_tick(&mut self, world: &mut World) {
         self.make_next_thing(world);
-        self.print_robot_debug(world);
+        //self.print_robot_debug(world);
 
         let mut update_points = points.lock().unwrap();
         let mut update_robot_view = crate::robot_view.lock().unwrap();

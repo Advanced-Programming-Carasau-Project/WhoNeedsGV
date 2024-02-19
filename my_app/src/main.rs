@@ -25,7 +25,12 @@ use rocket::routes;
 use rocket::serde::json::Json;
 use rocket::serde::Serialize;
 use bevy::prelude::Resource;
+use robotics_lib::energy::Energy;
+use robotics_lib::interface::{get_score, robot_map};
+use robotics_lib::runner::backpack::BackPack;
+use robotics_lib::world::coordinates::Coordinate;
 use robotics_lib::world::environmental_conditions::EnvironmentalConditions;
+use robotics_lib::world::World;
 use crate::test_tool::run_test_tool;
 use rocket::yansi::Paint;
 
@@ -40,6 +45,7 @@ lazy_static! {
     pub static ref backpack_content: Mutex<HashMap<Content, usize>> = Mutex::new(HashMap::new());
     pub static ref events: Mutex<Vec<Event>> = Mutex::new(vec![]);
 }
+
 pub struct RunnerTagRocket(Mutex<Runner>);
 
 unsafe impl Sync for RunnerTagRocket {}
