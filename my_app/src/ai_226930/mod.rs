@@ -10,7 +10,13 @@ use ohcrab_weather::weather_tool::WeatherPredictionTool;
 use op_map::op_pathfinding::OpActionOutput;
 
 use oxagaudiotool::OxAgAudioTool;
+<<<<<<< Updated upstream
 
+=======
+use oxagaudiotool::sound_config::OxAgSoundConfig;
+use rand::{Rng, thread_rng};
+use rip_worldgenerator::MyWorldGen;
+>>>>>>> Stashed changes
 use robotics_lib::energy::Energy;
 use robotics_lib::event::events::Event;
 use robotics_lib::interface::{Direction, get_score, go, look_at_sky, put, robot_map, teleport};
@@ -20,12 +26,20 @@ use robotics_lib::world::coordinates::Coordinate;
 use robotics_lib::world::environmental_conditions::DayTime::Night;
 use robotics_lib::world::environmental_conditions::WeatherType::Sunny;
 use robotics_lib::world::tile::{Content, TileType};
+<<<<<<< Updated upstream
 
+=======
+use robotics_lib::world::tile::Content::{Coin, Rock, Tree};
+>>>>>>> Stashed changes
 use robotics_lib::world::World;
 use rust_and_furious_dynamo::dynamo::Dynamo;
 use rustici_planner::tool::{Action, Destination, Planner, PlannerError, PlannerResult};
 use spyglass::spyglass::{Spyglass, SpyglassResult};
+<<<<<<< Updated upstream
 use crate::{backpack_content, energy, events, points, positions, robot_view};
+=======
+use crate::SerEvent::Terminated;
+>>>>>>> Stashed changes
 
 
 //checks if a certain tuple of coordinates is inside the map
@@ -37,13 +51,28 @@ pub fn valid_coords(x:i32, y:i32, size:i32) -> bool{
         true
     }
 }
+//assigns to some events a sound to be reproduced when that even is triggered
+pub fn populate_sound() -> HashMap<Event, OxAgSoundConfig>{
+    let mut map = HashMap::new();
+    map.insert(Event::Terminated, OxAgSoundConfig::new("./sounds/terminated.mp3"));
+    //loops around every possible quantity of content to assign the sound to all of them
+    for quantity in 0..=20{
+        //sounds picking something off the ground
+        map.insert(Event::AddedToBackpack(Coin(0), quantity), OxAgSoundConfig::new("./sounds/coins-sound.mp3"));
+        map.insert(Event::AddedToBackpack(Rock(0), quantity), OxAgSoundConfig::new("./sounds/breaking-rock-sound.mp3"));
+        //sounds for dropping something off (Minecraft reference)
+        map.insert(Event::RemovedFromBackpack(Coin(0), quantity), OxAgSoundConfig::new("./sounds/drop-item-sound.mp3"));
+        map.insert(Event::RemovedFromBackpack(Rock(0), quantity), OxAgSoundConfig::new("./sounds/drop-item-sound.mp3"));
+
+    }
+    return  map;
+}
 
 
 pub struct LunaticRobot {
     pub robot: Robot,
     pub audio: OxAgAudioTool,
     pub lava_coords: Option<(usize, usize, Direction)>,
-    pub weather_tool: WeatherPredictionTool,
     pub ticks: usize,
     pub must_empty: bool
 
@@ -52,9 +81,8 @@ impl LunaticRobot{
     pub fn new() -> LunaticRobot{
         LunaticRobot{
             robot: Robot::new(),
-            audio: OxAgAudioTool::new(HashMap::new(),HashMap::new(),HashMap::new()).unwrap(),
+            audio: OxAgAudioTool::new(populate_sound(),HashMap::new(),HashMap::new()).unwrap(),
             lava_coords: None,
-            weather_tool: WeatherPredictionTool::new(),
             ticks: 0,
             must_empty: false
         }
@@ -64,8 +92,87 @@ impl LunaticRobot{
         *self.get_energy_mut() = Dynamo::update_energy();
         self.handle_event(Event::EnergyRecharged(1000));
     }
+<<<<<<< Updated upstream
     //makes the robot explore the world as long as he has energy
     pub fn exploration(&mut self, _content: Content, world: &mut World){
+=======
+    pub fn empty(&mut self, world: &mut World){
+        println!("EMPTY ROUTINE");
+        let contents = self.robot.backpack.get_contents().clone();
+        let mut iterations = 0;
+        while self.get_remaining_backpack_space() < 10 && iterations < 10{
+            //println!("empty routine loop");
+            for (content, quantity) in contents.iter(){
+                //println!("content {:?}", content);
+                if *quantity > 0usize{
+                    //println!("inside empty if");
+                    self.replenish();
+                    self.put_content((*content).clone(), world);
+                }
+            }
+            iterations += 1;
+        }
+        self.must_empty = false;
+    }
+
+    pub fn work_done(&mut self, world: &mut World) -> (bool,bool){
+        let mut day_done = false;
+        let mut night_done = false;
+        //number of unexplored tiles
+        let mut none_num = 0;
+        let threshold = 0.20;
+        if let Some(known_map) = robot_map(world){
+            let size = known_map.len();
+            for i in 0..size{
+                for j in 0..size{
+                    if known_map[i][j].is_none(){
+                        none_num += 1;
+                    }
+                }
+            }
+            if (none_num as f64) / ((size*size) as f64) < threshold{
+                //checks if there are still coins or trees in the world if not it returns that the
+                //job of the robot for that time of the day is done
+                let destination_day = Destination::go_to_content(Coin(0));
+                let result = Planner::planner(self, destination_day, world);
+                match result {
+                    Ok(_) => {}
+                    Err(e) => {
+                        match e{
+                            PlannerError::NoContent => {day_done = true;}
+                            _ => {}
+                        }
+                    }
+                }
+                if self.lava_coords == None{
+                    if self.search_lava(world) == None{
+                        night_done = true;
+                    }
+                }
+                else{
+                    let c = self.lava_coords.clone().unwrap();
+                    //println!("lava cord now: {:?}", known_map[c.0][c.1].clone().unwrap());
+                }
+                let destination_night = Destination::go_to_content(Content::Rock(0));
+                let result = Planner::planner(self, destination_night, world);
+                match result {
+                    Ok(_) => {}
+                    Err(e) => {
+                        match e{
+                            PlannerError::NoContent => {night_done = true;}
+                            _ => {}
+                        }
+                    }
+                }
+            }
+            //println!("percentuale di mondo non scoperta: {}", (none_num as f64) / ((size*size) as f64))
+        }
+        //println!("day: {} and night: {}", day_done, night_done);
+        return (day_done,night_done);
+    }
+    //makes the robot explore the world as long as he has energy
+    pub fn exploration(&mut self, content: Content, world: &mut World){
+>>>>>>> Stashed changes
         //println!("spyglass exploration");
         let map = robot_map(world).unwrap();
         let map_size = map.len();
@@ -85,18 +192,33 @@ impl LunaticRobot{
             1.0,
             |_| false,
         );
-        let spy_return = spy_glass.new_discover(self, world);
-        self.spy_glass_error_handler(&spy_return);
-        //TO BE CONTINUED
+        spy_glass.new_discover(self, world);
     }
     pub fn move_to_coords(&mut self, coords: (usize, usize), world: &mut World){
         let destination = Destination::go_to_coordinate(coords);
         let result = Planner::planner(self, destination, world);
+<<<<<<< Updated upstream
         match result {
             Ok(p) => {
                 match p{
                     PlannerResult::Path((actions,_cost)) => {
                         //TODO check on cost, and break the action in multiple ticks
+=======
+        self.path_executer(world, result, false, None);
+    }
+    //takes a planner_tool path and does every action of it, if it's needed to put a content at the
+    //end, saves the last move and instead of moving on that tile it calls the put interface
+    pub fn path_executer(&mut self, world: &mut World, result: Result<PlannerResult, PlannerError>, is_put: bool, cont: Option<Content>){
+        println!("executing path");
+        let mut last_move = None;
+        match result {
+            Ok(p) => {
+                match p{
+                    PlannerResult::Path((mut actions,cost)) => {
+                        if is_put{
+                            last_move = actions.pop();
+                        }
+>>>>>>> Stashed changes
                         for i in 0..actions.len(){
                             self.replenish();
                             match &actions[i]{
@@ -108,13 +230,27 @@ impl LunaticRobot{
                                 }
                             }
                         }
+<<<<<<< Updated upstream
+=======
+                        if let Some(content) = cont{
+                            match last_move.unwrap(){
+                                Action::Move(d) => {
+                                    let quantity = self.get_content_quantity(&content);
+                                    put(self, world, content, quantity, d);
+                                    //thread::sleep(Duration::from_millis(200));
+                                }
+                                Action::Teleport(_) => {}
+                            }
+                        }
+>>>>>>> Stashed changes
                     }
                     _ => { /*println!("planner path not a path")*/}
                 }
             }
-            Err(e) => { self.planner_error_handler(e) }
+            Err(e) => {println!("pathexecuter error {:?}", e) }
         }
     }
+<<<<<<< Updated upstream
     pub fn spy_glass_error_handler(&mut self, result: &SpyglassResult){
         //PROVVISORIO
         match result{
@@ -131,15 +267,14 @@ impl LunaticRobot{
     pub fn is_content_available(&self, _content: Content){
         //todo!()
     }
+=======
+>>>>>>> Stashed changes
     pub fn explore(&mut self, world: &mut World){
         //println!("Free exploring...");
         let map_size = robot_map(world).unwrap().len();
-        //decide what kind of planner i am going to use
+        //decide what kind of planner I am going to use
         let destination = Destination::explore(self.robot.energy.get_energy_level(), map_size);
-        let result = Planner::planner(self, destination, world);
-        if let Err(r) = result{
-            self.planner_error_handler(r);
-        }
+        Planner::planner(self, destination, world);
     }
     //returns the free space in the backpack
     pub fn get_remaining_backpack_space(&mut self) -> usize{
@@ -160,6 +295,7 @@ impl LunaticRobot{
     }
     // puts the decided content on the desired tile
     pub fn put_content(&mut self, content: Content, world: &mut World){
+<<<<<<< Updated upstream
         let any_usize = 50;
         let destination = Destination::go_to_content(Content::Bank(0..any_usize));
         let result = Planner::planner(self, destination, world);
@@ -199,6 +335,23 @@ impl LunaticRobot{
     pub fn collection_result_handler(&mut self, _res: Result<usize, LibErrorExtended>){
         //todo!()
     }
+=======
+        //println!("putting content of type: {:?}", content);
+        let any_usize = 50;
+        let destination;
+        let result;
+        if content == Coin(0){
+            destination = Destination::go_to_content(Content::Bank(0..any_usize));
+        }
+        else{
+            //println!("inside put content non-coin");
+            destination = Destination::go_to_content(Content::None);
+        }
+        result = Planner::planner(self, destination, world);
+        self.path_executer(world, result, true, Some(content));
+    }
+
+>>>>>>> Stashed changes
     //moves the robot to a tile close to other undiscovered tiles
     pub fn move_to_unexplored_land(&mut self, world: &mut World){
         let target = self.find_closest_undiscovered_tile(world);
@@ -234,6 +387,7 @@ impl LunaticRobot{
         }
         //todo!()
     }
+    //Does a BFS on the tile map to find the closest unvisited tile relative to the robot position
     pub fn find_closest_undiscovered_tile(&mut self, world: &mut World) -> Option<(usize, usize)>{
         //range where we are currently searching for the undiscovered tile
         let _range = 2usize;
@@ -300,12 +454,17 @@ impl LunaticRobot{
         }
         return None;
     }
+<<<<<<< Updated upstream
     pub fn op_map_handler(&mut self, _return_value: Option<OpActionOutput>){
         //todo!()
     }
+=======
+
+>>>>>>> Stashed changes
     //methods that dictates the actions the robot is going to make
     pub fn routine(&mut self, world: &mut World){
         self.ticks += 1;
+<<<<<<< Updated upstream
         //the robot gets the max energy every tick
         self.replenish();
         self.exploration(Content::None, world);
@@ -322,12 +481,57 @@ impl LunaticRobot{
             }else{
                 //println!("in day routine");
                 self.day(world);
+=======
+        //skips some ticks to make the time go on faster
+        let mut rng = thread_rng();
+        let dice:i32 = rng.gen_range(0..3);
+        if  dice == 0{
+            return;
+        }
+        let (day_done, night_done) = self.work_done(world);
+        if day_done && night_done{
+            println!("TERMINATED");
+            self.handle_event(Event::Terminated);
+        }
+        else{
+            if self.must_empty{
+                self.empty(world);
+            }
+            //the robot gets the max energy every tick
+            self.replenish();
+            self.exploration(Content::None, world);
+            let environment = look_at_sky(world);
+            //println!("current weather: {:?}", environment.get_weather_condition());
+            //depending on the time of the day the robot will have different behaviour
+            if environment.get_time_of_day() != Night{
+                // if it's sunny the robot won't collect coins, but he will simply have a walk (explore
+                // the world)
+                if environment.get_weather_condition() == Sunny && !day_done{
+                    //println!("in sunny day routine");
+                    self.explore(world);
+                }else if !day_done{
+                    self.day(world);
+                }
+                else{
+                    //println!("skipped day");
+                    //skip tick
+                    return;
+                }
+            }else if !night_done{
+                self.night(world);
+            }
+            else{
+                //println!("skipped night");
+                //skip tick
+                return;
+>>>>>>> Stashed changes
             }
         }else{
             //println!("in night");
             self.night(world);
         }
     }
+<<<<<<< Updated upstream
 }
 impl Runnable for LunaticRobot {
     fn process_tick(&mut self, world: &mut World) {
@@ -374,3 +578,6 @@ impl Runnable for LunaticRobot {
 mod tests{
 
 }
+=======
+}
+>>>>>>> Stashed changes
