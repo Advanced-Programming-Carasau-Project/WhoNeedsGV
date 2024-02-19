@@ -1,6 +1,4 @@
 use std::collections::VecDeque;
-use std::thread;
-use std::time::Duration;
 use op_map::op_pathfinding::{get_best_action_to_element, OpActionInput, OpActionOutput, ShoppingList};
 use robotics_lib::interface::{destroy, Direction, go, put, robot_map};
 use robotics_lib::interface::Direction::{Down, Left, Right, Up};
@@ -23,7 +21,6 @@ impl LunaticRobot{
             }
         }
         else{
-<<<<<<< Updated upstream
             let mut shopping_list = ShoppingList {
                 list: vec![
                     (Scarecrow, Some(OpActionInput::Destroy())),
@@ -31,26 +28,11 @@ impl LunaticRobot{
             };
 
             while self.get_remaining_backpack_space() > 0 {
-=======
-            while self.get_remaining_backpack_space() > 5 {
-                let mut shopping_list = ShoppingList {
-                    list: vec![
-                        (Rock(0), Some(OpActionInput::Destroy())),
-                    ],
-                };
->>>>>>> Stashed changes
                 let mut chicken_found = false;
                 while !chicken_found {
-                    let mut iterations = 0;
-                    println!("before match op_map with {} itarations", iterations);
-                    iterations += 1;
                     // Get the best move
                     match get_best_action_to_element(self, world, &mut shopping_list) {
                         None => {
-<<<<<<< Updated upstream
-=======
-                            //println!("no move from op_map found");
->>>>>>> Stashed changes
                             self.explore(world);
                             //if there are no chickens, I explore and then exit the routine
                             return;
@@ -63,15 +45,7 @@ impl LunaticRobot{
                                 }
                                 OpActionOutput::Destroy(dir) => {
                                     // println!("Destroy");
-<<<<<<< Updated upstream
                                     destroy(self, world, dir);
-=======
-                                    let res = destroy(self, world, dir);
-                                    if res.is_err(){
-                                        return;
-                                    }
-                                    //thread::sleep(Duration::from_millis(200));
->>>>>>> Stashed changes
                                     chicken_found = true;
                                 }
                                 _ => {}
@@ -80,7 +54,6 @@ impl LunaticRobot{
                     }
                 }
             }
-<<<<<<< Updated upstream
             if let Some(lava_unwrap) = &self.lava_coords{
                 let lava = (lava_unwrap.0, lava_unwrap.1);
                 let direction = lava_unwrap.2.clone();
@@ -88,42 +61,18 @@ impl LunaticRobot{
                 self.replenish();
                 let scarecrow_quantity = self.get_content_quantity(&Scarecrow);
                 put(self, world,Scarecrow,scarecrow_quantity, direction);
-=======
-            loop{
-                //println!("in lava loop");
-                if let Some(lava_unwrap) = &self.lava_coords{
-                    let lava = (lava_unwrap.0, lava_unwrap.1);
-                    let direction = lava_unwrap.2.clone();
-                    self.move_to_coords(lava, world);
-                    //self.replenish();
-                    let chicken_quantity = self.get_content_quantity(&Rock(0));
-                    let res = put(self, world,Rock(0),chicken_quantity, direction);
-                    if let Ok(done) = res{
-                        self.lava_coords = self.search_lava(world);
-                    }
-                    else{
-                        break;
-                    }
+            }
 
-                }
-                else{
-                    break;
-                }
-            }
-            if self.get_remaining_backpack_space() < 5{
-                self.must_empty = true;
->>>>>>> Stashed changes
-            }
+
+
+
         }
     }
     pub fn search_lava(&mut self, world: &mut World) -> Option<(usize, usize, Direction)>{
         //println!("looking for lava");
-<<<<<<< Updated upstream
         //range where we are currently searching for the undiscovered tile
         let _range = 2usize;
 
-=======
->>>>>>> Stashed changes
         let robot_x = self.get_coordinate().get_row();
         let robot_y = self.get_coordinate().get_col();
         //map as seen as the robot
