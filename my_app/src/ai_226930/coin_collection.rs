@@ -5,11 +5,11 @@ use crate::LunaticRobot;
 
 impl LunaticRobot{
     pub fn day(&mut self, world: &mut World){
-        println!("COIN ROUTINE");
+        //println!("COIN ROUTINE");
         let result = CollectTool::collect_content(self, world, &Coin(1), 20, self.robot.energy.get_energy_level());
         match result{
             Ok(_quantity) => {
-                println!("coin trovate");
+                //println!("coin trovate");
                 if self.get_remaining_backpack_space() < 5{
                     self.must_empty = true;
                 }
@@ -19,7 +19,7 @@ impl LunaticRobot{
                 match err{
                     LibErrorExtended::CommonError(_) => {}
                     LibErrorExtended::NoSolution => {
-                        println!("no_solution for coin");
+                        //println!("no_solution for coin");
                         self.explore(world);
                     }
                     LibErrorExtended::RobotMapEmpty => {}

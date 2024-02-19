@@ -13,7 +13,7 @@ use crate::ai_226930::valid_coords;
 
 impl LunaticRobot{
     pub fn night(&mut self, world: &mut World){
-        println!("NIGHT ROUTINE");
+        //println!("NIGHT ROUTINE");
         if self.lava_coords.is_none(){
             self.explore(world);
             if let Some(lava) = self.search_lava(world){
@@ -69,7 +69,7 @@ impl LunaticRobot{
         }
     }
     pub fn search_lava(&mut self, world: &mut World) -> Option<(usize, usize, Direction)>{
-        println!("looking for lava");
+        //println!("looking for lava");
         //range where we are currently searching for the undiscovered tile
         let _range = 2usize;
 

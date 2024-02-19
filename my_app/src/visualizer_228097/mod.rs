@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::app::App;
 use bevy::DefaultPlugins;
+use bevy::window::WindowMode;
 use robotics_lib::world::environmental_conditions::{EnvironmentalConditions, WeatherType};
 use components::GameInfo;
 use crate::visualizer_228097::robot::RobotPlugin;
@@ -30,12 +31,12 @@ pub mod runner;
 
 use crate::visualizer_228097::world::WorldPlugin;
 //pub const WINDOW_HEIGHT:f32 = (world_size * 10) as f32;
-pub const WINDOW_HEIGHT:f32 = 500.0;
-pub const WINDOW_WIDTH:f32 = WINDOW_HEIGHT + (WINDOW_HEIGHT * 2.0 / 3.0);
+//pub const WINDOW_HEIGHT:f32 = 800.0;
+//pub const WINDOW_WIDTH:f32 = WINDOW_HEIGHT + (WINDOW_HEIGHT * 2.0 / 3.0);
 
 pub fn avvia_app(robot: bool){
     App::new()
-        .add_plugins(DefaultPlugins)
+
 
         .insert_resource(GameInfo {
             environmental_condition: EnvironmentalConditions::new(&[WeatherType::Rainy], 0, 0).unwrap(),
@@ -43,6 +44,8 @@ pub fn avvia_app(robot: bool){
             first_interaction: true,
             ai: robot
         })
+
+        .add_plugins(DefaultPlugins)
 
         .add_event::<Ready>()
         .add_event::<Terminated>()
@@ -70,8 +73,10 @@ pub fn avvia_app(robot: bool){
 pub fn set_window(mut windows: Query<&mut Window>){
     //println!("Dentro set_window");
     let mut window = windows.single_mut();
-    window.resolution.set(WINDOW_WIDTH, WINDOW_HEIGHT);
+    //window.resolution.set(WINDOW_WIDTH, WINDOW_HEIGHT);
     window.resizable = false;
+    window.title = "228097-Visualizer".to_string();
+    window.mode = WindowMode::Fullscreen;
 }
 
 

@@ -12,7 +12,7 @@ pub fn spawn_backpack(asset_server: &AssetServer, menu: &mut ChildBuilder){
     menu.spawn(NodeBundle {
         style: Style {
             width: Val::Percent(100.0),
-            height: Val::Percent(40.0),
+            height: Val::Percent(44.0),
             position_type: PositionType::Relative,
             align_items: AlignItems::Center,
             flex_direction: FlexDirection::Column,
@@ -45,8 +45,8 @@ fn spawn_title(asset_server: &AssetServer, backpack: &mut ChildBuilder){
                 sections: vec![TextSection::new(
                     "         Backpack",
                     TextStyle {
-                        font_size: 45.0,
-                        color: Color::BLACK,
+                        font_size: 58.0,
+                        color: Color::WHITE,
                         font: asset_server.load("font/Country_Wedding.ttf").into(),
                     },
                 )],
@@ -114,7 +114,7 @@ fn spawn_item(asset_server: &AssetServer, menu_items: &mut ChildBuilder, content
             "0",
             TextStyle{
                 font_size: 50.0,
-                color: Color::BLACK,
+                color: Color::WHITE,
                 font: asset_server.load("font/Country_Wedding.ttf").into(),
             },
         )],

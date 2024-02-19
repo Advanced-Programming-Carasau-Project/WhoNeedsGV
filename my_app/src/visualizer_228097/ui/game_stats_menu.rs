@@ -12,7 +12,7 @@ pub fn spawn_game_stats(asset_server: &AssetServer, menu: &mut ChildBuilder, gam
     menu.spawn(NodeBundle {
         style: Style {
             width: Val::Percent(100.0),
-            height: Val::Percent(30.0),
+            height: Val::Percent(22.0),
             position_type: PositionType::Relative,
             flex_direction: FlexDirection::Row, //dispongo i figli in un'unica grande riga
             column_gap: Val::Percent(1.0),

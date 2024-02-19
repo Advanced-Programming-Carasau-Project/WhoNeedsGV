@@ -1,7 +1,7 @@
 use bevy::asset::AssetServer;
 use bevy::prelude::*;
 use bevy::prelude::{Camera2dBundle, Commands, NodeBundle, Res, ResMut, Style, Val};
-use crate::visualizer_228097::{WINDOW_HEIGHT, WINDOW_WIDTH};
+//use crate::visualizer_228097::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use crate::visualizer_228097::components::GameInfo;
 use crate::visualizer_228097::ui::grid::grid;
 use crate::visualizer_228097::ui::backpack_menu::spawn_backpack;
@@ -27,7 +27,7 @@ pub fn generate_ui(
         //-------------Menu-------------------------
         parent.spawn(NodeBundle {
             style: Style {
-                width: Val::Px(WINDOW_WIDTH-WINDOW_HEIGHT),
+                width: Val::Percent(35.0) ,
                 height: Val::Percent(100.0),
                 position_type: PositionType::Relative,
                 flex_direction: FlexDirection::Column,

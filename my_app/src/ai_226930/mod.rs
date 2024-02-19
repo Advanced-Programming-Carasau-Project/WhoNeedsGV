@@ -66,7 +66,7 @@ impl LunaticRobot{
     }
     //makes the robot explore the world as long as he has energy
     pub fn exploration(&mut self, _content: Content, world: &mut World){
-        println!("spyglass exploration");
+        //println!("spyglass exploration");
         let map = robot_map(world).unwrap();
         let map_size = map.len();
         let distance;
@@ -109,7 +109,7 @@ impl LunaticRobot{
                             }
                         }
                     }
-                    _ => {println!("planner path not a path")}
+                    _ => { /*println!("planner path not a path")*/}
                 }
             }
             Err(e) => { self.planner_error_handler(e) }
@@ -118,10 +118,10 @@ impl LunaticRobot{
     pub fn spy_glass_error_handler(&mut self, result: &SpyglassResult){
         //PROVVISORIO
         match result{
-            SpyglassResult::Complete(_) => {println!("SPYGLASS: Complete")}
-            SpyglassResult::Stopped(_) => {println!("SPYGLASS: Stopped")}
-            SpyglassResult::Paused => {println!("SPYGLASS: Paused")}
-            SpyglassResult::Failed(x) => {println!("SPYGLASS: Failed with {:?}",x)}
+            SpyglassResult::Complete(_) => {/*println!("SPYGLASS: Complete")*/}
+            SpyglassResult::Stopped(_) => {/*println!("SPYGLASS: Stopped")*/}
+            SpyglassResult::Paused => {/*println!("SPYGLASS: Paused")*/}
+            SpyglassResult::Failed(x) => {/*println!("SPYGLASS: Failed with {:?}",x)*/}
         }
         //PROVVISORIO
     }
@@ -132,7 +132,7 @@ impl LunaticRobot{
         //todo!()
     }
     pub fn explore(&mut self, world: &mut World){
-        println!("Free exploring...");
+        //println!("Free exploring...");
         let map_size = robot_map(world).unwrap().len();
         //decide what kind of planner i am going to use
         let destination = Destination::explore(self.robot.energy.get_energy_level(), map_size);
@@ -189,7 +189,7 @@ impl LunaticRobot{
                         }
 
                     }
-                    _ => {println!("planner path not a path")}
+                    _ => {/*println!("planner path not a path")*/}
                 }
             }
             Err(e) => { self.planner_error_handler(e) }
@@ -225,7 +225,7 @@ impl LunaticRobot{
                                     }
                                 }
                             }
-                            _ => {println!("planner path not a path")}
+                            _ => {/*println!("planner path not a path")*/}
                         }
                     }
                     Err(e) => { self.planner_error_handler(e) }
@@ -310,21 +310,21 @@ impl LunaticRobot{
         self.replenish();
         self.exploration(Content::None, world);
         let environment = look_at_sky(world);
-        println!("current weather: {:?}", environment.get_weather_condition());
+        //println!("current weather: {:?}", environment.get_weather_condition());
         //depending on the time of the day the robot will have different behaviour
         if environment.get_time_of_day() != Night{
-            println!("in day");
+            //println!("in day");
             // if it's sunny the robot won't collect coins, but he will simply have a walk (explore
             // the world)
             if environment.get_weather_condition() == Sunny{
-                println!("in sunny day routine");
+                //println!("in sunny day routine");
                 self.explore(world);
             }else{
-                println!("in day routine");
+                //println!("in day routine");
                 self.day(world);
             }
         }else{
-            println!("in night");
+            //println!("in night");
             self.night(world);
         }
     }

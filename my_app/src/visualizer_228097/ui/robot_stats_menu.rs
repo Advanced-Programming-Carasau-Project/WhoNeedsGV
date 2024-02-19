@@ -14,7 +14,7 @@ pub fn spawn_robot_stats(
 
     menu.spawn(NodeBundle {
         style: Style {
-            width: Val::Percent(70.0),
+            width: Val::Percent(75.0),
             height:  Val::Percent(100.0),
             position_type: PositionType::Relative,
             flex_direction: FlexDirection::Column,
@@ -72,7 +72,7 @@ fn spawn_stats_menu(asset_server: &AssetServer, component: impl Component, robot
                 sections: vec![TextSection::new(
                     format!("      {}", text),
                     TextStyle {
-                        font_size: 20.0,
+                        font_size: 25.0,
                         color: Color::WHITE,
                         font: asset_server.load("font/FiraSans-Bold.ttf").into(),
                     },
@@ -91,7 +91,7 @@ fn spawn_stats_menu(asset_server: &AssetServer, component: impl Component, robot
                 sections: vec![TextSection::new(
                     "",
                     TextStyle {
-                        font_size: 20.0,
+                        font_size: 25.0,
                         color: Color::WHITE,
                         font: asset_server.load("font/FiraSans-Bold.ttf").into(),
                     },
@@ -116,21 +116,21 @@ fn spawn_energy_menu(asset_server: &AssetServer, robot_stats: &mut ChildBuilder)
         },
         text: Text {
             sections: vec![TextSection::new(
-                "----------------------------------",
+                "-------------------------------------------------",
                 TextStyle {
                     font_size: 20.0,
                     color: Color::WHITE,
                     font: asset_server.load("font/FiraSans-Bold.ttf").into(),
                 },
             ), TextSection::new(
-                "\nEnergy: 100% (1000)\n",
+                "\n\t\t\tEnergy: 100% (1000)\n",
                 TextStyle {
                     font_size: 30.0,
                     color: Color::WHITE,
                     font: asset_server.load("font/FiraSans-Bold.ttf").into(),
                 },
             ), TextSection::new(
-                "----------------------------------",
+                "-------------------------------------------------",
                 TextStyle {
                     font_size: 20.0,
                     color: Color::WHITE,

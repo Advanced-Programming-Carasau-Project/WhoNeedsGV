@@ -4,10 +4,11 @@ use bevy::ecs::system::ResMut;
 use robotics_lib::event::events::Event;
 
 use bevy::prelude::*;
+use robotics_lib::world::tile::TileType;
 use crate::visualizer_228097::components::{GameInfo};
 use crate::visualizer_228097::events::*;
 use crate::visualizer_228097::stats::components::N_EVENT_IN_LOG;
-use crate::RunnerTag;
+pub use crate::RunnerTag;
 use crate::events as EVENTS;
 use crate::positions as POSITIONS;
 use crate::energy as ENERGY;
@@ -15,7 +16,6 @@ use crate::energy as ENERGY;
 pub fn update(
     mut game_info: ResMut<GameInfo>,
     mut runner: ResMut<RunnerTag>,
-
     mut ew_ready: EventWriter<Ready>,
     mut ew_terminated: EventWriter<Terminated>,
     mut ew_time_changed: EventWriter<TimeChanged>,
@@ -61,7 +61,7 @@ pub fn update(
                     Event::Ready => {
                         //println!("Il robot è pronto -> {:?}", e);
                         //app_state_next_state.set(AppState::RobotIsReady);
-                        ew_ready.send( Ready { } );
+                        //ew_ready.send( Ready { } );
 
                         let mut str_builder = String::from("Robot is spawned in [");
                         str_builder.push_str(update_positions.0.to_string().as_str());
@@ -164,7 +164,11 @@ pub fn update(
                             str_builder.push_str("][");
                             str_builder.push_str(position.1.to_string().as_str());
                             str_builder.push_str("] (");
-                            str_builder.push_str(format!("{:?}", tile.tile_type).as_str());
+                            match tile.tile_type {
+                                TileType::DeepWater => { str_builder.push_str("Deep_W"); }
+                                TileType::ShallowWater => { str_builder.push_str("Shallow_W"); }
+                                _ => { str_builder.push_str(format!("{:?}", tile.tile_type).as_str()); }
+                            }
                             str_builder.push_str(")\n");
                         }
                         last_event = str_builder;

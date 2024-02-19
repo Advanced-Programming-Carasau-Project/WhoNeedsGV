@@ -12,7 +12,7 @@ pub fn spawn_environment_stats_menu(
 ){
     menu.spawn(NodeBundle {
         style: Style {
-            width: Val::Percent(30.0),
+            width: Val::Percent(25.0),
             height: Val::Percent(100.0),
             position_type: PositionType::Relative,
             flex_direction: FlexDirection::Column,
@@ -38,9 +38,9 @@ pub fn spawn_environment_stats_menu(
             style: style1.clone(),
             text: Text {
                 sections: vec![TextSection::new(
-                    format!("      {:?}", game_info.environmental_condition.get_time_of_day()),
+                    format!("       {:?}", game_info.environmental_condition.get_time_of_day()),
                     TextStyle {
-                        font_size: 20.0,
+                        font_size: 22.0,
                         color: Color::WHITE,
                         font: asset_server.load("font/FiraSans-Bold.ttf").into(),
                     },
@@ -59,9 +59,9 @@ pub fn spawn_environment_stats_menu(
                 style: style1.clone(),
                 text: Text {
                     sections: vec![TextSection::new(
-                        format!("      {:?}", game_info.environmental_condition.get_time_of_day_string()),
+                        format!("    {:?}", game_info.environmental_condition.get_time_of_day_string()),
                         TextStyle {
-                            font_size: 20.0,
+                            font_size: 22.0,
                             color: Color::WHITE,
                             font: asset_server.load("font/FiraSans-Bold.ttf").into(),
                         },

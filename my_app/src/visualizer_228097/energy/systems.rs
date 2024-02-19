@@ -13,7 +13,7 @@ pub fn update_energy(
 
             let percentage = event.total_energy as f32 / 10.0;
 
-            let mut tmp = String::from("\nEnergy: ");
+            let mut tmp = String::from("\n\t\t\tEnergy: ");
             tmp.push_str(percentage.to_string().as_str());
             tmp.push_str("% (");
             tmp.push_str(event.total_energy.to_string().as_str());

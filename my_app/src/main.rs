@@ -184,7 +184,7 @@ const world_size: usize = 64;
 
 
 #[derive(Resource)]
-pub(crate) struct RunnerTag(pub(crate) Runner);
+pub struct RunnerTag(pub(crate) Runner);
 unsafe impl Sync for RunnerTag {}
 unsafe impl Send for RunnerTag {}
 

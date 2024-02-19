@@ -7,7 +7,7 @@ use crate::visualizer_228097::stats::components::N_EVENT_IN_LOG;
 
 pub fn spawn_log(asset_server: &AssetServer, menu: &mut ChildBuilder){
     let style_log = TextStyle {
-        font_size: 15.0,
+        font_size: 22.0,
         color: Color::BLACK,
         font: asset_server.load("font/FiraSans-Bold.ttf").into()
     };
@@ -19,13 +19,14 @@ pub fn spawn_log(asset_server: &AssetServer, menu: &mut ChildBuilder){
     menu.spawn((TextBundle {
         style: Style {
             width: Val::Percent(100.0),
-            height: Val::Percent(30.0),
+            height: Val::Percent(34.0),
             position_type: PositionType::Relative,
             ..default()
         },
         text: Text {
             sections: v,
             alignment: TextAlignment::Left,
+
             ..default()
         },
         background_color: Color::BEIGE.into(),

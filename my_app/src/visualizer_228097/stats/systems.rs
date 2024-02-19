@@ -1,4 +1,5 @@
-use bevy::prelude::{EventReader, Query, ResMut, Text, With};
+use bevy::prelude::{EventReader, Query, ResMut, Text, TextStyle, With};
+use bevy::utils::default;
 use robotics_lib::world::environmental_conditions::DayTime;
 use crate::visualizer_228097::components::{GameInfo};
 use crate::points as POINTS;
@@ -12,7 +13,7 @@ pub fn update_hour(
 {
     for event in er_time_changed.read() {
         if let Ok(mut t) = query.get_single_mut() {
-            let mut str_builder = String::from("      ");
+            let mut str_builder = String::from("       ");
             str_builder.push_str(event.new_environmental_conditions.get_time_of_day_string().as_str());
             t.sections[0].value = str_builder;
             //println!("------------->Ora: {:?}", event.new_environmental_conditions.get_time_of_day_string());
@@ -30,8 +31,8 @@ pub fn update_day_time(
         if let Ok(mut t) = query.get_single_mut() {
             match event.new_environmental_conditions.get_time_of_day() {
                 DayTime::Morning => { t.sections[0].value = format!("    {:?}", DayTime::Morning); }
-                DayTime::Afternoon => { t.sections[0].value = format!("  {:?}", DayTime::Afternoon); }
-                DayTime::Night => { t.sections[0].value = format!("      {:?}", DayTime::Night); }
+                DayTime::Afternoon => { t.sections[0].value = format!(" {:?}", DayTime::Afternoon); }
+                DayTime::Night => { t.sections[0].value = format!("       {:?}", DayTime::Night); }
             }
             //println!("------------->DayTime: {:?}", event.new_environmental_conditions.get_time_of_day());
         }
