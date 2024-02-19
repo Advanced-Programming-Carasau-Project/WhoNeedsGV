@@ -3,11 +3,7 @@ use op_map::op_pathfinding::{get_best_action_to_element, OpActionInput, OpAction
 use robotics_lib::interface::{destroy, Direction, go, put, robot_map};
 use robotics_lib::interface::Direction::{Down, Left, Right, Up};
 use robotics_lib::runner::Runnable;
-<<<<<<< HEAD
 use robotics_lib::world::tile::Content::{Scarecrow};
-=======
-use robotics_lib::world::tile::Content::{Rock, Scarecrow, Tree};
->>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
 use robotics_lib::world::tile::TileType;
 use robotics_lib::world::tile::TileType::Lava;
 use robotics_lib::world::World;
@@ -27,36 +23,29 @@ impl LunaticRobot{
         else{
             let mut shopping_list = ShoppingList {
                 list: vec![
-                    (Rock(0), Some(OpActionInput::Destroy())),
+                    (Scarecrow, Some(OpActionInput::Destroy())),
                 ],
             };
 
-            while self.get_remaining_backpack_space() > 15 {
+            while self.get_remaining_backpack_space() > 0 {
                 let mut chicken_found = false;
                 while !chicken_found {
                     // Get the best move
                     match get_best_action_to_element(self, world, &mut shopping_list) {
                         None => {
-                            println!("no move from op_map found");
                             self.explore(world);
                             //if there are no chickens, I explore and then exit the routine
                             return;
                         }
                         Some(next_action) => {
-                            //println!("action found: {:?}", next_action);
+                            // println!("{:?}", &rand);
                             match next_action {
                                 OpActionOutput::Move(dir) => {
-                                    let res = go(self, world, dir);
-                                    if res.is_err(){
-                                        return;
-                                    }
+                                    go(self, world, dir);
                                 }
                                 OpActionOutput::Destroy(dir) => {
                                     // println!("Destroy");
-                                    let res = destroy(self, world, dir);
-                                    if res.is_err(){
-                                        return;
-                                    }
+                                    destroy(self, world, dir);
                                     chicken_found = true;
                                 }
                                 _ => {}
@@ -70,10 +59,8 @@ impl LunaticRobot{
                 let direction = lava_unwrap.2.clone();
                 self.move_to_coords(lava, world);
                 self.replenish();
-                let chicken_quantity = self.get_content_quantity(&Rock(0));
-                let res = put(self, world,Rock(0),chicken_quantity, direction);
-                println!("result put in lava: {:?}", res);
-                self.lava_coords = None;
+                let scarecrow_quantity = self.get_content_quantity(&Scarecrow);
+                put(self, world,Scarecrow,scarecrow_quantity, direction);
             }
 
 
@@ -82,14 +69,10 @@ impl LunaticRobot{
         }
     }
     pub fn search_lava(&mut self, world: &mut World) -> Option<(usize, usize, Direction)>{
-<<<<<<< HEAD
         //println!("looking for lava");
         //range where we are currently searching for the undiscovered tile
         let _range = 2usize;
 
-=======
-        println!("looking for lava");
->>>>>>> 4b0bba9901c58a77a23aa41facf1f605792df2f4
         let robot_x = self.get_coordinate().get_row();
         let robot_y = self.get_coordinate().get_col();
         //map as seen as the robot
